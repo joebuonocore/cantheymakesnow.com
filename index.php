@@ -163,7 +163,7 @@
                                     NO 😭
                                 <?php } ?>
                             </h1>
-                            <p class="text-center mt-4">Wet bulb is currently <?= number_format($wetBulb, 2, '.', ',') ?>&deg; C. Snow can be made when the wet bulb temperature is below &deg; C.</p>
+                            <p class="text-center mt-4">Wet bulb is currently <?= number_format($wetBulb, 2, '.', ',') ?>&deg; C. Snow can be made when the wet bulb temperature is below 0&deg; C.</p>
                             <?php if ($wetBulb < 0) { ?>
                                 <p class="text-center mt-2">Show this to resort staff if they tell you it's too warm to make snow 😉</p>
                             <?php } ?>
