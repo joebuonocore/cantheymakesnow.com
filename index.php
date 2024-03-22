@@ -139,8 +139,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="description" content="">
-        <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
-        <meta name="generator" content="Hugo 0.122.0">
+        <meta name="author" content="Joe Buonocore">
         <title>Can they make snow?</title>
         <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/starter-template/">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
