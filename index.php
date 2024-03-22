@@ -127,24 +127,7 @@
                     - atan($relativeHumidity - 1.676331)
                     + 0.00391838 * pow($relativeHumidity, 3/2) * atan(0.023101 * $relativeHumidity)
                     - 4.686035;
-
-
-                if( !isset($wetBulb)) {
-                    $answer = 'NO 😭';
-                }
-                else {
-                    if (number_format($wetBulb, 2, '.', ',') < 0) {
-                        $answer = 'YES 🎉';
-                    } else {
-                        $answer = 'NO 😭';
-                    }
-                }
-
-            } else {
-                echo 'Error communicating with NOAA API...';
             }
-        } else {
-            echo 'Error communicating with NOAA API...';
         }
     }
 ?>
@@ -173,10 +156,16 @@
             <main>
                 <div class="row">
                     <div class="col">
-                        <?php if ($has_coords == true && isset($answer)) { ?>
-                            <h1 class="text-center"><?= $answer ?></h1>
+                        <?php if ($has_coords == true && isset($wetBulb)) { ?>
+                            <h1 class="text-center">
+                                <?php if ($wetBulb < 0) { ?>
+                                    YES 🎉🎉🎉
+                                <?php } else { ?>
+                                    NO 😭
+                                <?php } ?>
+                            </h1>
                             <p class="text-center mt-4">Wet bulb is currently <?= number_format($wetBulb, 2, '.', ',') ?>&deg; C. Snow can be made when the wet bulb temperature is below &deg; C.</p>
-                            <?php if ($answer == 'YES 🎉') { ?>
+                            <?php if ($wetBulb < 0) { ?>
                                 <p class="text-center mt-2">Show this to resort staff if they tell you it's too warm to make snow 😉</p>
                             <?php } ?>
                         <?php } else { ?>
@@ -197,7 +186,7 @@
                 </div>
             </main>
             <footer class="pt-4 my-4 text-body-secondary text-center">
-                <p><a href="https://albrightlabs.com" target="_blank">Albright Labs</a> &nbsp;|&nbsp; <a href="https://instagram.com/joebuonocore" target="_blank">Instagram</a> &nbsp;|&nbsp; <a href="https://github.com/joebuonocore" target="_blank">Github</a></p>
+                <p><a href="https://instagram.com/joebuonocore" target="_blank">Instagram</a> &nbsp;|&nbsp; <a href="https://github.com/joebuonocore" target="_blank">Github</a></p>
                 <p class="mt-4">Created by ✋🏼 in the Pocono Mountains</p>
             </footer>
         </div>
