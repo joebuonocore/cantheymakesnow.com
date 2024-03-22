@@ -1,0 +1,2 @@
+# Can they make snow?
+This webpage looks at your latitude and longitude and retrieves the current temperature and relative humidity from NOAA and uses them to calculate the wet bulb temperature to determine if snow could be made where you stand.
