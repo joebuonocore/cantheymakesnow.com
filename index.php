@@ -134,7 +134,7 @@
 
 <!doctype html>
 <html lang="en" data-bs-theme="auto">
-    <head><script src="../assets/js/color-modes.js"></script>
+    <head><script src="https://getbootstrap.com/docs/5.3/assets/js/color-modes.js"></script>
 
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -156,13 +156,13 @@
                 <div class="row">
                     <div class="col">
                         <?php if ($has_coords == true && isset($wetBulb)) { ?>
-                            <h1 class="text-center">
+                            <h2 class="text-center">
                                 <?php if ($wetBulb < 0) { ?>
                                     YES 🎉🎉🎉
                                 <?php } else { ?>
                                     NO 😭
                                 <?php } ?>
-                            </h1>
+                            </h2>
                             <p class="text-center mt-4">Wet bulb is currently <?= number_format($wetBulb, 2, '.', ',') ?>&deg; C. Snow can be made when the wet bulb temperature is below 0&deg; C.</p>
                             <?php if ($wetBulb < 0) { ?>
                                 <p class="text-center mt-2">Show this to resort staff if they tell you it's too warm to make snow 😉</p>
@@ -178,14 +178,14 @@
                             <div class="card-body">
                                 <h4 class="card-title">How does this page work?</h4>
                                 <p class="card-text">This webpage looks at your latitude and longitude and retrieves the current temperature and relative humidity from NOAA and uses them to calculate the wet bulb temperature to determine if snow could be made where you stand.</p>
-                                <a href="https://github.com/joebuonocore/cantheymakesnow.com" target="_blank" class="card-link">View code on GitHub</a>
+                                <a href="https://github.com/joebuonocore/cantheymakesnow.com" target="_blank" class="card-link text-decoration-none">View code on GitHub</a>
                             </div>
                         </div>
                     </div>
                 </div>
             </main>
             <footer class="pt-4 my-4 text-body-secondary text-center">
-                <p><a href="https://instagram.com/joebuonocore" target="_blank">Instagram</a> &nbsp;|&nbsp; <a href="https://github.com/joebuonocore" target="_blank">Github</a></p>
+                <p><a href="https://instagram.com/joebuonocore" target="_blank" class="text-decoration-none">Instagram</a> &nbsp;|&nbsp; <a href="https://github.com/joebuonocore" target="_blank" class="text-decoration-none">Github</a></p>
                 <p class="mt-4">Created by ✋🏼 in the Pocono Mountains</p>
             </footer>
         </div>
