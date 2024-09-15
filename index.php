@@ -199,12 +199,19 @@
                         alert("Geolocation is not supported by this browser.");
                     }
                 }
+
                 function showPosition(position) {
                     var latitude = position.coords.latitude;
                     var longitude = position.coords.longitude;
 
-                    window.location.href = "?lat=" + latitude + "&lon=" + longitude;
+                    // Construct the new URL with query parameters
+                    var newUrl = `${window.location.origin}${window.location.pathname}?lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}`;
+
+                    // Redirect to the new URL
+                    window.location.href = newUrl;
                 }
+
+                // Call the function to get location and redirect
                 getLocation();
             </script>
         <?php } ?>
