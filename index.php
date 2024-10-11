@@ -147,23 +147,23 @@
     </head>
     <body>
         <div class="col-lg-8 mx-auto p-4">
-            <header class="d-block align-items-center pb-3 mb-5">
+            <header class="d-block align-items-center pb-2 mb-5">
                 <a href="/" class="d-block align-items-center text-body-emphasis text-decoration-none">
-                    <h1 class="text-center d-block">Can they make snow?</h1>
+                    <h1 class="mt-2 mb-0 text-center d-block">Can they make snow?</h1>
                 </a>
             </header>
             <main>
                 <div class="row">
                     <div class="col">
                         <?php if ($has_coords == true && isset($wetBulb)) { ?>
-                            <h2 class="h1 text-center" style="font-weight:800;">
+                            <h2 class="h1 text-center mt-0" style="font-weight:800;">
                                 <?php if ($wetBulb < 0) { ?>
                                     YES 🎉🎉🎉
                                 <?php } else { ?>
                                     NO 😭😭😭
                                 <?php } ?>
                             </h2>
-                            <p class="text-center mt-4">Wet bulb is currently <span style="font-weight:600"><?= number_format($wetBulb, 2, '.', ',') ?>&deg; Celsius</span>.</p>
+                            <p class="text-center mt-3">Wet bulb is currently <span style="font-weight:600"><?= number_format($wetBulb, 2, '.', ',') ?>&deg; Celsius</span>.</p>
                             <p class="text-center mt-2">Snow can be made when the wet bulb temperature is below 0&deg; Celsius.</p>
                         <?php } else { ?>
                             <p class="text-center mt-3">We need your location to provide an answer...</p>
@@ -171,8 +171,8 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col">
-                        <div class="card mx-auto my-5" style="max-width: 560px;">
+                    <div class="col mt-4 pt-4">
+                        <div class="card mx-auto" style="max-width: 560px;">
                             <div class="card-body">
                                 <h5 class="card-title">How does this webpage work?</h5>
                                 <p class="card-text">This webpage uses your latitude and longitude to retrieve the current temperature and relative humidity from NOAA and uses that data to calculate the wet bulb temperature to determine if artificial snow could be made at your location.</p>
@@ -182,9 +182,9 @@
                     </div>
                 </div>
             </main>
-            <footer class="pt-4 my-4 text-body-secondary text-center">
-                <p><a href="https://instagram.com/joebuonocore" target="_blank" class="text-decoration-none">Instagram</a> &nbsp;|&nbsp; <a href="https://github.com/joebuonocore" target="_blank" class="text-decoration-none">Github</a></p>
-                <p class="mt-4">Created by ✋🏼 in the Pocono Mountains</p>
+            <footer class="mt-4 pt-4 mb-2 text-body-secondary text-center">
+                <p class="mt-0 mb-0"><a href="https://instagram.com/joebuonocore" target="_blank" class="text-decoration-none">Instagram</a> &nbsp;|&nbsp; <a href="https://github.com/joebuonocore" target="_blank" class="text-decoration-none">Github</a></p>
+                <p class="mt-2">Created by ✋🏼 in the Pocono Mountains</p>
             </footer>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
