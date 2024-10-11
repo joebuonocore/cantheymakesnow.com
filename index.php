@@ -156,17 +156,15 @@
                 <div class="row">
                     <div class="col">
                         <?php if ($has_coords == true && isset($wetBulb)) { ?>
-                            <h2 class="text-center">
+                            <h2 class="h1 text-center" style="font-weight:800;">
                                 <?php if ($wetBulb < 0) { ?>
                                     YES 🎉🎉🎉
                                 <?php } else { ?>
-                                    NO 😭
+                                    NO 😭😭😭
                                 <?php } ?>
                             </h2>
-                            <p class="text-center mt-4">Wet bulb is currently <?= number_format($wetBulb, 2, '.', ',') ?>&deg; C. Snow can be made when the wet bulb temperature is below 0&deg; C.</p>
-                            <?php if ($wetBulb < 0) { ?>
-                                <p class="text-center mt-2">Show this to resort staff if they tell you it's too warm to make snow 😉</p>
-                            <?php } ?>
+                            <p class="text-center mt-4">Wet bulb is currently <span style="font-weight:600"><?= number_format($wetBulb, 2, '.', ',') ?>&deg; Celsius</span>.</p>
+                            <p class="text-center mt-2">Snow can be made when the wet bulb temperature is below 0&deg; Celsius.</p>
                         <?php } else { ?>
                             <p class="text-center mt-3">We need your location to provide an answer...</p>
                         <?php } ?>
@@ -176,9 +174,9 @@
                     <div class="col">
                         <div class="card mx-auto my-5" style="max-width: 560px;">
                             <div class="card-body">
-                                <h4 class="card-title">How does this page work?</h4>
-                                <p class="card-text">This webpage looks at your latitude and longitude and retrieves the current temperature and relative humidity from NOAA and uses them to calculate the wet bulb temperature to determine if snow could be made where you stand.</p>
-                                <a href="https://github.com/joebuonocore/cantheymakesnow.com" target="_blank" class="card-link text-decoration-none">View code on GitHub</a>
+                                <h5 class="card-title">How does this webpage work?</h5>
+                                <p class="card-text">This webpage uses your latitude and longitude to retrieve the current temperature and relative humidity from NOAA and uses that data to calculate the wet bulb temperature to determine if artificial snow could be made at your location.</p>
+                                <a href="https://github.com/joebuonocore/cantheymakesnow.com" target="_blank" class="card-link text-decoration-none">View the source code on GitHub</a>
                             </div>
                         </div>
                     </div>
