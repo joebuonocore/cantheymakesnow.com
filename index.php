@@ -158,7 +158,7 @@
                         <?php if ($has_coords == true && isset($wetBulb)) { ?>
                             <h2 class="h1 text-center mt-0" style="font-weight:800;">
                                 <?php if ($wetBulb < 0) { ?>
-                                    YES 🎉🎉🎉
+                                    YES ❄️🏂⛷️🎉
                                 <?php } else { ?>
                                     NO 😭😭😭
                                 <?php } ?>
