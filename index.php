@@ -156,7 +156,88 @@
                 animation-iteration-count:infinite;
                 animation-play-state:running;
             }
-            @keyframes snowflakes-fall{0%{transform:translateY(0)}100%{transform:translateY(110vh)}}@keyframes snowflakes-shake{0%,100%{transform:translateX(0)}50%{transform:translateX(80px)}}.snowflake{position:fixed;top:-10%;z-index:9999;-webkit-user-select:none;user-select:none;cursor:default;animation-name:snowflakes-shake;animation-duration:3s;animation-timing-function:ease-in-out}.snowflake .inner{animation-duration:10s;animation-name:snowflakes-fall;animation-timing-function:linear}.snowflake:nth-of-type(0){left:1%;animation-delay:0s}.snowflake:nth-of-type(0) .inner{animation-delay:0s}.snowflake:first-of-type{left:10%;animation-delay:1s}.snowflake:first-of-type .inner,.snowflake:nth-of-type(8) .inner{animation-delay:1s}.snowflake:nth-of-type(2){left:20%;animation-delay:.5s}.snowflake:nth-of-type(2) .inner,.snowflake:nth-of-type(6) .inner{animation-delay:6s}.snowflake:nth-of-type(3){left:30%;animation-delay:2s}.snowflake:nth-of-type(11) .inner,.snowflake:nth-of-type(3) .inner{animation-delay:4s}.snowflake:nth-of-type(4){left:40%;animation-delay:2s}.snowflake:nth-of-type(10) .inner,.snowflake:nth-of-type(4) .inner{animation-delay:2s}.snowflake:nth-of-type(5){left:50%;animation-delay:3s}.snowflake:nth-of-type(5) .inner{animation-delay:8s}.snowflake:nth-of-type(6){left:60%;animation-delay:2s}.snowflake:nth-of-type(7){left:70%;animation-delay:1s}.snowflake:nth-of-type(7) .inner{animation-delay:2.5s}.snowflake:nth-of-type(8){left:80%;animation-delay:0s}.snowflake:nth-of-type(9){left:90%;animation-delay:1.5s}.snowflake:nth-of-type(9) .inner{animation-delay:3s}.snowflake:nth-of-type(10){left:25%;animation-delay:0s}.snowflake:nth-of-type(11){left:65%;animation-delay:2.5s}
+            @keyframes snowflakes-fall {
+                0% {
+                    transform: translateY(0);
+                }
+                100% {
+                    transform: translateY(110vh);
+                }
+            }
+            @keyframes snowflakes-shake {
+                0%, 100% {
+                    transform: translateX(0);
+                }
+                50% {
+                    transform: translateX(80px);
+                }
+            }
+            .snowflake {
+                position: fixed;
+                top: -10%;
+                z-index: 9999;
+                -webkit-user-select: none;
+                user-select: none;
+                cursor: default;
+                animation-name: snowflakes-shake;
+                animation-duration: 3s;
+                animation-timing-function: ease-in-out;
+            }
+            .snowflake .inner {
+                animation-duration: 10s;
+                animation-name: snowflakes-fall;
+                animation-timing-function: linear;
+            }
+            .snowflake:nth-of-type(0) { left: 1%; animation-delay: 0s; }
+            .snowflake:first-of-type { left: 10%; animation-delay: 1s; }
+            .snowflake:nth-of-type(2) { left: 20%; animation-delay: 0.5s; }
+            .snowflake:nth-of-type(3) { left: 30%; animation-delay: 2s; }
+            .snowflake:nth-of-type(4) { left: 40%; animation-delay: 2s; }
+            .snowflake:nth-of-type(5) { left: 50%; animation-delay: 3s; }
+            .snowflake:nth-of-type(6) { left: 60%; animation-delay: 2s; }
+            .snowflake:nth-of-type(7) { left: 70%; animation-delay: 1s; }
+            .snowflake:nth-of-type(8) { left: 80%; animation-delay: 0s; }
+            .snowflake:nth-of-type(9) { left: 90%; animation-delay: 1.5s; }
+            .snowflake:nth-of-type(10) { left: 25%; animation-delay: 0s; }
+            .snowflake:nth-of-type(11) { left: 65%; animation-delay: 2.5s; }
+            .snowflake:nth-of-type(12) { left: 65%; animation-delay: 2.5s; }
+            .snowflake:nth-of-type(13) { left: 5%; animation-delay: 1.3s; }
+            .snowflake:nth-of-type(14) { left: 15%; animation-delay: 3.6s; }
+            .snowflake:nth-of-type(15) { left: 35%; animation-delay: 0.9s; }
+            .snowflake:nth-of-type(16) { left: 45%; animation-delay: 2.1s; }
+            .snowflake:nth-of-type(17) { left: 55%; animation-delay: 3.1s; }
+            .snowflake:nth-of-type(18) { left: 67%; animation-delay: 0.4s; }
+            .snowflake:nth-of-type(19) { left: 75%; animation-delay: 2.7s; }
+            .snowflake:nth-of-type(20) { left: 85%; animation-delay: 0.5s; }
+            .snowflake:nth-of-type(21) { left: 95%; animation-delay: 3.2s; }
+            .snowflake:nth-of-type(22) { left: 30%; animation-delay: 1.8s; }
+            .snowflake:nth-of-type(23) { left: 40%; animation-delay: 2.9s; }
+            .snowflake:nth-of-type(24) { left: 60%; animation-delay: 1.1s; }
+            .snowflake:nth-of-type(0) .inner,
+            .snowflake:nth-of-type(10) .inner,
+            .snowflake:nth-of-type(20) .inner { animation-delay: 0s; }
+            .snowflake:first-of-type .inner,
+            .snowflake:nth-of-type(11) .inner,
+            .snowflake:nth-of-type(21) .inner { animation-delay: 1s; }
+            .snowflake:nth-of-type(2) .inner,
+            .snowflake:nth-of-type(12) .inner,
+            .snowflake:nth-of-type(22) .inner { animation-delay: 6s; }
+            .snowflake:nth-of-type(3) .inner,
+            .snowflake:nth-of-type(23) .inner,
+            .snowflake:nth-of-type(13) .inner { animation-delay: 4s; }
+            .snowflake:nth-of-type(4) .inner,
+            .snowflake:nth-of-type(24) .inner,
+            .snowflake:nth-of-type(14) .inner { animation-delay: 2s; }
+            .snowflake:nth-of-type(5) .inner,
+            .snowflake:nth-of-type(15) .inner { animation-delay: 8s; }
+            .snowflake:nth-of-type(6) .inner,
+            .snowflake:nth-of-type(16) .inner { animation-delay: 7s; }
+            .snowflake:nth-of-type(7) .inner,
+            .snowflake:nth-of-type(17) .inner { animation-delay: 2.5s; }
+            .snowflake:nth-of-type(8) .inner,
+            .snowflake:nth-of-type(18) .inner { animation-delay: 1s; }
+            .snowflake:nth-of-type(9) .inner,
+            .snowflake:nth-of-type(19) .inner { animation-delay: 3s; }
         </style>
     </head>
     <body>
@@ -175,40 +256,76 @@
                                     YES ❄️🏂⛷️🎉
                                     <div class="snowflakes" aria-hidden="true">
                                         <div class="snowflake">
-                                            <div class="inner">❅</div>
+                                            <div class="inner">❄️</div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❅</div>
+                                            <div class="inner">❄️</div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❅</div>
+                                            <div class="inner">❄️</div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❅</div>
+                                            <div class="inner">❄️</div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❅</div>
+                                            <div class="inner">❄️</div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❅</div>
+                                            <div class="inner">❄️</div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❅</div>
+                                            <div class="inner">❄️</div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❅</div>
+                                            <div class="inner">❄️</div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❅</div>
+                                            <div class="inner">❄️</div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❅</div>
+                                            <div class="inner">❄️</div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❅</div>
+                                            <div class="inner">❄️</div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❅</div>
+                                            <div class="inner">❄️</div>
+                                        </div>
+                                        <div class="snowflake">
+                                            <div class="inner">❄️</div>
+                                        </div>
+                                        <div class="snowflake">
+                                            <div class="inner">❄️</div>
+                                        </div>
+                                        <div class="snowflake">
+                                            <div class="inner">❄️</div>
+                                        </div>
+                                        <div class="snowflake">
+                                            <div class="inner">❄️</div>
+                                        </div>
+                                        <div class="snowflake">
+                                            <div class="inner">❄️</div>
+                                        </div>
+                                        <div class="snowflake">
+                                            <div class="inner">❄️</div>
+                                        </div>
+                                        <div class="snowflake">
+                                            <div class="inner">❄️</div>
+                                        </div>
+                                        <div class="snowflake">
+                                            <div class="inner">❄️</div>
+                                        </div>
+                                        <div class="snowflake">
+                                            <div class="inner">❄️</div>
+                                        </div>
+                                        <div class="snowflake">
+                                            <div class="inner">❄️</div>
+                                        </div>
+                                        <div class="snowflake">
+                                            <div class="inner">❄️</div>
+                                        </div>
+                                        <div class="snowflake">
+                                            <div class="inner">❄️</div>
                                         </div>
                                     </div>
                                 <?php } else { ?>
@@ -226,7 +343,7 @@
                     <div class="col mt-4 pt-4">
                         <div class="card mx-auto" style="max-width: 560px;">
                             <div class="card-body">
-                                <h5 class="card-title">How does this webpage work?</h5>
+                                <h5 class="card-title">💡 &nbsp;How does this webpage work?</h5>
                                 <p class="card-text">This webpage uses your latitude and longitude to retrieve the current temperature and relative humidity from NOAA and uses that data to calculate the wet bulb temperature to determine if artificial snow could be made at your location.</p>
                                 <a href="https://github.com/joebuonocore/cantheymakesnow.com" target="_blank" class="card-link text-decoration-none">View the source code on GitHub</a>
                             </div>
