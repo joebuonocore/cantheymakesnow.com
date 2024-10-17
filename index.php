@@ -134,8 +134,8 @@
 
 <!doctype html>
 <html lang="en" data-bs-theme="auto">
-    <head><script src="https://getbootstrap.com/docs/5.3/assets/js/color-modes.js"></script>
-
+    <head>
+        <script src="https://getbootstrap.com/docs/5.3/assets/js/color-modes.js"></script>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="description" content="">
@@ -144,6 +144,20 @@
         <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/starter-template/">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+        <style>
+            .snowflake {
+                color: rgba(255,255,255,0.5);
+                font-size: 0.65em;
+                font-family: Arial, sans-serif;
+                text-shadow: 0 0 5px #000;
+            }
+            .snowflake,
+            .snowflake .inner {
+                animation-iteration-count:infinite;
+                animation-play-state:running;
+            }
+            @keyframes snowflakes-fall{0%{transform:translateY(0)}100%{transform:translateY(110vh)}}@keyframes snowflakes-shake{0%,100%{transform:translateX(0)}50%{transform:translateX(80px)}}.snowflake{position:fixed;top:-10%;z-index:9999;-webkit-user-select:none;user-select:none;cursor:default;animation-name:snowflakes-shake;animation-duration:3s;animation-timing-function:ease-in-out}.snowflake .inner{animation-duration:10s;animation-name:snowflakes-fall;animation-timing-function:linear}.snowflake:nth-of-type(0){left:1%;animation-delay:0s}.snowflake:nth-of-type(0) .inner{animation-delay:0s}.snowflake:first-of-type{left:10%;animation-delay:1s}.snowflake:first-of-type .inner,.snowflake:nth-of-type(8) .inner{animation-delay:1s}.snowflake:nth-of-type(2){left:20%;animation-delay:.5s}.snowflake:nth-of-type(2) .inner,.snowflake:nth-of-type(6) .inner{animation-delay:6s}.snowflake:nth-of-type(3){left:30%;animation-delay:2s}.snowflake:nth-of-type(11) .inner,.snowflake:nth-of-type(3) .inner{animation-delay:4s}.snowflake:nth-of-type(4){left:40%;animation-delay:2s}.snowflake:nth-of-type(10) .inner,.snowflake:nth-of-type(4) .inner{animation-delay:2s}.snowflake:nth-of-type(5){left:50%;animation-delay:3s}.snowflake:nth-of-type(5) .inner{animation-delay:8s}.snowflake:nth-of-type(6){left:60%;animation-delay:2s}.snowflake:nth-of-type(7){left:70%;animation-delay:1s}.snowflake:nth-of-type(7) .inner{animation-delay:2.5s}.snowflake:nth-of-type(8){left:80%;animation-delay:0s}.snowflake:nth-of-type(9){left:90%;animation-delay:1.5s}.snowflake:nth-of-type(9) .inner{animation-delay:3s}.snowflake:nth-of-type(10){left:25%;animation-delay:0s}.snowflake:nth-of-type(11){left:65%;animation-delay:2.5s}
+        </style>
     </head>
     <body>
         <div class="col-lg-8 mx-auto p-4">
@@ -159,6 +173,44 @@
                             <h2 class="h1 text-center mt-0" style="font-weight:800;">
                                 <?php if ($wetBulb < 0) { ?>
                                     YES ❄️🏂⛷️🎉
+                                    <div class="snowflakes" aria-hidden="true">
+                                        <div class="snowflake">
+                                            <div class="inner">❅</div>
+                                        </div>
+                                        <div class="snowflake">
+                                            <div class="inner">❅</div>
+                                        </div>
+                                        <div class="snowflake">
+                                            <div class="inner">❅</div>
+                                        </div>
+                                        <div class="snowflake">
+                                            <div class="inner">❅</div>
+                                        </div>
+                                        <div class="snowflake">
+                                            <div class="inner">❅</div>
+                                        </div>
+                                        <div class="snowflake">
+                                            <div class="inner">❅</div>
+                                        </div>
+                                        <div class="snowflake">
+                                            <div class="inner">❅</div>
+                                        </div>
+                                        <div class="snowflake">
+                                            <div class="inner">❅</div>
+                                        </div>
+                                        <div class="snowflake">
+                                            <div class="inner">❅</div>
+                                        </div>
+                                        <div class="snowflake">
+                                            <div class="inner">❅</div>
+                                        </div>
+                                        <div class="snowflake">
+                                            <div class="inner">❅</div>
+                                        </div>
+                                        <div class="snowflake">
+                                            <div class="inner">❅</div>
+                                        </div>
+                                    </div>
                                 <?php } else { ?>
                                     NO 😭😭😭
                                 <?php } ?>
