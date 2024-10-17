@@ -236,7 +236,8 @@
             </main>
             <footer class="mt-4 pt-4 mb-2 text-body-secondary text-center">
                 <p class="mt-0 mb-0"><a href="https://instagram.com/joebuonocore" target="_blank" class="text-decoration-none">Instagram</a> &nbsp;|&nbsp; <a href="https://github.com/joebuonocore" target="_blank" class="text-decoration-none">Github</a></p>
-                <p class="mt-2">Created by ✋🏼 in the Pocono Mountains</p>
+                <p class="mt-2">Made with&nbsp; ❤️ &nbsp;in the Pocono Mountains</p>
+                <p class="mt-4" style="font-size:80%;"><a href="https://albrightlabs.com" target="_blank" style="color:inherit; text-decoration:none;">&copy; <?= date('Y') ?> <u>Albright Labs LLC</u>. All Rights Reserved.</a></p>
             </footer>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
