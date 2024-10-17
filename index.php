@@ -135,6 +135,14 @@
 <!doctype html>
 <html lang="en" data-bs-theme="dark">
     <head>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-2QX58NHYF6"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-2QX58NHYF6');
+        </script>
         <script src="https://getbootstrap.com/docs/5.3/assets/js/color-modes.js"></script>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
