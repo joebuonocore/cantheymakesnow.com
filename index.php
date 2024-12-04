@@ -259,7 +259,7 @@
                 <div class="row">
                     <div class="col">
                         <?php if ($has_coords == true && isset($wetBulb)) { ?>
-                            <h2 class="h1 text-center mt-0" style="font-weight:800;">
+                            <h2 id="answerText" class="h1 text-center mt-0" style="font-weight:800;">
                                 <?php if ($wetBulb < 0) { ?>
                                     YES ❄️🏂⛷️🎉
                                     <div class="snowflakes" aria-hidden="true">
@@ -389,6 +389,19 @@
 
                 // Call the function to get location and redirect
                 getLocation();
+
+                document.addEventListener("DOMContentLoaded", function () {
+                    const answerElement = document.getElementById("answerText");
+                    if (answerElement) {
+                        const answerText = answerElement.textContent || answerElement.innerText;
+                        if (!answerText.includes("YES") && !answerText.includes("NO")) {
+                            // If neither "YES" nor "NO" is found, refresh the page
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 5000); // Optional: 5-second delay before refreshing
+                        }
+                    }
+                });
             </script>
         <?php } ?>
     </body>
