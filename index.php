@@ -147,10 +147,8 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="description" content="This webpage uses your latitude and longitude to retrieve the current temperature and relative humidity from NOAA and uses that data to calculate the wet bulb temperature to determine if artificial snow could be made at your location.">
-        <meta name="meta_description" content="This webpage uses your latitude and longitude to retrieve the current temperature and relative humidity from NOAA and uses that data to calculate the wet bulb temperature to determine if artificial snow could be made at your location.">
         <meta name="author" content="Joe Buonocore">
         <title>Can they make snow?</title>
-        <meta name="meta_title" content="Can they make snow?">
         <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/starter-template/">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
