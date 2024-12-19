@@ -146,23 +146,28 @@
         <script src="https://getbootstrap.com/docs/5.3/assets/js/color-modes.js"></script>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="">
+        <meta name="description" content="This webpage uses your latitude and longitude to retrieve the current temperature and relative humidity from NOAA and uses that data to calculate the wet bulb temperature to determine if artificial snow could be made at your location.">
+        <meta name="meta_description" content="This webpage uses your latitude and longitude to retrieve the current temperature and relative humidity from NOAA and uses that data to calculate the wet bulb temperature to determine if artificial snow could be made at your location.">
         <meta name="author" content="Joe Buonocore">
         <title>Can they make snow?</title>
+        <meta name="meta_title" content="Can they make snow?">
         <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/starter-template/">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+        <link rel="icon" type="image/x-icon" href="https://fav.farm/%E2%9D%84%EF%B8%8F">
         <style>
             .snowflake {
                 color: rgba(255,255,255,0.5);
                 font-size: 0.65em;
                 font-family: Arial, sans-serif;
-                text-shadow: 0 0 5px #000;
             }
             .snowflake,
             .snowflake .inner {
                 animation-iteration-count:infinite;
                 animation-play-state:running;
+            }
+            .rotate {
+                animation: rotation 2s infinite linear;
             }
             @keyframes snowflakes-fall {
                 0% {
@@ -178,6 +183,14 @@
                 }
                 50% {
                     transform: translateX(80px);
+                }
+            }
+            @keyframes rotation {
+                from {
+                    transform: rotate(0deg);
+                }
+                to {
+                    transform: rotate(359deg);
                 }
             }
             .snowflake {
@@ -264,76 +277,76 @@
                                     YES ❄️🏂⛷️🎉
                                     <div class="snowflakes" aria-hidden="true">
                                         <div class="snowflake">
-                                            <div class="inner">❄️</div>
+                                            <div class="inner"><div class="rotate">❄️</div></div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❄️</div>
+                                            <div class="inner"><div class="rotate">❄️</div></div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❄️</div>
+                                            <div class="inner"><div class="rotate">❄️</div></div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❄️</div>
+                                            <div class="inner"><div class="rotate">❄️</div></div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❄️</div>
+                                            <div class="inner"><div class="rotate">❄️</div></div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❄️</div>
+                                            <div class="inner"><div class="rotate">❄️</div></div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❄️</div>
+                                            <div class="inner"><div class="rotate">❄️</div></div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❄️</div>
+                                            <div class="inner"><div class="rotate">❄️</div></div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❄️</div>
+                                            <div class="inner"><div class="rotate">❄️</div></div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❄️</div>
+                                            <div class="inner"><div class="rotate">❄️</div></div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❄️</div>
+                                            <div class="inner"><div class="rotate">❄️</div></div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❄️</div>
+                                            <div class="inner"><div class="rotate">❄️</div></div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❄️</div>
+                                            <div class="inner"><div class="rotate">❄️</div></div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❄️</div>
+                                            <div class="inner"><div class="rotate">❄️</div></div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❄️</div>
+                                            <div class="inner"><div class="rotate">❄️</div></div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❄️</div>
+                                            <div class="inner"><div class="rotate">❄️</div></div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❄️</div>
+                                            <div class="inner"><div class="rotate">❄️</div></div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❄️</div>
+                                            <div class="inner"><div class="rotate">❄️</div></div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❄️</div>
+                                            <div class="inner"><div class="rotate">❄️</div></div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❄️</div>
+                                            <div class="inner"><div class="rotate">❄️</div></div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❄️</div>
+                                            <div class="inner"><div class="rotate">❄️</div></div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❄️</div>
+                                            <div class="inner"><div class="rotate">❄️</div></div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❄️</div>
+                                            <div class="inner"><div class="rotate">❄️</div></div>
                                         </div>
                                         <div class="snowflake">
-                                            <div class="inner">❄️</div>
+                                            <div class="inner"><div class="rotate">❄️</div></div>
                                         </div>
                                     </div>
                                 <?php } else { ?>
@@ -351,8 +364,8 @@
                     <div class="col mt-4 pt-4">
                         <div class="card mx-auto" style="max-width: 560px;">
                             <div class="card-body">
-                                <h5 class="card-title">💡 &nbsp;How does this webpage work?</h5>
-                                <p class="card-text">This webpage uses your latitude and longitude to retrieve the current temperature and relative humidity from NOAA and uses that data to calculate the wet bulb temperature to determine if artificial snow could be made at your location.</p>
+                                <h5 class="card-title"><span style="font-size:150%; line-height:1; position:relative; top:4px;">👉</span> &nbsp;How does this page work?</h5>
+                                <p class="card-text">We retrieve the temperature and relative humidity in your location from NOAA and use that data to calculate the wet bulb temperature.</p>
                                 <a href="https://github.com/joebuonocore/cantheymakesnow.com" target="_blank" class="card-link text-decoration-none">View the source code on GitHub</a>
                             </div>
                         </div>
