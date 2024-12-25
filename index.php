@@ -440,7 +440,7 @@
                                     <p class="h5 font-weight-normal mb-0">Want to look up another location?</p>
                                 </div>
                             </div>
-                            <form action="<?= $this_page_url ?>" method="GET" class="row justify-content-center mb-2">
+                            <form action="" method="GET" class="row justify-content-center mb-2">
                                 <div class="col-9 pe-lg-0">
                                     <label class="visually-hidden" for="address">City, State</label>
                                     <input type="text" name="address" id="address" placeholder="City, State" class="form-control rounded-0" value="<?php if (isset($_GET['address'])) { echo urldecode($_GET['address']); } ?>" />
