@@ -1,6 +1,11 @@
 <?php
+    // Config
+    $this_page_url = 'http://127.0.0.1/workspace/cantheymakesnow.com/';
+
+    // Default cords false
     $has_coords = false;
-    // make sure we have coordinates
+
+    // Check if we have coordinates
     if (isset($_GET['lat']) && isset($_GET['lon'])) {
         $has_coords = true;
 
@@ -118,16 +123,54 @@
                     }
                 }
 
-                // Convert relative humidity to fraction
-                $relativeHumidity = $relativeHumidity / 100;
+                // Ensure variable exists
+                if (isset($relativeHumidity)) {
+                    // Convert relative humidity to fraction
+                    $relativeHumidity = $relativeHumidity / 100;
 
-                // Calculate wet-bulb temperature
-                $wetBulb = $dryBulbTemp * atan(0.151977 * (sqrt($relativeHumidity + 8.313659)))
-                    + atan($dryBulbTemp + $relativeHumidity)
-                    - atan($relativeHumidity - 1.676331)
-                    + 0.00391838 * pow($relativeHumidity, 3/2) * atan(0.023101 * $relativeHumidity)
-                    - 4.686035;
+                    // Calculate wet-bulb temperature
+                    $wetBulb = $dryBulbTemp * atan(0.151977 * (sqrt($relativeHumidity + 8.313659)))
+                        + atan($dryBulbTemp + $relativeHumidity)
+                        - atan($relativeHumidity - 1.676331)
+                        + 0.00391838 * pow($relativeHumidity, 3 / 2) * atan(0.023101 * $relativeHumidity)
+                        - 4.686035;
+                }
             }
+        }
+    }
+    // Check if we have an address
+    elseif (isset($_GET['address']) && !empty($_GET['address'])) {
+        // Replace these with your actual values
+        $address = $_GET['address'];
+        $address = urlencode($address);
+        $apiKey = "AIzaSyAQmbymcYHIlQjiiOXxutV7iIxDqmabynI";
+
+        // Build the Geocoding API URL
+        $geocodeUrl = "https://maps.googleapis.com/maps/api/geocode/json?address={$address}&key={$apiKey}";
+
+        // Make the HTTP request to the Google Geocoding API
+        $response = file_get_contents($geocodeUrl);
+        if ($response === false) {
+            die("Error fetching geocoding data.");
+        }
+
+        // Decode the JSON response
+        $jsonData = json_decode($response, true);
+
+        // Check if the request was successful and has any results
+        if ($jsonData['status'] === 'OK' && count($jsonData['results']) > 0) {
+            $latitude = $jsonData['results'][0]['geometry']['location']['lat'];
+            $longitude = $jsonData['results'][0]['geometry']['location']['lng'];
+
+            // Construct the final URL with ?lat= and ?long=
+            $finalUrl = "{$this_page_url}?lat={$latitude}&lon={$longitude}&address={$address}";
+
+            // Redirect to the new URL
+            header("Location: {$finalUrl}");
+            // exit;
+        } else {
+            // Handle errors or zero results
+            die("Could not find coordinates for the provided address.");
         }
     }
 ?>
@@ -265,6 +308,12 @@
             .snowflake:nth-of-type(18) .inner { animation-delay: 1s; }
             .snowflake:nth-of-type(9) .inner,
             .snowflake:nth-of-type(19) .inner { animation-delay: 3s; }
+            .btn:active,
+            .btn:focus,
+            .form-control:active,
+            .form-control:focus {
+                box-shadow: none !important;
+            }
         </style>
     </head>
     <body>
@@ -362,8 +411,25 @@
                             <p class="text-center mt-3">Wet bulb is currently <span style="font-weight:600"><?= number_format($wetBulb, 2, '.', ',') ?>&deg; Celsius</span>.</p>
                             <p class="text-center mt-2">Snow can be made when the wet bulb temperature is below 0&deg; Celsius.</p>
                         <?php } else { ?>
-                            <p class="text-center mt-3">We need your location to provide an answer...</p>
+                            <p class="text-center text-danger">⚠️ &nbsp;We need a location to provide an answer!</p>
                         <?php } ?>
+
+                        <div style="max-width: 460px; margin: 0 auto;">
+                            <div class="row mt-4 pt-4 pb-3">
+                                <div class="col-12 text-center">
+                                    <p class="h5 font-weight-normal mb-0">Want to look up another location?</p>
+                                </div>
+                            </div>
+                            <form action="<?= $this_page_url ?>" method="GET" class="row justify-content-center mb-2">
+                                <div class="col-9 pe-lg-0">
+                                    <label class="visually-hidden" for="address">City, State</label>
+                                    <input type="text" name="address" id="address" placeholder="City, State" class="form-control rounded-0" value="<?php if (isset($_GET['address'])) { echo urldecode($_GET['address']); } ?>" />
+                                </div>
+                                <div class="col-3 ps-lg-0">
+                                    <button type="submit" class="btn btn-md btn-primary rounded-0 w-100">Submit</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
                 <div class="row">
@@ -371,7 +437,7 @@
                         <div class="card mx-auto" style="max-width: 560px;">
                             <div class="card-body">
                                 <h5 class="card-title"><span style="font-size:150%; line-height:1; position:relative; top:4px;">👉</span> &nbsp;How does this page work?</h5>
-                                <p class="card-text">We retrieve the temperature and relative humidity in your location from NOAA and use that data to calculate the wet bulb temperature.</p>
+                                <p class="card-text">We retrieve the temperature and relative humidity from NOAA and use that data to calculate the wet bulb temperature.</p>
                                 <a href="https://github.com/joebuonocore/cantheymakesnow.com" target="_blank" class="card-link text-decoration-none">View the source code on GitHub</a>
                             </div>
                         </div>
