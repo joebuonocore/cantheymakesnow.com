@@ -61,6 +61,8 @@
             if ($response_code === 200) {
                 $data = json_decode($response, true);
 
+//                print_r($response);
+
                 // Get temperatures for the current date
                 $temperatures = $data['properties']['temperature']['values'];
                 $currentTime = date('Y-m-d\T');
@@ -102,7 +104,7 @@
                     }
                 }
 
-                // Get humitiy for the current date
+                // Get humidity for the current date
                 $humidities = $data['properties']['relativeHumidity']['values'];
                 $currentTime = date('Y-m-d\TH:');
                 $matchedTimes = [];
