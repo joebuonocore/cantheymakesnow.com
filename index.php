@@ -1,6 +1,26 @@
 <?php
+
+    // Read environment
+    $envPath = __DIR__ . '/.env';
+    if (!file_exists($envPath)) {
+        die(".env file not found.");
+    }
+    $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0) {
+            continue;
+        }
+        $keyValue = explode('=', $line, 2);
+        if (count($keyValue) === 2) {
+            $key   = trim($keyValue[0]);
+            $value = trim($keyValue[1]);
+            $_ENV[$key] = $value;
+            putenv("$key=$value");
+        }
+    }
+
     // Config
-    $this_page_url = 'http://127.0.0.1/workspace/cantheymakesnow.com/';
+    $this_page_url = $_SERVER['HTTP_HOST'];
 
     // Default cords false
     $has_coords = false;
@@ -143,7 +163,7 @@
         // Replace these with your actual values
         $address = $_GET['address'];
         $address = urlencode($address);
-        $apiKey = "AIzaSyAQmbymcYHIlQjiiOXxutV7iIxDqmabynI";
+        $apiKey = getenv('GOOGLE_MAPS_API_KEY');
 
         // Build the Geocoding API URL
         $geocodeUrl = "https://maps.googleapis.com/maps/api/geocode/json?address={$address}&key={$apiKey}";
