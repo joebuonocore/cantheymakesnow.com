@@ -49,7 +49,7 @@
             $gridX = $data['properties']['gridX'];
             $gridY = $data['properties']['gridY'];
 
-            // Make the request to the API
+            // Make the request to the gridpoints API
             $curl = curl_init("https://api.weather.gov/gridpoints/{$gridId}/{$gridX},{$gridY}");
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($curl, CURLOPT_HTTPHEADER, ['User-Agent: Mozilla/5.0']);
@@ -61,94 +61,49 @@
             if ($response_code === 200) {
                 $data = json_decode($response, true);
 
-//                print_r($response);
-
-                // Get temperatures for the current date
                 $temperatures = $data['properties']['temperature']['values'];
-                $currentTime = date('Y-m-d\T');
-                $matchedTimes = [];
-                foreach ($temperatures as $item) {
-                    if (strpos($item['validTime'], $currentTime) !== false) {
-                        $matchedTimes[] = $item;
-                    }
-                }
-
-                // Get current UTC time
-                $currentTime = new DateTime('now', new DateTimeZone('UTC'));
-
-                // Initialize variables for closest time and difference
-                $closestTime = null;
-                $minDifference = PHP_INT_MAX;
-
-                // Loop through each validTime
-                foreach ($matchedTimes as $item) {
-                    // Parse validTime string to DateTime object
-                    $validTime = new DateTime(substr($item['validTime'], 0, 19)); // Extracting only the date and time part
-
-                    // Extract duration (in hours)
-                    $duration = intval(substr($item['validTime'], -4, -2)); // Extracting the duration part (e.g., PT2H)
-
-                    // Add duration to the validTime
-                    $validTime->modify("+" . $duration . " hour");
-
-                    // Calculate time difference
-                    $difference = abs($validTime->getTimestamp() - $currentTime->getTimestamp());
-
-                    // Check if the difference is smaller than the current minimum difference
-                    if ($difference < $minDifference) {
-                        // Update closest time and minimum difference
-                        $closestTime = $validTime;
-                        $minDifference = $difference;
-                        // Store the associated value of the closest time
-                        $dryBulbTemp = $item['value'];
-                    }
-                }
-
-                // Get humidity for the current date
                 $humidities = $data['properties']['relativeHumidity']['values'];
-                $currentTime = date('Y-m-d\TH:');
-                $matchedTimes = [];
-                foreach ($humidities as $item) {
-                    if (strpos($item['validTime'], $currentTime) !== false) {
-                        $matchedTimes[] = $item;
-                    }
-                }
 
                 // Get current UTC time
                 $currentTime = new DateTime('now', new DateTimeZone('UTC'));
 
-                // Initialize variables for closest time and difference
-                $closestTime = null;
-                $minDifference = PHP_INT_MAX;
+                // Function to find the closest time
+                function findClosestTime($values, $currentTime) {
+                    $closestTime = null;
+                    $minDifference = PHP_INT_MAX;
+                    $valueAtClosestTime = null;
 
-                // Loop through each validTime
-                foreach ($matchedTimes as $item) {
-                    // Parse validTime string to DateTime object
-                    $validTime = new DateTime(substr($item['validTime'], 0, 19)); // Extracting only the date and time part
+                    foreach ($values as $item) {
+                        // Parse validTime string to DateTime object
+                        $validTime = new DateTime(substr($item['validTime'], 0, 19)); // Extracting only the date and time part
 
-                    // Extract duration (in hours)
-                    $duration = intval(substr($item['validTime'], -4, -2)); // Extracting the duration part (e.g., PT2H)
+                        // Extract duration (in hours)
+                        if (preg_match('/PT(\d+)H/', $item['validTime'], $matches)) {
+                            $duration = (int)$matches[1];
+                            $validTime->modify("+" . $duration . " hour");
+                        }
 
-                    // Add duration to the validTime
-                    $validTime->modify("+" . $duration . " hour");
+                        // Calculate time difference
+                        $difference = abs($validTime->getTimestamp() - $currentTime->getTimestamp());
 
-                    // Calculate time difference
-                    $difference = abs($validTime->getTimestamp() - $currentTime->getTimestamp());
-
-                    // Check if the difference is smaller than the current minimum difference
-                    if ($difference < $minDifference) {
-                        // Update closest time and minimum difference
-                        $closestTime = $validTime;
-                        $minDifference = $difference;
-                        // Store the associated value of the closest time
-                        $relativeHumidity = $item['value'];
+                        // Check if this is the closest time
+                        if ($difference < $minDifference) {
+                            $closestTime = $validTime;
+                            $minDifference = $difference;
+                            $valueAtClosestTime = $item['value'];
+                        }
                     }
+
+                    return ['time' => $closestTime, 'value' => $valueAtClosestTime];
                 }
 
-                // Ensure variable exists
-                if (isset($relativeHumidity)) {
-                    // Convert relative humidity to fraction
-                    $relativeHumidity = $relativeHumidity / 100;
+                // Find closest temperature and humidity
+                $closestTemperature = findClosestTime($temperatures, $currentTime);
+                $closestHumidity = findClosestTime($humidities, $currentTime);
+
+                if ($closestTemperature['value'] !== null && $closestHumidity['value'] !== null) {
+                    $dryBulbTemp = $closestTemperature['value'];
+                    $relativeHumidity = $closestHumidity['value'] / 100;
 
                     // Calculate wet-bulb temperature
                     $wetBulb = $dryBulbTemp * atan(0.151977 * (sqrt($relativeHumidity + 8.313659)))
@@ -160,7 +115,8 @@
             }
         }
     }
-    // Check if we have an address
+
+// Check if we have an address
     elseif (isset($_GET['address']) && !empty($_GET['address'])) {
         // Replace these with your actual values
         $address = $_GET['address'];
@@ -430,7 +386,7 @@
                                     NO 😭😭😭
                                 <?php } ?>
                             </h2>
-                            <p class="text-center mt-3">Wet bulb is currently <span style="font-weight:600"><?= number_format($wetBulb, 2, '.', ',') ?>&deg; Celsius</span>.</p>
+                            <p class="text-center mt-3">Wet bulb is currently <span style="font-weight:600"><?= number_format($wetBulb, 2, '.', ',') ?>&deg; Celsius</span><?php if (isset($_GET['address'])) { echo ' in <span style="font-weight:600">'.urldecode($_GET['address']).'</span>'; } ?>.</p>
                             <p class="text-center mt-2">Snow can be made when the wet bulb temperature is below 0&deg; Celsius.</p>
                         <?php } else { ?>
                             <p class="text-center text-danger">⚠️ &nbsp;We need a location to provide an answer!</p>
