@@ -19,19 +19,41 @@
         }
     }
 
-    // Config
+    // Get page URL
     $this_page_url = $_SERVER['HTTP_HOST'];
 
     // Default cords false
     $has_coords = false;
 
-    // Check if we have coordinates
+    // Check if there are coordinates in the URL
     if (isset($_GET['lat']) && isset($_GET['lon'])) {
         $has_coords = true;
 
         // Specify the location for which you want to get the weather (latitude and longitude)
         $latitude = number_format($_GET['lat'], 2, '.', ',');
         $longitude = number_format($_GET['lon'], 2, '.', ',');
+
+        function customRound($number) {
+            // Round to 2 decimal places
+            $rounded = round($number, 2);
+
+            // Convert to string to manipulate the decimal part
+            $roundedString = number_format($rounded, 2, '.', '');
+
+            // Check if the last digit is 0
+            if (substr($roundedString, -1) === '0') {
+                // If the number is positive, add 0.01; if negative, subtract 0.01
+                $adjusted = $rounded > 0 ? $rounded + 0.01 : $rounded - 0.01;
+                // Round again to ensure it stays at 2 decimal places
+                return round($adjusted, 2);
+            }
+
+            // If the last digit is not 0, return as is
+            return $rounded;
+        }
+
+        $latitude = customRound($latitude);
+        $longitude = customRound($longitude);
 
         // Make the request to the API
         $curl = curl_init("https://api.weather.gov/points/{$latitude},{$longitude}");
@@ -41,8 +63,17 @@
         $response_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
 
-        // Check if the request was successful (status code 200)
-        if ($response_code === 200) {
+        // Decode JSON into PHP array
+        $location_data = json_decode($response, true);
+        // Extract city and state
+        $current_city = $location_data['properties']['relativeLocation']['properties']['city'];
+        $current_state = $location_data['properties']['relativeLocation']['properties']['state'];
+        // Output the city and state
+        //echo "City: $current_city\n";
+        //echo "State: $current_state\n";
+
+        // Check if the request was successful (status code 200, 301)
+        if (in_array($response_code, [200, 301])) {
             $data = json_decode($response, true);
 
             $gridId = $data['properties']['gridId'];
@@ -57,8 +88,8 @@
             $response_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             curl_close($curl);
 
-            // Check if the request was successful (status code 200)
-            if ($response_code === 200) {
+            // Check if the request was successful (status code 200, 301)
+            if (in_array($response_code, [200, 301])) {
                 $data = json_decode($response, true);
 
                 $temperatures = $data['properties']['temperature']['values'];
@@ -116,7 +147,7 @@
         }
     }
 
-// Check if we have an address
+    // Check if there is an address in the URL
     elseif (isset($_GET['address']) && !empty($_GET['address'])) {
         // Replace these with your actual values
         $address = $_GET['address'];
@@ -129,7 +160,7 @@
         // Make the HTTP request to the Google Geocoding API
         $response = file_get_contents($geocodeUrl);
         if ($response === false) {
-            die("Error fetching geocoding data.");
+            die("The Google Maps API seems to be offline, so we can't translate locations names to latitude and longitude right now. Please try again later.");
         }
 
         // Decode the JSON response
@@ -140,7 +171,7 @@
             $latitude = $jsonData['results'][0]['geometry']['location']['lat'];
             $longitude = $jsonData['results'][0]['geometry']['location']['lng'];
 
-            // Construct the final URL with ?lat= and ?long=
+            // Construct the final URL with ?lat= and ?lon=
             $finalUrl = "{$this_page_url}?lat={$latitude}&lon={$longitude}&address={$address}";
 
             // Redirect to the new URL
@@ -148,7 +179,7 @@
             // exit;
         } else {
             // Handle errors or zero results
-            die("Could not find coordinates for the provided address.");
+            die("The Google Maps API could not convert that location name to latitude and longitude. Please go back and enter a different location.");
         }
     }
 ?>
@@ -386,7 +417,7 @@
                                     NO 😭😭😭
                                 <?php } ?>
                             </h2>
-                            <p class="text-center mt-3">Wet bulb is currently <span style="font-weight:600"><?= number_format($wetBulb, 2, '.', ',') ?>&deg; Celsius</span><?php if (isset($_GET['address'])) { echo ' in <span style="font-weight:600">'.urldecode($_GET['address']).'</span>'; } ?>.</p>
+                            <p class="text-center mt-3">Wet bulb is currently <span style="font-weight:600"><?= number_format($wetBulb, 2, '.', ',') ?>&deg; Celsius</span><?php if (isset($current_city) && isset($current_state)) { echo ' in <span style="font-weight:600">'.$current_city.', '.$current_state.'</span>'; } ?>.</p>
                             <p class="text-center mt-2">Snow can be made when the wet bulb temperature is below 0&deg; Celsius.</p>
                         <?php } else { ?>
                             <p class="text-center text-danger">⚠️ &nbsp;We need a location to provide an answer!</p>
@@ -398,10 +429,10 @@
                                     <p class="h5 font-weight-normal mb-0">Want to look up another location?</p>
                                 </div>
                             </div>
-                            <form action="" method="GET" class="row justify-content-center mb-2">
+                            <form action="/" method="GET" class="row justify-content-center mb-2">
                                 <div class="col-9 pe-lg-0">
                                     <label class="visually-hidden" for="address">City, State</label>
-                                    <input type="text" name="address" id="address" placeholder="City, State" class="form-control rounded-0" value="<?php if (isset($_GET['address'])) { echo urldecode($_GET['address']); } ?>" />
+                                    <input type="text" name="address" id="address" placeholder="City, State" class="form-control rounded-0" value="<?php if (isset($current_city) && isset($current_state)) { echo $current_city.', '.$current_state; } ?>" />
                                 </div>
                                 <div class="col-3 ps-lg-0">
                                     <button type="submit" class="btn btn-md btn-primary rounded-0 w-100">Submit</button>
