@@ -2,33 +2,35 @@ description = "Default layout"
 ==
 <!doctype html>
 <html lang="en">
-  <head>
-    <title>{{ this.page.meta_title }} - {{ this.theme.app_name }}</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="{{ this.page.meta_description }}">
-    <meta name="title" content="{{ this.page.meta_title }}">
-    <meta name="author" content="{{ this.theme.config.author }}">
-    <link rel="icon" type="image/png" href="{{ 'assets/images/favicon.ico'|theme }}">
-    <link rel="stylesheet" href="{{ 'assets/css/app.css'|theme }}">
-    {% styles %}
-    <script type="text/javascript" src="{{ 'assets/js/manifest.js'|theme }}"></script>
-    <script type="text/javascript" src="{{ 'assets/js/vendor.js'|theme }}"></script>
-    <script type="text/javascript" src="{{ 'assets/js/app.js'|theme }}"></script>
-    {% framework extras turbo %}
-    {% scripts %}
-  </head>
-  <body class="app {{ 'layout-'~this.layout.id }} {{ 'page-'~this.page.id }}">
-    <div class="app-container">
-      <header id="app-header" class="app-header">
-        {% partial 'app/header' %}
-      </header>
-      <main id="app-content" class="app-content" role="main">
-        {% partial 'app/content' %}
-      </main>
-      <footer id="app-footer" class="app-footer">
-        {% partial 'app/footer' %}
-      </footer>
-    </div>
-  </body>
+    <head>
+        <title>{{ this.page.meta_title }} - {{ this.theme.app_name }}</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="{{ this.page.meta_description }}" />
+        <meta name="title" content="{{ this.page.meta_title }}" />
+        <meta name="author" content="Joe Buonocore" />
+        <link rel="stylesheet" href="{{ 'assets/css/app.css'|theme }}" />
+        <link rel="stylesheet" href="{{ 'assets/css/custom.css'|theme }}" />
+        {% styles %}
+        <script type="text/javascript" src="{{ 'assets/js/manifest.js'|theme }}"></script>
+        <script type="text/javascript" src="{{ 'assets/js/vendor.js'|theme }}"></script>
+        <script type="text/javascript" src="{{ 'assets/js/app.js'|theme }}"></script>
+
+        <link rel="icon" type="image/x-icon" href="https://fav.farm/%E2%9D%84%EF%B8%8F">
+    </head>
+    <body class="app {{ 'layout-'~this.layout.id }} {{ 'page-'~this.page.id }}">
+        
+        <div class="app-container">
+            {% partial 'header' %}
+
+            <div class="col-lg-8 mx-auto p-4">
+                {% page %}
+            </div>
+            
+            {% partial 'footer' %}
+        </div>
+
+        {% framework extras turbo %}
+        {% scripts %}
+    </body>
 </html>
