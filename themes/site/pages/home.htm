@@ -13,16 +13,14 @@ meta_description = "This webpage uses your latitude and longitude to retrieve th
     {# Removing header #}
 {% endput %}
 
-{% put footer %}
-    {# Removing footer #}
-{% endput %}
+
 
 {% if snow %}
     {% partial 'snow' %}
 {% endif %}
 
-<div class=".flex-1 .grid .grid-cols-2">
-    <main class="{{ not locations|length ? '.col-span-2' }}">
+<div class="lg:.flex-1 lg:.grid lg:.grid-cols-2 lg:.gap-x-6">
+    <main class="lg:.col-span-1 .px-4 lg:.px-0">
         {% partial 'header' %}
 
         <div class="row">
@@ -73,15 +71,25 @@ meta_description = "This webpage uses your latitude and longitude to retrieve th
     </main>
     
     {% if locations|length %}
-        <aside class=".bg-red-400 .w-full">
+        <aside class=".bg-gray-100 .w-full lg:.col-span-1">
             {% partial 'map' %}
         </aside>
     {% endif %}
+
+
+    <div class=".hidden lg:.col-span-2 .bg-blue-100 lg:.flex .items-center .justify-center .text-center .p-0">
+        {% partial 'footer' %}
+    </div>
 </div>
 
-<div class=".py-6 .bg-blue-100 .flex .items-center .justify-center .text-center">
-    {% partial 'footer' %}
-</div>
+{% put footer %}
+    <div class=".flex .bg-blue-100 .items-center .justify-center .text-center lg:.hidden .py-4">
+        {% partial 'footer' %}
+    </div>
+{% endput %}
+
+<div class=".hidden .grid-cols-1 lg:.grid-cols-2"></div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 

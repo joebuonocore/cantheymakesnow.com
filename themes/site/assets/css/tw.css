@@ -110,8 +110,20 @@
   grid-column: span 2 / span 2
 }
 
+.\.m-0 {
+  margin: 0px
+}
+
 .\.mt-2 {
   margin-top: 0.5rem
+}
+
+.\.mt-5 {
+  margin-top: 1.25rem
+}
+
+.\.block {
+  display: block
 }
 
 .\.flex {
@@ -122,8 +134,28 @@
   display: grid
 }
 
+.\.hidden {
+  display: none
+}
+
 .\.h-screen {
   height: 100vh
+}
+
+.\.max-h-28 {
+  max-height: 7rem
+}
+
+.\.max-h-24 {
+  max-height: 6rem
+}
+
+.\.min-h-72 {
+  min-height: 18rem
+}
+
+.\.min-h-80 {
+  min-height: 20rem
 }
 
 .\.w-full {
@@ -138,6 +170,14 @@
   grid-template-columns: repeat(2, minmax(0, 1fr))
 }
 
+.\.grid-cols-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr))
+}
+
+.\.flex-row {
+  flex-direction: row
+}
+
 .\.flex-col {
   flex-direction: column
 }
@@ -150,6 +190,19 @@
   justify-content: center
 }
 
+.\.gap-6 {
+  gap: 1.5rem
+}
+
+.\.gap-x-6 {
+  -moz-column-gap: 1.5rem;
+       column-gap: 1.5rem
+}
+
+.\.gap-y-6 {
+  row-gap: 1.5rem
+}
+
 .\.bg-blue-100 {
   --tw-bg-opacity: 1;
   background-color: rgb(219 234 254 / var(--tw-bg-opacity, 1))
@@ -160,11 +213,86 @@
   background-color: rgb(248 113 113 / var(--tw-bg-opacity, 1))
 }
 
+.\.bg-gray-100 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(243 244 246 / var(--tw-bg-opacity, 1))
+}
+
+.\.p-0 {
+  padding: 0px
+}
+
 .\.py-6 {
   padding-top: 1.5rem;
   padding-bottom: 1.5rem
 }
 
+.\.py-4 {
+  padding-top: 1rem;
+  padding-bottom: 1rem
+}
+
+.\.px-4 {
+  padding-left: 1rem;
+  padding-right: 1rem
+}
+
 .\.text-center {
   text-align: center
+}
+
+@media (min-width: 1024px) {
+  .lg\:\.col-span-2 {
+    grid-column: span 2 / span 2
+  }
+
+  .lg\:\.col-span-1 {
+    grid-column: span 1 / span 1
+  }
+
+  .lg\:\.mt-0 {
+    margin-top: 0px
+  }
+
+  .lg\:\.flex {
+    display: flex
+  }
+
+  .lg\:\.grid {
+    display: grid
+  }
+
+  .lg\:\.hidden {
+    display: none
+  }
+
+  .lg\:\.h-screen {
+    height: 100vh
+  }
+
+  .lg\:\.flex-1 {
+    flex: 1 1 0%
+  }
+
+  .lg\:\.grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr))
+  }
+
+  .lg\:\.flex-col {
+    flex-direction: column
+  }
+
+  .lg\:\.gap-x-6 {
+    -moz-column-gap: 1.5rem;
+         column-gap: 1.5rem
+  }
+
+  .lg\:\.gap-y-0 {
+    row-gap: 0px
+  }
+
+  .lg\:\.px-0 {
+    padding-left: 0px;
+    padding-right: 0px
+  }
 }
