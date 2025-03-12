@@ -46,6 +46,7 @@ class Plugin extends PluginBase
     {
         return [
             'AlbrightLabs\CanTheyMakeSnow\Components\WeatherData' => 'WeatherData',
+            'AlbrightLabs\CanTheyMakeSnow\Components\Locations' => 'Locations',
         ];
     }
 

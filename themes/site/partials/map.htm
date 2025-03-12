@@ -1,0 +1,45 @@
+##
+description = "map partial"
+==
+<div id="map" style="width: 100%; height: 100%;"></div>
+
+<script>
+    async function initMap() {
+        const map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 3,
+            center: { lat: 39.8283, lng: -98.5795 },
+            mapTypeId: 'roadmap'
+        });
+
+        const locations = [
+            {% for location in locations %}
+            { city: "{{ location.city }}", state: "{{ location.state }}" },
+            {% endfor %}
+        ];
+
+        for (const location of locations) {
+            const position = await getLatLng(location.city, location.state);
+            if (position) {
+                new google.maps.Marker({
+                    position: position,
+                    map: map,
+                    title: `${location.city}, ${location.state}`
+                });
+            }
+        }
+    }
+
+    async function getLatLng(city, state) {
+        const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${city},${state}&key={{ env('GOOGLE_MAPS_API_KEY') }}`);
+        const data = await response.json();
+        if (data.results && data.results.length > 0) {
+            return data.results[0].geometry.location;
+        }
+        return null;
+    }
+
+    window.initMap = initMap;
+</script>
+
+<script async src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&callback=initMap">
+</script>
