@@ -1,0 +1,31 @@
+# ===================================
+#  Form Behavior Config
+# ===================================
+
+# Record name
+name: Location
+
+# Model Form Field configuration
+form: $/albrightlabs/cantheymakesnow/models/location/fields.yaml
+
+# Model Class name
+modelClass: AlbrightLabs\CanTheyMakeSnow\Models\Location
+
+# Default redirect location
+defaultRedirect: albrightlabs/cantheymakesnow/locations
+
+# Create page
+create:
+    title: backend::lang.form.create_title
+    redirect: albrightlabs/cantheymakesnow/locations/update/:id
+    redirectClose: albrightlabs/cantheymakesnow/locations
+
+# Update page
+update:
+    title: backend::lang.form.update_title
+    redirect: albrightlabs/cantheymakesnow/locations
+    redirectClose: albrightlabs/cantheymakesnow/locations
+
+# Preview page
+preview:
+    title: backend::lang.form.preview_title
