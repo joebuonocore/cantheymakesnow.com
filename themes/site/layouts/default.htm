@@ -156,18 +156,13 @@ description = "Default layout"
         {% styles %}
     </head>
     <body>
-        <div class="lg:.h-screen .flex .flex-col">
-            {% placeholder header default %}
-                {% partial 'header' %}
-            {% endplaceholder %}
-            
-            {% page %}
-            
-            {% placeholder footer default %}
-                {% partial 'footer' %}
-            {% endplaceholder %}
-        </div>
 
+        {% placeholder header %}
+
+        {% page %}
+
+        {% placeholder footer %}
+        
         {% framework extras turbo %}
         {% scripts %}
     </body>

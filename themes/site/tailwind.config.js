@@ -8,7 +8,6 @@ module.exports = {
         preflight: false,
     },
     prefix: '.',
-    darkMode: 'class',
     content: ["./**/*.htm"],
     safelist: [
         '.col-span-2'
