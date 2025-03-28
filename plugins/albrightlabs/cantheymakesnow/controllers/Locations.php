@@ -37,6 +37,6 @@ class Locations extends Controller
     {
         parent::__construct();
 
-        BackendMenu::setContext('AlbrightLabs.CanTheyMakeSnow', 'cantheymakesnow', 'locations');
+        BackendMenu::setContext('AlbrightLabs.CanTheyMakeSnow', 'locations');
     }
 }
