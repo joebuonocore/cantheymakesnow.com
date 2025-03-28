@@ -17,8 +17,8 @@ class Plugin extends PluginBase
     {
         return [
             'name' => 'CanTheyMakeSnow',
-            'description' => '...',
-            'author' => 'AlbrightLabs',
+            'description' => 'A base plugin for cantheymakesnow.com that tracks lookup locations.',
+            'author' => 'Albright Labs LLC',
             'icon' => 'icon-snowflake'
         ];
     }

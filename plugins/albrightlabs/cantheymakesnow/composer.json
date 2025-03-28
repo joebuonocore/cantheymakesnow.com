@@ -1,7 +1,7 @@
 {
     "name": "albrightlabs/cantheymakesnow-plugin",
     "type": "october-plugin",
-    "description": "No description provided yet...",
+    "description": "A base plugin for cantheymakesnow.com that tracks lookup locations.",
     "require": {
         "composer/installers": "~1.0"
     }
