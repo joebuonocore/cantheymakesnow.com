@@ -130,10 +130,6 @@
   display: grid
 }
 
-.\.h-28 {
-  height: 7rem
-}
-
 .\.h-48 {
   height: 12rem
 }
@@ -190,11 +186,6 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  .dark\:\.bg-\[red\] {
-    --tw-bg-opacity: 1;
-    background-color: rgb(255 0 0 / var(--tw-bg-opacity, 1))
-  }
-
   .dark\:\.bg-\[\#32393f\] {
     --tw-bg-opacity: 1;
     background-color: rgb(50 57 63 / var(--tw-bg-opacity, 1))
