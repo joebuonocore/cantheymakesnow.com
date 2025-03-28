@@ -2,7 +2,7 @@ url = "/"
 layout = "default"
 title = "Home"
 description = "Home page"
-meta_title = "Can they make snow?"
+meta_title = "Home"
 meta_description = "This webpage uses your latitude and longitude to retrieve the current temperature and relative humidity from NOAA and uses that data to calculate the wet bulb temperature to determine if artificial snow could be made at your location."
 
 [WeatherData]
@@ -18,7 +18,7 @@ meta_description = "This webpage uses your latitude and longitude to retrieve th
 <div class=".h-screen .flex .flex-col">
     <div class=".flex-1 .grid .grid-cols-1 lg:.grid-cols-2">
         <div class=".flex .flex-col .p-4 lg:px-0">
-            
+
             {% partial 'header' %}
 
             <div class="row">
@@ -36,7 +36,7 @@ meta_description = "This webpage uses your latitude and longitude to retrieve th
                     {% else %}
                         <p class="text-center text-danger">⚠️ &nbsp;We need a location to provide an answer!</p>
                     {% endif %}
-                    
+
                     <div style="max-width: 460px; margin: 0 auto;">
                         <div class="row mt-4 pt-4 pb-3">
                             <div class="col-12 text-center">
