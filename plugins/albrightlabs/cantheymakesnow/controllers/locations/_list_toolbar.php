@@ -1,15 +1,7 @@
 <div data-control="toolbar loader-container">
-    <a
-        href="<?= Backend::url('albrightlabs/cantheymakesnow/locations/create') ?>"
-        class="btn btn-primary">
-        <i class="icon-plus"></i>
-        <?= __("New :name", ['name' => 'Location']) ?>
-    </a>
-
-    <div class="toolbar-divider"></div>
-
     <button
         class="btn btn-secondary"
+        disabled="disabled"
         data-request="onDelete"
         data-request-message="<?= __("Deleting...") ?>"
         data-request-confirm="<?= __("Are you sure?") ?>"
