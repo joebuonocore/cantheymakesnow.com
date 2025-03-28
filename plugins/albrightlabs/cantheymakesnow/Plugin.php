@@ -71,8 +71,8 @@ class Plugin extends PluginBase
     public function registerNavigation()
     {
         return [
-            'cantheymakesnow' => [
-                'label' => 'CanTheyMakeSnow',
+            'locations' => [
+                'label' => 'Locations',
                 'url' => Backend::url('albrightlabs/cantheymakesnow/locations'),
                 'icon' => 'icon-snowflake-o',
                 'permissions' => ['*'],
