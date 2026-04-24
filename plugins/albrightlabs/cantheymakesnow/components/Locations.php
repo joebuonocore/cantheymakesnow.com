@@ -37,6 +37,10 @@ class Locations extends ComponentBase
 
     public function getLocations()
     {
-        return Location::all();
+        return Location::whereNotNull('lat')
+            ->whereNotNull('lon')
+            ->orderByDesc('lookups')
+            ->limit(500)
+            ->get(['city', 'state', 'lat', 'lon', 'lookups']);
     }
 }

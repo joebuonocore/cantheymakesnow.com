@@ -1,45 +1,46 @@
 ##
 description = "map partial"
 ==
-<div id="map" class=".min-h-96" style="width: 100%; height: 100%;"></div>
+<div id="map" class="screen__map-canvas" style="width: 100%; height: 100%;"></div>
 
 <script>
-    async function initMap() {
+    window.__snowLocations = [
+        {% for location in locations %}
+        { city: {{ location.city|json_encode|raw }}, state: {{ location.state|json_encode|raw }}, lat: {{ location.lat }}, lng: {{ location.lon }} },
+        {% endfor %}
+    ];
+
+    function initMap() {
         const map = new google.maps.Map(document.getElementById('map'), {
             zoom: 3,
             center: { lat: 39.8283, lng: -98.5795 },
             mapTypeId: 'roadmap'
         });
 
-        const locations = [
-            {% for location in locations %}
-            { city: "{{ location.city }}", state: "{{ location.state }}" },
-            {% endfor %}
-        ];
+        const bounds = new google.maps.LatLngBounds();
+        let markerCount = 0;
 
-        for (const location of locations) {
-            const position = await getLatLng(location.city, location.state);
-            if (position) {
-                new google.maps.Marker({
-                    position: position,
-                    map: map,
-                    title: `${location.city}, ${location.state}`
-                });
-            }
+        for (const location of window.__snowLocations) {
+            const position = { lat: location.lat, lng: location.lng };
+            new google.maps.Marker({
+                position: position,
+                map: map,
+                title: `${location.city}, ${location.state}`
+            });
+            bounds.extend(position);
+            markerCount++;
         }
-    }
 
-    async function getLatLng(city, state) {
-        const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${city},${state}&key={{ env('GOOGLE_MAPS_API_KEY') }}`);
-        const data = await response.json();
-        if (data.results && data.results.length > 0) {
-            return data.results[0].geometry.location;
+        if (markerCount === 1) {
+            map.setCenter(bounds.getCenter());
+            map.setZoom(8);
+        } else if (markerCount > 1) {
+            map.fitBounds(bounds, 60);
         }
-        return null;
     }
 
     window.initMap = initMap;
 </script>
 
-<script async src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&callback=initMap">
+<script async src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_BROWSER_KEY') ?: env('GOOGLE_MAPS_API_KEY') }}&callback=initMap">
 </script>

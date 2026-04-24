@@ -1,7 +1,7 @@
 {
-  "name": "oc-bootstrap-theme",
-  "version": "1.0.6",
-  "description": "Build responsive, mobile-first themes on the web with the world's most popular front-end component library.",
+  "name": "cantheymakesnow-theme",
+  "version": "1.0.0",
+  "description": "Theme for cantheymakesnow.com",
   "main": "assets/src/js/app.js",
   "scripts": {
     "mix": "mix",
@@ -13,10 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/prismify/oc-bootstrap-theme.git"
-  },
-  "bugs": {
-    "url": "https://github.com/prismify/oc-bootstrap-theme/issues"
+    "url": "git+https://github.com/joebuonocore/cantheymakesnow.com.git"
   },
   "keywords": [
     "october",
@@ -26,19 +23,10 @@
     "bootstrap"
   ],
   "author": {
-    "email": "hello@prismify.org",
-    "name": "Prismify Solutions",
-    "url": "https://prismify.org"
+    "name": "Albright Labs LLC"
   },
-  "maintainers": [
-    {
-      "name": "Sergey Sukhorukov",
-      "email": "sergey.sukhorukov@prismify.org",
-      "url": "https://prismify.org"
-    }
-  ],
   "license": "MIT",
-  "homepage": "https://github.com/prismify/oc-bootstrap-theme",
+  "homepage": "https://cantheymakesnow.com",
   "devDependencies": {
     "laravel-mix": "^6.0.49",
     "sass": "^1.45.0",

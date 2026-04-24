@@ -50,9 +50,20 @@ MAIL_FROM_ADDRESS=noreply@cantheymakesnow.com
 MAIL_FROM_NAME="${APP_NAME}"
 ```
 
-### 7. Add Google API Key
-Add the following environment variable to your `.env` file:
+### 7. Add Google API Keys
+Use two separate Google Maps API keys so the public browser key can be restricted by HTTP referrer while the server key stays unrestricted from the browser:
 
 ```ini
-GOOGLE_MAPS_API_KEY=your_api_key_here
+# Used server-side for the Geocoding API. Restrict by IP in Google Cloud.
+GOOGLE_MAPS_SERVER_KEY=your_server_key_here
+
+# Used in the browser for the Maps JS API. Restrict by HTTP referrer in Google Cloud.
+GOOGLE_MAPS_BROWSER_KEY=your_browser_key_here
+```
+
+For backwards compatibility, if these are not set, the code falls back to `GOOGLE_MAPS_API_KEY`. You should migrate off the shared key — leaving it in the browser exposes your server quota.
+
+### 8. Run migrations
+```bash
+php artisan october:migrate
 ```

@@ -1,8 +1,8 @@
-* {
+body {
     color: #222;
 }
 @media (prefers-color-scheme: dark) {
-    * {
+    body {
         color: #fff;
     }
 }
@@ -114,4 +114,217 @@
 .form-control:active,
 .form-control:focus {
     box-shadow: none !important;
+}
+
+/* --- Snowmaking tier card --- */
+.snow-tier {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    border-radius: 0;
+    border: 1px solid rgba(128, 128, 128, 0.25);
+    background: rgba(128, 128, 128, 0.06);
+    border-left-width: 4px;
+}
+.snow-tier__dot {
+    flex: 0 0 auto;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-top: 0.45rem;
+    background: currentColor;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+}
+.snow-tier__body { flex: 1 1 auto; }
+.snow-tier__label {
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.3;
+}
+.snow-tier__hint {
+    margin-top: 0.25rem;
+    font-size: 0.85rem;
+    opacity: 0.75;
+    line-height: 1.4;
+}
+
+.snow-tier--ideal    { color: #3b82f6; border-left-color: #3b82f6; background: rgba(59, 130, 246, 0.08); }
+.snow-tier--great    { color: #22c55e; border-left-color: #22c55e; background: rgba(34, 197, 94, 0.08); }
+.snow-tier--marginal { color: #eab308; border-left-color: #eab308; background: rgba(234, 179, 8, 0.10); }
+.snow-tier--too_warm { color: #f97316; border-left-color: #f97316; background: rgba(249, 115, 22, 0.08); }
+.snow-tier--no_chance{ color: #9ca3af; border-left-color: #9ca3af; background: rgba(156, 163, 175, 0.10); }
+
+.snow-tier__label,
+.snow-tier__hint { color: inherit; }
+@media (prefers-color-scheme: dark) {
+    .snow-tier__label { color: #fff; }
+    .snow-tier__hint  { color: rgba(255, 255, 255, 0.75); }
+}
+@media (prefers-color-scheme: light) {
+    .snow-tier__label { color: #222; }
+    .snow-tier__hint  { color: rgba(0, 0, 0, 0.65); }
+}
+
+/* --- Single-viewport layout --- */
+html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
+
+.screen {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    grid-template-rows: 1fr auto;
+    grid-template-areas:
+        "content map"
+        "footer  footer";
+    height: 100svh;
+    height: 100dvh;
+}
+.screen__content {
+    grid-area: content;
+    padding: clamp(1.5rem, 3vw, 3rem);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    min-height: 0;
+}
+.screen__map {
+    grid-area: map;
+    position: relative;
+    min-height: 0;
+    background: rgba(128, 128, 128, 0.08);
+}
+.screen__footer {
+    grid-area: footer;
+    padding: 1rem 1rem 1.25rem;
+    border-top: 1px solid rgba(128, 128, 128, 0.2);
+    font-size: 0.8rem;
+    text-align: center;
+    line-height: 1.5;
+}
+.screen__footer-links { margin-bottom: 0.15rem; }
+.screen__footer-copy  { opacity: 0.75; }
+
+.hero-howto {
+    position: relative;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    opacity: 0.7;
+    text-align: left;
+}
+.hero-howto summary {
+    cursor: pointer;
+    list-style: none;
+    text-decoration: none;
+    color: inherit;
+}
+.hero-howto summary:hover { text-decoration: underline; opacity: 1; }
+.hero-howto summary::-webkit-details-marker { display: none; }
+.hero-howto summary::marker { content: ""; }
+.hero-howto[open] .how-it-works-body {
+    position: absolute;
+    top: 1.6rem;
+    left: 0;
+    width: min(320px, 80vw);
+    background: rgba(20, 20, 20, 0.95);
+    color: #fff;
+    padding: 0.875rem 1rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+    z-index: 1000;
+    text-align: left;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+@media (prefers-color-scheme: light) {
+    .hero-howto[open] .how-it-works-body {
+        background: #fff;
+        color: #222;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+}
+
+.hero-brand h1 {
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    margin: 0;
+    font-weight: 700;
+}
+.hero-tagline {
+    opacity: 0.75;
+    font-size: 1rem;
+    margin: 0.25rem 0 0;
+}
+.hero-form { margin: 0; }
+.hero-alert {
+    border: 1px solid #f0ad4e;
+    background: rgba(240, 173, 78, 0.12);
+    padding: 0.625rem 0.875rem;
+    border-radius: 6px;
+    color: inherit;
+    font-size: 0.9rem;
+}
+
+.hero-answer {
+    margin-top: auto;
+    margin-bottom: auto;
+    padding: 1rem 0;
+}
+.hero-answer__headline {
+    font-weight: 900;
+    font-size: clamp(5rem, 14vw, 10rem);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    text-align: center;
+    color: var(--tier-accent, currentColor);
+    margin: 0;
+}
+.hero-answer__meta {
+    text-align: center;
+    margin: 0.75rem 0 0;
+    opacity: 0.85;
+    font-size: 1.05rem;
+}
+.hero-answer__tier {
+    max-width: 520px;
+    margin: 1.25rem auto 0;
+}
+.hero-answer__prompt {
+    text-align: center;
+    opacity: 0.7;
+    margin: 0;
+}
+.hero-answer__error {
+    text-align: center;
+    color: #dc3545;
+    margin: 0;
+}
+
+.hero-answer__headline[data-tier="ideal"]     { --tier-accent: #3b82f6; }
+.hero-answer__headline[data-tier="great"]     { --tier-accent: #22c55e; }
+.hero-answer__headline[data-tier="marginal"]  { --tier-accent: #eab308; }
+.hero-answer__headline[data-tier="too_warm"]  { --tier-accent: #f97316; }
+.hero-answer__headline[data-tier="no_chance"] { --tier-accent: #9ca3af; }
+
+.screen__footer a { color: inherit; text-decoration: none; }
+.screen__footer a:hover { text-decoration: underline; }
+.screen__footer .sep { opacity: 0.4; margin: 0 0.4rem; }
+.how-it-works-body { display: none; }
+.hero-howto[open] .how-it-works-body { display: block; }
+
+@media (max-width: 991.98px) {
+    .screen {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr minmax(220px, 30dvh) auto;
+        grid-template-areas:
+            "content"
+            "map"
+            "footer";
+    }
+    .hero-answer__headline { font-size: clamp(4rem, 18vw, 7rem); }
+    .screen__content { gap: 0.9rem; padding: 1.25rem 1rem; }
+    .hero-brand h1 { font-size: 1.5rem; }
+    .hero-tagline { font-size: 0.9rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .snowflake, .snowflake .inner, .rotate { animation: none !important; }
 }

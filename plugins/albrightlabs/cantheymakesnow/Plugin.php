@@ -51,21 +51,6 @@ class Plugin extends PluginBase
     }
 
     /**
-     * registerPermissions used by the backend.
-     */
-    public function registerPermissions()
-    {
-        return []; // Remove this line to activate
-
-        return [
-            'albrightlabs.cantheymakesnow.some_permission' => [
-                'tab' => 'CanTheyMakeSnow',
-                'label' => 'Some permission'
-            ],
-        ];
-    }
-
-    /**
      * registerNavigation used by the backend.
      */
     public function registerNavigation()

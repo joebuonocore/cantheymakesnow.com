@@ -24,6 +24,11 @@ class Location extends Model
     public $fillable = [
         'city',
         'state',
+        'lat',
+        'lon',
         'lookups',
+        'last_looked_up_at',
     ];
+
+    public $dates = ['last_looked_up_at'];
 }
