@@ -22,6 +22,13 @@ description = "Default layout"
                 if (query.addEventListener) {
                     query.addEventListener('change', apply);
                 }
+
+                // Apply the saved °F/°C choice before first paint.
+                try {
+                    if (localStorage.getItem('ctms.units') === 'c') {
+                        document.documentElement.setAttribute('data-units', 'c');
+                    }
+                } catch (e) {}
             })();
         </script>
 
@@ -59,7 +66,8 @@ description = "Default layout"
 
         {% placeholder footer %}
 
-        {% framework extras turbo %}
+        {% framework extras %}
+        <script src="{{ ['assets/js/site.js']|theme }}"></script>
         {% scripts %}
     </body>
 </html>

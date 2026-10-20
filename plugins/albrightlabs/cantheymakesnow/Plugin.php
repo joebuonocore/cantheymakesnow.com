@@ -51,6 +51,42 @@ class Plugin extends PluginBase
     }
 
     /**
+     * registerMarkupTags: `temp` renders a Celsius value in both units; the
+     * theme shows one via the html[data-units] attribute. `tempSvg` does the
+     * same with <tspan>s for use inside SVG <text>. Output is numeric only.
+     */
+    public function registerMarkupTags()
+    {
+        $format = function ($celsius, $decimals = 0, $unit = 'c') {
+            $value = $unit === 'f' ? $celsius * 9 / 5 + 32 : $celsius;
+            $text = number_format(round($value, $decimals), $decimals);
+            if ((float) $text == 0) {
+                $text = ltrim($text, '-');
+            }
+            return str_replace('-', "\u{2212}", $text) . ($unit === 'f' ? '°F' : '°C');
+        };
+
+        return [
+            'filters' => [
+                'temp' => function ($celsius, $decimals = 0) use ($format) {
+                    if ($celsius === null) {
+                        return '';
+                    }
+                    return '<span class="t"><span class="u-f">' . $format($celsius, $decimals, 'f') . '</span>'
+                        . '<span class="u-c">' . $format($celsius, $decimals, 'c') . '</span></span>';
+                },
+                'tempSvg' => function ($celsius, $decimals = 0) use ($format) {
+                    if ($celsius === null) {
+                        return '';
+                    }
+                    return '<tspan class="u-f">' . $format($celsius, $decimals, 'f') . '</tspan>'
+                        . '<tspan class="u-c">' . $format($celsius, $decimals, 'c') . '</tspan>';
+                },
+            ],
+        ];
+    }
+
+    /**
      * registerNavigation used by the backend.
      */
     public function registerNavigation()

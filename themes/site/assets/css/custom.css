@@ -117,56 +117,6 @@ body {
     box-shadow: none !important;
 }
 
-/* --- Snowmaking tier card --- */
-.snow-tier {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    padding: 0.875rem 1rem;
-    border-radius: 0;
-    border: 1px solid rgba(128, 128, 128, 0.25);
-    background: rgba(128, 128, 128, 0.06);
-    border-left-width: 4px;
-}
-.snow-tier__dot {
-    flex: 0 0 auto;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    margin-top: 0.45rem;
-    background: currentColor;
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
-}
-.snow-tier__body { flex: 1 1 auto; }
-.snow-tier__label {
-    font-weight: 600;
-    font-size: 1rem;
-    line-height: 1.3;
-}
-.snow-tier__hint {
-    margin-top: 0.25rem;
-    font-size: 0.85rem;
-    opacity: 0.75;
-    line-height: 1.4;
-}
-
-.snow-tier--ideal    { color: #3b82f6; border-left-color: #3b82f6; background: rgba(59, 130, 246, 0.08); }
-.snow-tier--great    { color: #22c55e; border-left-color: #22c55e; background: rgba(34, 197, 94, 0.08); }
-.snow-tier--marginal { color: #eab308; border-left-color: #eab308; background: rgba(234, 179, 8, 0.10); }
-.snow-tier--too_warm { color: #f97316; border-left-color: #f97316; background: rgba(249, 115, 22, 0.08); }
-.snow-tier--no_chance{ color: #9ca3af; border-left-color: #9ca3af; background: rgba(156, 163, 175, 0.10); }
-
-.snow-tier__label,
-.snow-tier__hint { color: inherit; }
-@media (prefers-color-scheme: dark) {
-    .snow-tier__label { color: #fff; }
-    .snow-tier__hint  { color: rgba(255, 255, 255, 0.75); }
-}
-@media (prefers-color-scheme: light) {
-    .snow-tier__label { color: #222; }
-    .snow-tier__hint  { color: rgba(0, 0, 0, 0.65); }
-}
-
 /* --- Single-viewport layout --- */
 html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
 
@@ -264,29 +214,29 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
     font-size: 0.9rem;
 }
 
+.result { flex: 1 0 auto; display: flex; flex-direction: column; justify-content: center; transition: opacity 0.15s; }
+.result.is-loading { opacity: 0.5; }
 .hero-answer {
-    margin-top: auto;
-    margin-bottom: auto;
-    padding: 1rem 0;
+    padding: 0.5rem 0 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
 }
 .hero-answer__headline {
     font-weight: 900;
-    font-size: clamp(5rem, 14vw, 10rem);
+    font-size: clamp(4rem, 9vw, 7rem);
     line-height: 0.95;
     letter-spacing: -0.04em;
     text-align: center;
-    color: var(--tier-accent, currentColor);
+    color: var(--answer-no);
     margin: 0;
 }
+.hero-answer__headline[data-answer="yes"] { color: var(--answer-yes); }
 .hero-answer__meta {
     text-align: center;
-    margin: 0.75rem 0 0;
+    margin: 0;
     opacity: 0.85;
     font-size: 1.05rem;
-}
-.hero-answer__tier {
-    max-width: 520px;
-    margin: 1.25rem auto 0;
 }
 .hero-answer__prompt {
     text-align: center;
@@ -299,11 +249,6 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
     margin: 0;
 }
 
-.hero-answer__headline[data-tier="ideal"]     { --tier-accent: #3b82f6; }
-.hero-answer__headline[data-tier="great"]     { --tier-accent: #22c55e; }
-.hero-answer__headline[data-tier="marginal"]  { --tier-accent: #eab308; }
-.hero-answer__headline[data-tier="too_warm"]  { --tier-accent: #f97316; }
-.hero-answer__headline[data-tier="no_chance"] { --tier-accent: #9ca3af; }
 
 .screen__footer a { color: inherit; text-decoration: none; }
 .screen__footer a:hover { text-decoration: underline; }
@@ -320,7 +265,7 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
             "map"
             "footer";
     }
-    .hero-answer__headline { font-size: clamp(4rem, 18vw, 7rem); }
+    .hero-answer__headline { font-size: clamp(3.5rem, 16vw, 5.5rem); }
     .screen__content { gap: 0.9rem; padding: 1.25rem 1rem; }
     .hero-brand h1 { font-size: 1.5rem; }
     .hero-tagline { font-size: 0.9rem; }
@@ -329,3 +274,144 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
     .snowflake, .snowflake .inner, .rotate { animation: none !important; }
 }
+/* --- Tokens ---
+ * Snowmaking tiers are an ordinal blue ramp (validated with the dataviz
+ * palette checker, light and dark); warm tiers are neutral grays.
+ * Dark mode re-steps the ramp so the coldest tier is the most salient.
+ */
+:root {
+    --tier-ideal: #1c5cab;
+    --tier-great: #3987e5;
+    --tier-marginal: #86b6ef;
+    --tier-too_warm: #a9a8a1;
+    --tier-no_chance: #d3d2cc;
+    --answer-yes: #2a78d6;
+    --answer-no: #6b6a64;
+    --chart-line: #52514e;
+    --chart-grid: rgba(0, 0, 0, 0.12);
+    --chart-night: rgba(0, 0, 0, 0.045);
+    --text-muted: rgba(0, 0, 0, 0.62);
+    --surface-raised: #fff;
+}
+:root[data-bs-theme="dark"] {
+    --tier-ideal: #86b6ef;
+    --tier-great: #3987e5;
+    --tier-marginal: #256abf;
+    --tier-too_warm: #6f6e68;
+    --tier-no_chance: #4a4945;
+    --answer-yes: #6da7ec;
+    --answer-no: #a9a8a1;
+    --chart-line: #c3c2b7;
+    --chart-grid: rgba(255, 255, 255, 0.14);
+    --chart-night: rgba(255, 255, 255, 0.05);
+    --text-muted: rgba(255, 255, 255, 0.68);
+    --surface-raised: #2b3035;
+}
+[data-tier="ideal"]     { --tier: var(--tier-ideal); }
+[data-tier="great"]     { --tier: var(--tier-great); }
+[data-tier="marginal"]  { --tier: var(--tier-marginal); }
+[data-tier="too_warm"]  { --tier: var(--tier-too_warm); }
+[data-tier="no_chance"] { --tier: var(--tier-no_chance); }
+
+/* --- Units: every temperature renders in both, one is shown --- */
+.u-c { display: none; }
+:root[data-units="c"] .u-c { display: inline; }
+:root[data-units="c"] .u-f { display: none; }
+.t { white-space: nowrap; }
+
+.hero-brand__row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.units-toggle { display: inline-flex; border: 1px solid var(--chart-grid); flex: 0 0 auto; }
+.units-toggle button {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    padding: 0.25rem 0.6rem;
+    font-size: 0.85rem;
+    opacity: 0.7;
+}
+.units-toggle button[aria-pressed="true"] { background: var(--chart-grid); opacity: 1; font-weight: 600; }
+
+.hero-answer__inputs,
+.hero-answer__source {
+    text-align: center;
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+.hero-answer__source abbr { text-decoration: underline dotted; cursor: help; }
+.hero-answer__window {
+    margin: 0;
+    text-align: center;
+    font-weight: 600;
+}
+.hero-answer__window[data-state="none"] { font-weight: 400; color: var(--text-muted); }
+
+/* --- Gauge --- */
+.gauge { width: 100%; max-width: 520px; margin: 0 auto; }
+.gauge__label { display: flex; align-items: center; gap: 0.5rem; font-weight: 600; margin-bottom: 0.4rem; }
+.gauge__key { width: 10px; height: 10px; border-radius: 50%; background: var(--tier); flex: 0 0 auto; }
+.gauge__track { position: relative; display: flex; gap: 2px; height: 10px; }
+.gauge__band { display: block; height: 100%; background: var(--tier); }
+.gauge__band:first-of-type { border-radius: 4px 0 0 4px; }
+.gauge__band:nth-last-of-type(1) { border-radius: 0 4px 4px 0; }
+.gauge__marker {
+    position: absolute;
+    top: -4px;
+    width: 4px;
+    height: 18px;
+    margin-left: -2px;
+    border-radius: 2px;
+    background: var(--bs-body-color);
+    box-shadow: 0 0 0 2px var(--bs-body-bg);
+}
+.gauge__scale { position: relative; display: flex; justify-content: space-between; margin-top: 0.35rem; font-size: 0.75rem; color: var(--text-muted); }
+.gauge__line { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+
+/* --- Forecast chart --- */
+.forecast { margin: 0; width: 100%; }
+.forecast__title { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem; }
+.forecast__title span { font-weight: 400; color: var(--text-muted); }
+.forecast__chart { position: relative; }
+.forecast__chart:focus-visible { outline: 2px solid var(--answer-yes); outline-offset: 2px; }
+.forecast__svg { display: block; width: 100%; height: auto; overflow: visible; touch-action: pan-y; }
+.forecast__night { fill: var(--chart-night); }
+.forecast__bar { fill: var(--tier); }
+.forecast__threshold { stroke: var(--chart-line); stroke-width: 1; }
+.forecast__tick { stroke: var(--chart-grid); stroke-width: 1; }
+.forecast__cursor { stroke: var(--chart-line); stroke-width: 1; }
+.forecast__text { font-size: 10px; fill: var(--text-muted); }
+.forecast__text--strong { fill: var(--bs-body-color); font-weight: 600; }
+.forecast__hit { fill: transparent; cursor: crosshair; }
+.forecast__tooltip {
+    position: absolute;
+    top: -0.25rem;
+    transform: translate(-50%, -100%);
+    background: var(--surface-raised);
+    border: 1px solid var(--chart-grid);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    padding: 0.3rem 0.55rem;
+    font-size: 0.8rem;
+    line-height: 1.3;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 5;
+}
+.forecast__tooltip strong { display: block; font-size: 0.95rem; }
+.forecast__tooltip span { color: var(--text-muted); }
+.forecast__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.9rem;
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0 0;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+.forecast__legend li { display: inline-flex; align-items: center; gap: 0.3rem; }
+.forecast__swatch { width: 10px; height: 10px; border-radius: 2px; background: var(--tier); }
+.forecast__swatch--night { background: var(--chart-night); border: 1px solid var(--chart-grid); }
+.forecast__table { margin-top: 0.5rem; font-size: 0.8rem; }
+.forecast__table summary { cursor: pointer; color: var(--text-muted); }
+.forecast__table-scroll { max-height: 240px; overflow-y: auto; margin-top: 0.4rem; }
+.forecast__table table { font-variant-numeric: tabular-nums; margin: 0; }
