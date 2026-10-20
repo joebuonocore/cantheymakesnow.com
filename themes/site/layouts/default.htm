@@ -38,6 +38,8 @@ description = "Default layout"
         <meta name="description" content="{{ this.page.meta_description }}" />
         <meta name="title" content="{{ this.page.meta_title }}" />
         <meta name="author" content="Joe Buonocore" />
+        <meta name="ctms-maps-key" content="{{ env('GOOGLE_MAPS_BROWSER_KEY') ?: env('GOOGLE_MAPS_API_KEY') }}" />
+        <meta name="ctms-map-id" content="{{ env('GOOGLE_MAPS_MAP_ID') ?: 'DEMO_MAP_ID' }}" />
 
         <link rel="canonical" href="https://cantheymakesnow.com{{ this.page.url }}" />
 

@@ -83,7 +83,7 @@
     function paramsFromSearch(search) {
         var query = new URLSearchParams(search);
         var params = {};
-        ['address', 'lat', 'lon'].forEach(function (key) {
+        ['address', 'lat', 'lon', 'resort'].forEach(function (key) {
             if (query.get(key)) {
                 params[key] = query.get(key);
             }
@@ -284,6 +284,272 @@
         document.addEventListener('ctms:units', function () { if (active >= 0) { show(active); } });
     }
 
+    // ---- Google Maps loader -------------------------------------------------
+
+    var mapsPromise = null;
+
+    function meta(name) {
+        var el = document.querySelector('meta[name="' + name + '"]');
+        return el ? el.getAttribute('content') : '';
+    }
+
+    /**
+     * Load the Maps JS API once (async, with importLibrary support).
+     * Resolves with google.maps; rejects if there is no key or it fails.
+     */
+    function loadMaps() {
+        if (mapsPromise) {
+            return mapsPromise;
+        }
+        mapsPromise = new Promise(function (resolve, reject) {
+            var key = meta('ctms-maps-key');
+            if (!key) {
+                reject(new Error('No Google Maps browser key configured'));
+                return;
+            }
+            window.__ctmsMapsReady = function () { resolve(window.google.maps); };
+            var script = document.createElement('script');
+            script.src = 'https://maps.googleapis.com/maps/api/js?' + new URLSearchParams({
+                key: key,
+                v: 'weekly',
+                loading: 'async',
+                callback: '__ctmsMapsReady'
+            });
+            script.async = true;
+            script.onerror = function () { reject(new Error('Google Maps failed to load')); };
+            document.head.appendChild(script);
+        });
+        return mapsPromise;
+    }
+    CTMS.loadMaps = loadMaps;
+    CTMS.meta = meta;
+
+    function readJson(id) {
+        var el = document.getElementById(id);
+        if (!el) {
+            return null;
+        }
+        try {
+            return JSON.parse(el.textContent);
+        } catch (e) {
+            return null;
+        }
+    }
+    CTMS.readJson = readJson;
+
+    // ---- Search suggestions (resorts first, then Google places) -------------
+
+    function initSearch() {
+        var input = document.getElementById('address');
+        var box = document.querySelector('.suggest');
+        var list = document.getElementById('suggestions');
+        if (!input || !box || !list) {
+            return;
+        }
+
+        var attribution = box.querySelector('.suggest__attribution');
+        var resorts = (readJson('resortData') || []).map(function (r) {
+            return { type: 'resort', slug: r.slug, label: r.name, sub: r.state, hay: (r.name + ' ' + r.state).toLowerCase() };
+        });
+        var items = [];
+        var active = -1;
+        var seq = 0;
+        var timer = null;
+        var places = null;
+        var placesFailed = false;
+        var sessionToken = null;
+
+        function ensurePlaces() {
+            if (places || placesFailed) {
+                return Promise.resolve(places);
+            }
+            return loadMaps()
+                .then(function (maps) { return maps.importLibrary('places'); })
+                .then(function (lib) { places = lib; return lib; })
+                .catch(function (e) {
+                    placesFailed = true;
+                    console.info('Place suggestions unavailable:', e.message);
+                    return null;
+                });
+        }
+
+        function matchResorts(query) {
+            var tokens = query.toLowerCase().split(/[\s,]+/).filter(Boolean);
+            var q = query.toLowerCase();
+            return resorts
+                .filter(function (r) {
+                    return tokens.every(function (t) { return r.hay.indexOf(t) !== -1; });
+                })
+                .sort(function (a, b) {
+                    var aStarts = a.hay.indexOf(q) === 0 ? 0 : 1;
+                    var bStarts = b.hay.indexOf(q) === 0 ? 0 : 1;
+                    return aStarts - bStarts || a.label.localeCompare(b.label);
+                })
+                .slice(0, 5);
+        }
+
+        function render(fromPlaces) {
+            list.textContent = '';
+            items.forEach(function (item, i) {
+                var li = document.createElement('li');
+                li.id = 'suggestion-' + i;
+                li.className = 'suggest__item';
+                li.setAttribute('role', 'option');
+                li.setAttribute('aria-selected', i === active ? 'true' : 'false');
+                li.dataset.index = i;
+
+                var icon = document.createElement('span');
+                icon.className = 'suggest__icon';
+                icon.setAttribute('aria-hidden', 'true');
+                icon.textContent = item.type === 'resort' ? '⛷️' : '📍';
+                var main = document.createElement('span');
+                main.className = 'suggest__main';
+                main.textContent = item.label;
+                var sub = document.createElement('span');
+                sub.className = 'suggest__sub';
+                sub.textContent = item.type === 'resort' ? 'Ski resort · ' + item.sub : (item.sub || '');
+
+                li.appendChild(icon);
+                li.appendChild(main);
+                li.appendChild(sub);
+                list.appendChild(li);
+            });
+
+            var open = items.length > 0;
+            box.hidden = !open;
+            input.setAttribute('aria-expanded', open ? 'true' : 'false');
+            attribution.hidden = !fromPlaces;
+            if (active >= 0) {
+                input.setAttribute('aria-activedescendant', 'suggestion-' + active);
+            } else {
+                input.removeAttribute('aria-activedescendant');
+            }
+        }
+
+        function close() {
+            items = [];
+            active = -1;
+            render(false);
+        }
+
+        function update() {
+            var query = input.value.trim();
+            var mine = ++seq;
+            active = -1;
+            if (!query) {
+                close();
+                document.dispatchEvent(new CustomEvent('ctms:search-empty', { detail: { render: showItems } }));
+                return;
+            }
+
+            items = matchResorts(query);
+            render(false);
+
+            if (query.length < 3) {
+                return;
+            }
+            ensurePlaces().then(function (lib) {
+                if (!lib || mine !== seq) {
+                    return null;
+                }
+                sessionToken = sessionToken || new lib.AutocompleteSessionToken();
+                return lib.AutocompleteSuggestion.fetchAutocompleteSuggestions({
+                    input: query,
+                    sessionToken: sessionToken,
+                    includedRegionCodes: ['us']
+                });
+            }).then(function (response) {
+                if (!response || mine !== seq) {
+                    return;
+                }
+                var placeItems = (response.suggestions || [])
+                    .map(function (s) { return s.placePrediction; })
+                    .filter(Boolean)
+                    .slice(0, 4)
+                    .map(function (p) {
+                        return {
+                            type: 'place',
+                            label: p.mainText ? p.mainText.toString() : p.text.toString(),
+                            sub: p.secondaryText ? p.secondaryText.toString() : '',
+                            query: p.text.toString()
+                        };
+                    });
+                items = items.concat(placeItems);
+                render(placeItems.length > 0);
+            }).catch(function (e) {
+                console.info('Place suggestions failed:', e.message);
+            });
+        }
+
+        /** Let other modules (saved locations) show their own items in the list. */
+        function showItems(extra) {
+            items = extra;
+            active = -1;
+            render(false);
+        }
+        CTMS.showSuggestions = showItems;
+
+        function choose(item) {
+            close();
+            sessionToken = null;
+            if (item.type === 'resort') {
+                input.value = item.label + ', ' + item.sub;
+                lookup({ resort: item.slug });
+            } else if (item.params) {
+                input.value = item.label;
+                lookup(item.params);
+            } else {
+                input.value = item.query || item.label;
+                lookup({ address: item.query || item.label });
+            }
+        }
+
+        input.addEventListener('input', function () {
+            clearTimeout(timer);
+            timer = setTimeout(update, 150);
+        });
+        input.addEventListener('focus', function () {
+            ensurePlaces();
+            if (!input.value.trim()) {
+                update();
+            }
+        });
+        input.addEventListener('keydown', function (event) {
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                if (!items.length) {
+                    return;
+                }
+                event.preventDefault();
+                // Cycle through the items and back to the typed text (-1).
+                var next = active + (event.key === 'ArrowDown' ? 1 : -1);
+                if (next >= items.length) {
+                    next = -1;
+                } else if (next < -1) {
+                    next = items.length - 1;
+                }
+                active = next;
+                render(!attribution.hidden);
+            } else if (event.key === 'Enter' && active >= 0 && items[active]) {
+                event.preventDefault();
+                choose(items[active]);
+            } else if (event.key === 'Escape') {
+                close();
+            }
+        });
+        input.addEventListener('blur', function () {
+            setTimeout(close, 120);
+        });
+        list.addEventListener('mousedown', function (event) {
+            event.preventDefault(); // Keep focus in the input.
+        });
+        list.addEventListener('click', function (event) {
+            var li = event.target.closest('[data-index]');
+            if (li && items[li.dataset.index]) {
+                choose(items[li.dataset.index]);
+            }
+        });
+    }
+
     // ---- Boot ---------------------------------------------------------------
 
     function boot() {
@@ -292,6 +558,7 @@
             button.addEventListener('click', function () { setUnits(button.getAttribute('data-units')); });
         });
         initLookupForm();
+        initSearch();
         initForecast();
     }
 

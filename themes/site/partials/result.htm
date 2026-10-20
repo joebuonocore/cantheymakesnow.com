@@ -25,8 +25,13 @@ description = "Lookup result: answer, gauge, 48-hour forecast. Re-rendered by We
         <p class="hero-answer__source">
             Forecast for {{ now.timeLabel }}
             {% if result.updatedLabel %}&middot; NOAA grid updated {{ result.updatedLabel }}{% endif %}
-            {% if result.elevationFt %}&middot; {{ result.elevationFt|number_format }} ft{% endif %}
+            {% if result.elevationFt %}&middot; grid elevation {{ result.elevationFt|number_format }} ft{% endif %}
         </p>
+        {% if result.resort and result.resort.baseFt %}
+            <p class="hero-answer__source">
+                Checked at the base area ({{ result.resort.baseFt|number_format }} ft){% if result.resort.summitFt %}; the summit ({{ result.resort.summitFt|number_format }} ft) is usually colder{% endif %}.
+            </p>
+        {% endif %}
         {% if result.observation %}
             {% set obs = result.observation %}
             <p class="hero-answer__source">

@@ -11,3 +11,10 @@ v1.0.4:
 v1.0.5:
     - Blur previously stored visitor coordinates on location pins
     - round_existing_location_coords.php
+v1.1.0:
+    - Add curated ski resorts
+    - create_resorts_table.php
+    - seed_resorts.php
+v1.1.1:
+    - Store last known snowmaking conditions on locations for map pins
+    - add_conditions_to_locations_table.php

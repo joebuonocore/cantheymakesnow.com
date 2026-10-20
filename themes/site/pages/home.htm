@@ -9,6 +9,8 @@ meta_description = "A live wet-bulb check: NOAA's hourly forecast for your locat
 
 [Locations]
 ==
+<script type="application/json" id="resortData">{{ resorts|json_encode|raw }}</script>
+
 <main class="screen">
 
     <section class="screen__content">
@@ -16,10 +18,17 @@ meta_description = "A live wet-bulb check: NOAA's hourly forecast for your locat
 
         <form id="lookupForm" action="{{ 'home'|page }}" method="get" class="hero-form" autocomplete="off">
             <label class="visually-hidden" for="address">City, state or ski resort</label>
-            <div class="input-group">
-                <button type="button" id="useMyLocation" class="btn btn-outline-secondary rounded-0" title="Use my current location" aria-label="Use my current location">📍</button>
-                <input type="text" name="address" id="address" placeholder="City, state or ski resort" class="form-control rounded-0" value="{{ query }}">
-                <button type="submit" id="lookupSubmit" class="btn btn-primary rounded-0">Check</button>
+            <div class="search">
+                <div class="input-group">
+                    <button type="button" id="useMyLocation" class="btn btn-outline-secondary rounded-0" title="Use my current location" aria-label="Use my current location">📍</button>
+                    <input type="text" name="address" id="address" placeholder="City, state or ski resort" class="form-control rounded-0" value="{{ query }}"
+                        role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggestions" spellcheck="false">
+                    <button type="submit" id="lookupSubmit" class="btn btn-primary rounded-0">Check</button>
+                </div>
+                <div class="suggest" hidden>
+                    <ul id="suggestions" class="suggest__list" role="listbox" aria-label="Suggestions"></ul>
+                    <p class="suggest__attribution" hidden>Place suggestions by Google</p>
+                </div>
             </div>
             <details class="hero-howto">
                 <summary>How this works</summary>

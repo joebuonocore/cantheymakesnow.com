@@ -39,8 +39,7 @@ description = "map partial"
         }
     }
 
-    window.initMap = initMap;
-</script>
-
-<script async src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_BROWSER_KEY') ?: env('GOOGLE_MAPS_API_KEY') }}&callback=initMap">
+    document.addEventListener('DOMContentLoaded', function () {
+        window.CTMS.loadMaps().then(initMap).catch(function (e) { console.info(e.message); });
+    });
 </script>

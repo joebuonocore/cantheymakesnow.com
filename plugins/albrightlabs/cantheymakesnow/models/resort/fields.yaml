@@ -1,0 +1,32 @@
+fields:
+    name:
+        label: Name
+        span: left
+    slug:
+        label: Slug
+        span: right
+        preset:
+            field: name
+            type: slug
+    state:
+        label: State (2-letter)
+        span: left
+    is_enabled:
+        label: Enabled
+        type: switch
+        span: right
+        default: true
+    lat:
+        label: Latitude (base area)
+        span: left
+    lon:
+        label: Longitude (base area)
+        span: right
+    base_elev_ft:
+        label: Base elevation (ft)
+        type: number
+        span: left
+    summit_elev_ft:
+        label: Summit elevation (ft)
+        type: number
+        span: right

@@ -1,0 +1,31 @@
+# ===================================
+#  Form Behavior Config
+# ===================================
+
+# Record name
+name: Resort
+
+# Model Form Field configuration
+form: $/albrightlabs/cantheymakesnow/models/resort/fields.yaml
+
+# Model Class name
+modelClass: AlbrightLabs\CanTheyMakeSnow\Models\Resort
+
+# Default redirect resort
+defaultRedirect: albrightlabs/cantheymakesnow/resorts
+
+# Create page
+create:
+    title: backend::lang.form.create_title
+    redirect: albrightlabs/cantheymakesnow/resorts/update/:id
+    redirectClose: albrightlabs/cantheymakesnow/resorts
+
+# Update page
+update:
+    title: backend::lang.form.update_title
+    redirect: albrightlabs/cantheymakesnow/resorts
+    redirectClose: albrightlabs/cantheymakesnow/resorts
+
+# Preview page
+preview:
+    title: backend::lang.form.preview_title

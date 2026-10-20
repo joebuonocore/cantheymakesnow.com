@@ -1,6 +1,7 @@
 <?php namespace AlbrightLabs\CanTheyMakeSnow\Components;
 
 use AlbrightLabs\CanTheyMakeSnow\Models\Location;
+use AlbrightLabs\CanTheyMakeSnow\Models\Resort;
 
 use Cms\Classes\ComponentBase;
 
@@ -12,12 +13,13 @@ use Cms\Classes\ComponentBase;
 class Locations extends ComponentBase
 {
     public $locations;
+    public $resorts;
 
     public function componentDetails()
     {
         return [
             'name' => 'Locations Component',
-            'description' => ''
+            'description' => 'Looked-up cities and curated resorts for the map and search.'
         ];
     }
 
@@ -33,6 +35,16 @@ class Locations extends ComponentBase
     {
         $this->locations = $this->getLocations();
         $this->page['locations'] = $this->locations;
+
+        $this->resorts = $this->getResorts();
+        $this->page['resorts'] = $this->resorts;
+    }
+
+    public function getResorts()
+    {
+        return Resort::isEnabled()
+            ->orderBy('name')
+            ->get(['slug', 'name', 'state', 'lat', 'lon', 'last_wet_bulb', 'last_tier', 'last_checked_at']);
     }
 
     public function getLocations()
@@ -41,6 +53,6 @@ class Locations extends ComponentBase
             ->whereNotNull('lon')
             ->orderByDesc('lookups')
             ->limit(500)
-            ->get(['city', 'state', 'lat', 'lon', 'lookups']);
+            ->get(['city', 'state', 'lat', 'lon', 'lookups', 'last_wet_bulb', 'last_tier', 'last_looked_up_at']);
     }
 }

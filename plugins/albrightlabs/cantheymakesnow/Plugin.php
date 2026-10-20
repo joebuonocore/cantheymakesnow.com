@@ -98,6 +98,20 @@ class Plugin extends PluginBase
                 'icon' => 'icon-snowflake-o',
                 'permissions' => ['albrightlabs.cantheymakesnow'],
                 'order' => 500,
+                'sideMenu' => [
+                    'locations' => [
+                        'label' => 'Lookup locations',
+                        'icon' => 'icon-map-marker',
+                        'url' => Backend::url('albrightlabs/cantheymakesnow/locations'),
+                        'permissions' => ['albrightlabs.cantheymakesnow'],
+                    ],
+                    'resorts' => [
+                        'label' => 'Resorts',
+                        'icon' => 'icon-area-chart',
+                        'url' => Backend::url('albrightlabs/cantheymakesnow/resorts'),
+                        'permissions' => ['albrightlabs.cantheymakesnow'],
+                    ],
+                ],
             ],
         ];
     }
@@ -110,7 +124,7 @@ class Plugin extends PluginBase
         return [
             'albrightlabs.cantheymakesnow' => [
                 'tab' => 'CanTheyMakeSnow',
-                'label' => 'Manage lookup locations',
+                'label' => 'Manage lookup locations and resorts',
             ],
         ];
     }

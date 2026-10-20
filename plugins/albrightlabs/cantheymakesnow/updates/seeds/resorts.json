@@ -1,0 +1,1073 @@
+[
+ {
+  "name": "Killington Resort",
+  "slug": "killington-resort",
+  "state": "VT",
+  "lat": 43.626,
+  "lon": -72.797,
+  "base_elev_ft": 1165,
+  "summit_elev_ft": 4241
+ },
+ {
+  "name": "Stowe Mountain Resort",
+  "slug": "stowe-mountain-resort",
+  "state": "VT",
+  "lat": 44.53,
+  "lon": -72.781,
+  "base_elev_ft": 1559,
+  "summit_elev_ft": 3625
+ },
+ {
+  "name": "Okemo Mountain Resort",
+  "slug": "okemo-mountain-resort",
+  "state": "VT",
+  "lat": 43.401,
+  "lon": -72.717,
+  "base_elev_ft": 1144,
+  "summit_elev_ft": 3344
+ },
+ {
+  "name": "Mount Snow",
+  "slug": "mount-snow",
+  "state": "VT",
+  "lat": 42.96,
+  "lon": -72.92,
+  "base_elev_ft": 1900,
+  "summit_elev_ft": 3600
+ },
+ {
+  "name": "Stratton Mountain",
+  "slug": "stratton-mountain",
+  "state": "VT",
+  "lat": 43.113,
+  "lon": -72.908,
+  "base_elev_ft": 1872,
+  "summit_elev_ft": 3875
+ },
+ {
+  "name": "Sugarbush Resort",
+  "slug": "sugarbush-resort",
+  "state": "VT",
+  "lat": 44.136,
+  "lon": -72.894,
+  "base_elev_ft": 1483,
+  "summit_elev_ft": 4083
+ },
+ {
+  "name": "Jay Peak Resort",
+  "slug": "jay-peak-resort",
+  "state": "VT",
+  "lat": 44.937,
+  "lon": -72.505,
+  "base_elev_ft": 1815,
+  "summit_elev_ft": 3968
+ },
+ {
+  "name": "Smugglers' Notch Resort",
+  "slug": "smugglers-notch-resort",
+  "state": "VT",
+  "lat": 44.588,
+  "lon": -72.79,
+  "base_elev_ft": 1030,
+  "summit_elev_ft": 3640
+ },
+ {
+  "name": "Bolton Valley",
+  "slug": "bolton-valley",
+  "state": "VT",
+  "lat": 44.421,
+  "lon": -72.85,
+  "base_elev_ft": 1570,
+  "summit_elev_ft": 3150
+ },
+ {
+  "name": "Mad River Glen",
+  "slug": "mad-river-glen",
+  "state": "VT",
+  "lat": 44.203,
+  "lon": -72.918,
+  "base_elev_ft": 1600,
+  "summit_elev_ft": 3637
+ },
+ {
+  "name": "Bromley Mountain",
+  "slug": "bromley-mountain",
+  "state": "VT",
+  "lat": 43.228,
+  "lon": -72.937,
+  "base_elev_ft": 1950,
+  "summit_elev_ft": 3284
+ },
+ {
+  "name": "Pico Mountain",
+  "slug": "pico-mountain",
+  "state": "VT",
+  "lat": 43.661,
+  "lon": -72.842,
+  "base_elev_ft": 2000,
+  "summit_elev_ft": 3967
+ },
+ {
+  "name": "Burke Mountain",
+  "slug": "burke-mountain",
+  "state": "VT",
+  "lat": 44.571,
+  "lon": -71.894,
+  "base_elev_ft": 1150,
+  "summit_elev_ft": 3267
+ },
+ {
+  "name": "Magic Mountain",
+  "slug": "magic-mountain",
+  "state": "VT",
+  "lat": 43.202,
+  "lon": -72.774,
+  "base_elev_ft": 1350,
+  "summit_elev_ft": 2850
+ },
+ {
+  "name": "Loon Mountain",
+  "slug": "loon-mountain",
+  "state": "NH",
+  "lat": 44.036,
+  "lon": -71.621,
+  "base_elev_ft": 950,
+  "summit_elev_ft": 3050
+ },
+ {
+  "name": "Cannon Mountain",
+  "slug": "cannon-mountain",
+  "state": "NH",
+  "lat": 44.156,
+  "lon": -71.698,
+  "base_elev_ft": 2000,
+  "summit_elev_ft": 4080
+ },
+ {
+  "name": "Bretton Woods",
+  "slug": "bretton-woods",
+  "state": "NH",
+  "lat": 44.258,
+  "lon": -71.441,
+  "base_elev_ft": 1500,
+  "summit_elev_ft": 3100
+ },
+ {
+  "name": "Waterville Valley",
+  "slug": "waterville-valley",
+  "state": "NH",
+  "lat": 43.965,
+  "lon": -71.528,
+  "base_elev_ft": 1984,
+  "summit_elev_ft": 4004
+ },
+ {
+  "name": "Attitash Mountain Resort",
+  "slug": "attitash-mountain-resort",
+  "state": "NH",
+  "lat": 44.083,
+  "lon": -71.229,
+  "base_elev_ft": 600,
+  "summit_elev_ft": 2350
+ },
+ {
+  "name": "Wildcat Mountain",
+  "slug": "wildcat-mountain",
+  "state": "NH",
+  "lat": 44.264,
+  "lon": -71.239,
+  "base_elev_ft": 1950,
+  "summit_elev_ft": 4062
+ },
+ {
+  "name": "Cranmore Mountain",
+  "slug": "cranmore-mountain",
+  "state": "NH",
+  "lat": 44.056,
+  "lon": -71.11,
+  "base_elev_ft": 950,
+  "summit_elev_ft": 2000
+ },
+ {
+  "name": "Gunstock Mountain Resort",
+  "slug": "gunstock-mountain-resort",
+  "state": "NH",
+  "lat": 43.544,
+  "lon": -71.368,
+  "base_elev_ft": 900,
+  "summit_elev_ft": 2267
+ },
+ {
+  "name": "Mount Sunapee",
+  "slug": "mount-sunapee",
+  "state": "NH",
+  "lat": 43.332,
+  "lon": -72.082,
+  "base_elev_ft": 1233,
+  "summit_elev_ft": 2743
+ },
+ {
+  "name": "Ragged Mountain",
+  "slug": "ragged-mountain",
+  "state": "NH",
+  "lat": 43.479,
+  "lon": -71.844,
+  "base_elev_ft": 1250,
+  "summit_elev_ft": 2286
+ },
+ {
+  "name": "Pats Peak",
+  "slug": "pats-peak",
+  "state": "NH",
+  "lat": 43.178,
+  "lon": -71.795,
+  "base_elev_ft": 710,
+  "summit_elev_ft": 1460
+ },
+ {
+  "name": "Sunday River",
+  "slug": "sunday-river",
+  "state": "ME",
+  "lat": 44.473,
+  "lon": -70.857,
+  "base_elev_ft": 800,
+  "summit_elev_ft": 3140
+ },
+ {
+  "name": "Sugarloaf",
+  "slug": "sugarloaf",
+  "state": "ME",
+  "lat": 45.031,
+  "lon": -70.313,
+  "base_elev_ft": 1417,
+  "summit_elev_ft": 4237
+ },
+ {
+  "name": "Saddleback Maine",
+  "slug": "saddleback-maine",
+  "state": "ME",
+  "lat": 44.951,
+  "lon": -70.507,
+  "base_elev_ft": 2120,
+  "summit_elev_ft": 4120
+ },
+ {
+  "name": "Shawnee Peak",
+  "slug": "shawnee-peak",
+  "state": "ME",
+  "lat": 44.059,
+  "lon": -70.814,
+  "base_elev_ft": 600,
+  "summit_elev_ft": 1900
+ },
+ {
+  "name": "Wachusett Mountain",
+  "slug": "wachusett-mountain",
+  "state": "MA",
+  "lat": 42.503,
+  "lon": -71.887,
+  "base_elev_ft": 1000,
+  "summit_elev_ft": 2006
+ },
+ {
+  "name": "Jiminy Peak",
+  "slug": "jiminy-peak",
+  "state": "MA",
+  "lat": 42.556,
+  "lon": -73.292,
+  "base_elev_ft": 1150,
+  "summit_elev_ft": 2380
+ },
+ {
+  "name": "Berkshire East",
+  "slug": "berkshire-east",
+  "state": "MA",
+  "lat": 42.622,
+  "lon": -72.875,
+  "base_elev_ft": 610,
+  "summit_elev_ft": 1790
+ },
+ {
+  "name": "Whiteface Mountain",
+  "slug": "whiteface-mountain",
+  "state": "NY",
+  "lat": 44.353,
+  "lon": -73.859,
+  "base_elev_ft": 1220,
+  "summit_elev_ft": 4386
+ },
+ {
+  "name": "Gore Mountain",
+  "slug": "gore-mountain",
+  "state": "NY",
+  "lat": 43.673,
+  "lon": -74.006,
+  "base_elev_ft": 998,
+  "summit_elev_ft": 3600
+ },
+ {
+  "name": "Hunter Mountain",
+  "slug": "hunter-mountain",
+  "state": "NY",
+  "lat": 42.202,
+  "lon": -74.231,
+  "base_elev_ft": 1600,
+  "summit_elev_ft": 3200
+ },
+ {
+  "name": "Windham Mountain",
+  "slug": "windham-mountain",
+  "state": "NY",
+  "lat": 42.294,
+  "lon": -74.257,
+  "base_elev_ft": 1500,
+  "summit_elev_ft": 3100
+ },
+ {
+  "name": "Belleayre Mountain",
+  "slug": "belleayre-mountain",
+  "state": "NY",
+  "lat": 42.133,
+  "lon": -74.505,
+  "base_elev_ft": 2025,
+  "summit_elev_ft": 3429
+ },
+ {
+  "name": "Holiday Valley",
+  "slug": "holiday-valley",
+  "state": "NY",
+  "lat": 42.265,
+  "lon": -78.668,
+  "base_elev_ft": 1500,
+  "summit_elev_ft": 2250
+ },
+ {
+  "name": "Greek Peak",
+  "slug": "greek-peak",
+  "state": "NY",
+  "lat": 42.505,
+  "lon": -76.145,
+  "base_elev_ft": 1148,
+  "summit_elev_ft": 2100
+ },
+ {
+  "name": "Bristol Mountain",
+  "slug": "bristol-mountain",
+  "state": "NY",
+  "lat": 42.745,
+  "lon": -77.403,
+  "base_elev_ft": 1200,
+  "summit_elev_ft": 2200
+ },
+ {
+  "name": "Seven Springs",
+  "slug": "seven-springs",
+  "state": "PA",
+  "lat": 40.023,
+  "lon": -79.297,
+  "base_elev_ft": 2240,
+  "summit_elev_ft": 2990
+ },
+ {
+  "name": "Camelback Resort",
+  "slug": "camelback-resort",
+  "state": "PA",
+  "lat": 41.051,
+  "lon": -75.356,
+  "base_elev_ft": 1250,
+  "summit_elev_ft": 2133
+ },
+ {
+  "name": "Blue Mountain Resort",
+  "slug": "blue-mountain-resort",
+  "state": "PA",
+  "lat": 40.822,
+  "lon": -75.513,
+  "base_elev_ft": 460,
+  "summit_elev_ft": 1600
+ },
+ {
+  "name": "Elk Mountain",
+  "slug": "elk-mountain",
+  "state": "PA",
+  "lat": 41.722,
+  "lon": -75.557,
+  "base_elev_ft": 1693,
+  "summit_elev_ft": 2693
+ },
+ {
+  "name": "Whitetail Resort",
+  "slug": "whitetail-resort",
+  "state": "PA",
+  "lat": 39.741,
+  "lon": -77.933,
+  "base_elev_ft": 865,
+  "summit_elev_ft": 1800
+ },
+ {
+  "name": "Liberty Mountain Resort",
+  "slug": "liberty-mountain-resort",
+  "state": "PA",
+  "lat": 39.763,
+  "lon": -77.375,
+  "base_elev_ft": 620,
+  "summit_elev_ft": 1190
+ },
+ {
+  "name": "Roundtop Mountain Resort",
+  "slug": "roundtop-mountain-resort",
+  "state": "PA",
+  "lat": 40.111,
+  "lon": -76.927,
+  "base_elev_ft": 755,
+  "summit_elev_ft": 1355
+ },
+ {
+  "name": "Mountain Creek",
+  "slug": "mountain-creek",
+  "state": "NJ",
+  "lat": 41.191,
+  "lon": -74.508,
+  "base_elev_ft": 440,
+  "summit_elev_ft": 1480
+ },
+ {
+  "name": "Snowshoe Mountain",
+  "slug": "snowshoe-mountain",
+  "state": "WV",
+  "lat": 38.41,
+  "lon": -79.994,
+  "base_elev_ft": 3348,
+  "summit_elev_ft": 4848
+ },
+ {
+  "name": "Wintergreen Resort",
+  "slug": "wintergreen-resort",
+  "state": "VA",
+  "lat": 37.923,
+  "lon": -78.942,
+  "base_elev_ft": 2847,
+  "summit_elev_ft": 3851
+ },
+ {
+  "name": "Massanutten Resort",
+  "slug": "massanutten-resort",
+  "state": "VA",
+  "lat": 38.409,
+  "lon": -78.743,
+  "base_elev_ft": 1600,
+  "summit_elev_ft": 2880
+ },
+ {
+  "name": "Wisp Resort",
+  "slug": "wisp-resort",
+  "state": "MD",
+  "lat": 39.557,
+  "lon": -79.362,
+  "base_elev_ft": 2400,
+  "summit_elev_ft": 3115
+ },
+ {
+  "name": "Sugar Mountain",
+  "slug": "sugar-mountain",
+  "state": "NC",
+  "lat": 36.13,
+  "lon": -81.859,
+  "base_elev_ft": 4100,
+  "summit_elev_ft": 5300
+ },
+ {
+  "name": "Beech Mountain Resort",
+  "slug": "beech-mountain-resort",
+  "state": "NC",
+  "lat": 36.195,
+  "lon": -81.88,
+  "base_elev_ft": 4675,
+  "summit_elev_ft": 5506
+ },
+ {
+  "name": "Appalachian Ski Mtn",
+  "slug": "appalachian-ski-mtn",
+  "state": "NC",
+  "lat": 36.174,
+  "lon": -81.665,
+  "base_elev_ft": 3635,
+  "summit_elev_ft": 4000
+ },
+ {
+  "name": "Cataloochee Ski Area",
+  "slug": "cataloochee-ski-area",
+  "state": "NC",
+  "lat": 35.561,
+  "lon": -83.09,
+  "base_elev_ft": 4660,
+  "summit_elev_ft": 5400
+ },
+ {
+  "name": "Mad River Mountain",
+  "slug": "mad-river-mountain",
+  "state": "OH",
+  "lat": 40.319,
+  "lon": -83.683,
+  "base_elev_ft": 1160,
+  "summit_elev_ft": 1460
+ },
+ {
+  "name": "Boyne Mountain",
+  "slug": "boyne-mountain",
+  "state": "MI",
+  "lat": 45.165,
+  "lon": -84.932,
+  "base_elev_ft": 650,
+  "summit_elev_ft": 1150
+ },
+ {
+  "name": "The Highlands",
+  "slug": "the-highlands",
+  "state": "MI",
+  "lat": 45.47,
+  "lon": -84.927,
+  "base_elev_ft": 735,
+  "summit_elev_ft": 1287
+ },
+ {
+  "name": "Crystal Mountain",
+  "slug": "crystal-mountain",
+  "state": "MI",
+  "lat": 44.522,
+  "lon": -85.993,
+  "base_elev_ft": 800,
+  "summit_elev_ft": 1175
+ },
+ {
+  "name": "Granite Peak",
+  "slug": "granite-peak",
+  "state": "WI",
+  "lat": 44.934,
+  "lon": -89.682,
+  "base_elev_ft": 1200,
+  "summit_elev_ft": 1900
+ },
+ {
+  "name": "Lutsen Mountains",
+  "slug": "lutsen-mountains",
+  "state": "MN",
+  "lat": 47.663,
+  "lon": -90.716,
+  "base_elev_ft": 700,
+  "summit_elev_ft": 1688
+ },
+ {
+  "name": "Spirit Mountain",
+  "slug": "spirit-mountain",
+  "state": "MN",
+  "lat": 46.718,
+  "lon": -92.217,
+  "base_elev_ft": 700,
+  "summit_elev_ft": 1360
+ },
+ {
+  "name": "Vail",
+  "slug": "vail",
+  "state": "CO",
+  "lat": 39.64,
+  "lon": -106.374,
+  "base_elev_ft": 8120,
+  "summit_elev_ft": 11570
+ },
+ {
+  "name": "Beaver Creek",
+  "slug": "beaver-creek",
+  "state": "CO",
+  "lat": 39.602,
+  "lon": -106.517,
+  "base_elev_ft": 8100,
+  "summit_elev_ft": 11440
+ },
+ {
+  "name": "Breckenridge",
+  "slug": "breckenridge",
+  "state": "CO",
+  "lat": 39.48,
+  "lon": -106.067,
+  "base_elev_ft": 9600,
+  "summit_elev_ft": 12998
+ },
+ {
+  "name": "Keystone",
+  "slug": "keystone",
+  "state": "CO",
+  "lat": 39.605,
+  "lon": -105.954,
+  "base_elev_ft": 9280,
+  "summit_elev_ft": 12408
+ },
+ {
+  "name": "Copper Mountain",
+  "slug": "copper-mountain",
+  "state": "CO",
+  "lat": 39.502,
+  "lon": -106.151,
+  "base_elev_ft": 9712,
+  "summit_elev_ft": 12313
+ },
+ {
+  "name": "Arapahoe Basin",
+  "slug": "arapahoe-basin",
+  "state": "CO",
+  "lat": 39.642,
+  "lon": -105.871,
+  "base_elev_ft": 10520,
+  "summit_elev_ft": 13050
+ },
+ {
+  "name": "Winter Park Resort",
+  "slug": "winter-park-resort",
+  "state": "CO",
+  "lat": 39.886,
+  "lon": -105.762,
+  "base_elev_ft": 9000,
+  "summit_elev_ft": 12060
+ },
+ {
+  "name": "Steamboat",
+  "slug": "steamboat",
+  "state": "CO",
+  "lat": 40.457,
+  "lon": -106.805,
+  "base_elev_ft": 6900,
+  "summit_elev_ft": 10568
+ },
+ {
+  "name": "Snowmass",
+  "slug": "snowmass",
+  "state": "CO",
+  "lat": 39.209,
+  "lon": -106.95,
+  "base_elev_ft": 8104,
+  "summit_elev_ft": 12510
+ },
+ {
+  "name": "Aspen Mountain",
+  "slug": "aspen-mountain",
+  "state": "CO",
+  "lat": 39.186,
+  "lon": -106.818,
+  "base_elev_ft": 7945,
+  "summit_elev_ft": 11212
+ },
+ {
+  "name": "Telluride",
+  "slug": "telluride",
+  "state": "CO",
+  "lat": 37.937,
+  "lon": -107.812,
+  "base_elev_ft": 8725,
+  "summit_elev_ft": 13150
+ },
+ {
+  "name": "Crested Butte",
+  "slug": "crested-butte",
+  "state": "CO",
+  "lat": 38.899,
+  "lon": -106.965,
+  "base_elev_ft": 9375,
+  "summit_elev_ft": 12162
+ },
+ {
+  "name": "Loveland Ski Area",
+  "slug": "loveland-ski-area",
+  "state": "CO",
+  "lat": 39.68,
+  "lon": -105.898,
+  "base_elev_ft": 10800,
+  "summit_elev_ft": 13010
+ },
+ {
+  "name": "Eldora Mountain",
+  "slug": "eldora-mountain",
+  "state": "CO",
+  "lat": 39.937,
+  "lon": -105.583,
+  "base_elev_ft": 9200,
+  "summit_elev_ft": 10800
+ },
+ {
+  "name": "Monarch Mountain",
+  "slug": "monarch-mountain",
+  "state": "CO",
+  "lat": 38.512,
+  "lon": -106.332,
+  "base_elev_ft": 10790,
+  "summit_elev_ft": 11952
+ },
+ {
+  "name": "Purgatory Resort",
+  "slug": "purgatory-resort",
+  "state": "CO",
+  "lat": 37.63,
+  "lon": -107.814,
+  "base_elev_ft": 8793,
+  "summit_elev_ft": 10822
+ },
+ {
+  "name": "Wolf Creek",
+  "slug": "wolf-creek",
+  "state": "CO",
+  "lat": 37.472,
+  "lon": -106.793,
+  "base_elev_ft": 10300,
+  "summit_elev_ft": 11904
+ },
+ {
+  "name": "Park City Mountain",
+  "slug": "park-city-mountain",
+  "state": "UT",
+  "lat": 40.651,
+  "lon": -111.508,
+  "base_elev_ft": 6800,
+  "summit_elev_ft": 10026
+ },
+ {
+  "name": "Deer Valley",
+  "slug": "deer-valley",
+  "state": "UT",
+  "lat": 40.637,
+  "lon": -111.478,
+  "base_elev_ft": 6570,
+  "summit_elev_ft": 9570
+ },
+ {
+  "name": "Alta",
+  "slug": "alta",
+  "state": "UT",
+  "lat": 40.588,
+  "lon": -111.638,
+  "base_elev_ft": 8530,
+  "summit_elev_ft": 10550
+ },
+ {
+  "name": "Snowbird",
+  "slug": "snowbird",
+  "state": "UT",
+  "lat": 40.581,
+  "lon": -111.657,
+  "base_elev_ft": 7760,
+  "summit_elev_ft": 11000
+ },
+ {
+  "name": "Brighton",
+  "slug": "brighton",
+  "state": "UT",
+  "lat": 40.598,
+  "lon": -111.583,
+  "base_elev_ft": 8755,
+  "summit_elev_ft": 10500
+ },
+ {
+  "name": "Solitude",
+  "slug": "solitude",
+  "state": "UT",
+  "lat": 40.62,
+  "lon": -111.592,
+  "base_elev_ft": 7988,
+  "summit_elev_ft": 10488
+ },
+ {
+  "name": "Snowbasin",
+  "slug": "snowbasin",
+  "state": "UT",
+  "lat": 41.216,
+  "lon": -111.857,
+  "base_elev_ft": 6400,
+  "summit_elev_ft": 9350
+ },
+ {
+  "name": "Brian Head",
+  "slug": "brian-head",
+  "state": "UT",
+  "lat": 37.702,
+  "lon": -112.85,
+  "base_elev_ft": 9600,
+  "summit_elev_ft": 11307
+ },
+ {
+  "name": "Sundance Mountain Resort",
+  "slug": "sundance-mountain-resort",
+  "state": "UT",
+  "lat": 40.393,
+  "lon": -111.588,
+  "base_elev_ft": 6100,
+  "summit_elev_ft": 8250
+ },
+ {
+  "name": "Jackson Hole",
+  "slug": "jackson-hole",
+  "state": "WY",
+  "lat": 43.587,
+  "lon": -110.828,
+  "base_elev_ft": 6311,
+  "summit_elev_ft": 10450
+ },
+ {
+  "name": "Grand Targhee",
+  "slug": "grand-targhee",
+  "state": "WY",
+  "lat": 43.789,
+  "lon": -110.958,
+  "base_elev_ft": 7851,
+  "summit_elev_ft": 10230
+ },
+ {
+  "name": "Big Sky Resort",
+  "slug": "big-sky-resort",
+  "state": "MT",
+  "lat": 45.286,
+  "lon": -111.401,
+  "base_elev_ft": 7500,
+  "summit_elev_ft": 11166
+ },
+ {
+  "name": "Whitefish Mountain",
+  "slug": "whitefish-mountain",
+  "state": "MT",
+  "lat": 48.481,
+  "lon": -114.353,
+  "base_elev_ft": 4464,
+  "summit_elev_ft": 6817
+ },
+ {
+  "name": "Bridger Bowl",
+  "slug": "bridger-bowl",
+  "state": "MT",
+  "lat": 45.817,
+  "lon": -110.897,
+  "base_elev_ft": 6100,
+  "summit_elev_ft": 8700
+ },
+ {
+  "name": "Sun Valley",
+  "slug": "sun-valley",
+  "state": "ID",
+  "lat": 43.682,
+  "lon": -114.375,
+  "base_elev_ft": 5750,
+  "summit_elev_ft": 9150
+ },
+ {
+  "name": "Schweitzer",
+  "slug": "schweitzer",
+  "state": "ID",
+  "lat": 48.368,
+  "lon": -116.623,
+  "base_elev_ft": 4700,
+  "summit_elev_ft": 6400
+ },
+ {
+  "name": "Bogus Basin",
+  "slug": "bogus-basin",
+  "state": "ID",
+  "lat": 43.765,
+  "lon": -116.102,
+  "base_elev_ft": 5800,
+  "summit_elev_ft": 7582
+ },
+ {
+  "name": "Taos Ski Valley",
+  "slug": "taos-ski-valley",
+  "state": "NM",
+  "lat": 36.596,
+  "lon": -105.454,
+  "base_elev_ft": 9207,
+  "summit_elev_ft": 12481
+ },
+ {
+  "name": "Ski Santa Fe",
+  "slug": "ski-santa-fe",
+  "state": "NM",
+  "lat": 35.796,
+  "lon": -105.804,
+  "base_elev_ft": 10350,
+  "summit_elev_ft": 12075
+ },
+ {
+  "name": "Arizona Snowbowl",
+  "slug": "arizona-snowbowl",
+  "state": "AZ",
+  "lat": 35.33,
+  "lon": -111.711,
+  "base_elev_ft": 9200,
+  "summit_elev_ft": 11500
+ },
+ {
+  "name": "Mammoth Mountain",
+  "slug": "mammoth-mountain",
+  "state": "CA",
+  "lat": 37.651,
+  "lon": -119.037,
+  "base_elev_ft": 7953,
+  "summit_elev_ft": 11053
+ },
+ {
+  "name": "Palisades Tahoe",
+  "slug": "palisades-tahoe",
+  "state": "CA",
+  "lat": 39.197,
+  "lon": -120.235,
+  "base_elev_ft": 6200,
+  "summit_elev_ft": 9050
+ },
+ {
+  "name": "Northstar California",
+  "slug": "northstar-california",
+  "state": "CA",
+  "lat": 39.274,
+  "lon": -120.121,
+  "base_elev_ft": 6330,
+  "summit_elev_ft": 8610
+ },
+ {
+  "name": "Heavenly",
+  "slug": "heavenly",
+  "state": "CA",
+  "lat": 38.935,
+  "lon": -119.94,
+  "base_elev_ft": 6540,
+  "summit_elev_ft": 10067
+ },
+ {
+  "name": "Kirkwood",
+  "slug": "kirkwood",
+  "state": "CA",
+  "lat": 38.685,
+  "lon": -120.065,
+  "base_elev_ft": 7800,
+  "summit_elev_ft": 9876
+ },
+ {
+  "name": "Sugar Bowl",
+  "slug": "sugar-bowl",
+  "state": "CA",
+  "lat": 39.304,
+  "lon": -120.335,
+  "base_elev_ft": 6883,
+  "summit_elev_ft": 8383
+ },
+ {
+  "name": "Sierra-at-Tahoe",
+  "slug": "sierra-at-tahoe",
+  "state": "CA",
+  "lat": 38.8,
+  "lon": -120.08,
+  "base_elev_ft": 6640,
+  "summit_elev_ft": 8852
+ },
+ {
+  "name": "Big Bear Mountain Resort",
+  "slug": "big-bear-mountain-resort",
+  "state": "CA",
+  "lat": 34.236,
+  "lon": -116.889,
+  "base_elev_ft": 7000,
+  "summit_elev_ft": 8200
+ },
+ {
+  "name": "Mountain High",
+  "slug": "mountain-high",
+  "state": "CA",
+  "lat": 34.376,
+  "lon": -117.691,
+  "base_elev_ft": 6600,
+  "summit_elev_ft": 8200
+ },
+ {
+  "name": "Mt. Rose",
+  "slug": "mt-rose",
+  "state": "NV",
+  "lat": 39.315,
+  "lon": -119.882,
+  "base_elev_ft": 7900,
+  "summit_elev_ft": 9700
+ },
+ {
+  "name": "Mt. Bachelor",
+  "slug": "mt-bachelor",
+  "state": "OR",
+  "lat": 43.979,
+  "lon": -121.688,
+  "base_elev_ft": 5700,
+  "summit_elev_ft": 9065
+ },
+ {
+  "name": "Mt. Hood Meadows",
+  "slug": "mt-hood-meadows",
+  "state": "OR",
+  "lat": 45.331,
+  "lon": -121.665,
+  "base_elev_ft": 4523,
+  "summit_elev_ft": 7300
+ },
+ {
+  "name": "Timberline Lodge",
+  "slug": "timberline-lodge",
+  "state": "OR",
+  "lat": 45.331,
+  "lon": -121.711,
+  "base_elev_ft": 4850,
+  "summit_elev_ft": 8540
+ },
+ {
+  "name": "Crystal Mountain",
+  "slug": "crystal-mountain-wa",
+  "state": "WA",
+  "lat": 46.935,
+  "lon": -121.475,
+  "base_elev_ft": 4400,
+  "summit_elev_ft": 7012
+ },
+ {
+  "name": "Stevens Pass",
+  "slug": "stevens-pass",
+  "state": "WA",
+  "lat": 47.745,
+  "lon": -121.089,
+  "base_elev_ft": 4061,
+  "summit_elev_ft": 5845
+ },
+ {
+  "name": "Mt. Baker",
+  "slug": "mt-baker",
+  "state": "WA",
+  "lat": 48.857,
+  "lon": -121.665,
+  "base_elev_ft": 3500,
+  "summit_elev_ft": 5089
+ },
+ {
+  "name": "The Summit at Snoqualmie",
+  "slug": "the-summit-at-snoqualmie",
+  "state": "WA",
+  "lat": 47.422,
+  "lon": -121.414,
+  "base_elev_ft": 3000,
+  "summit_elev_ft": 5400
+ },
+ {
+  "name": "Mission Ridge",
+  "slug": "mission-ridge",
+  "state": "WA",
+  "lat": 47.293,
+  "lon": -120.399,
+  "base_elev_ft": 4570,
+  "summit_elev_ft": 6820
+ },
+ {
+  "name": "Alyeska Resort",
+  "slug": "alyeska-resort",
+  "state": "AK",
+  "lat": 60.97,
+  "lon": -149.098,
+  "base_elev_ft": 250,
+  "summit_elev_ft": 3939
+ }
+]

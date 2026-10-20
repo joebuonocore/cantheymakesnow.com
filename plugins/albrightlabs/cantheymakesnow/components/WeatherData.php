@@ -10,6 +10,7 @@ use AlbrightLabs\CanTheyMakeSnow\Classes\ForecastChart;
 use AlbrightLabs\CanTheyMakeSnow\Classes\NoaaClient;
 use AlbrightLabs\CanTheyMakeSnow\Classes\WeatherService;
 use AlbrightLabs\CanTheyMakeSnow\Models\Location;
+use AlbrightLabs\CanTheyMakeSnow\Models\Resort;
 
 /**
  * WeatherData Component
@@ -30,6 +31,7 @@ class WeatherData extends ComponentBase
     const OBSERVATION_MAX_AGE_SECONDS = 7200;
 
     const ERRORS = [
+        'resort_not_found' => "We don't know that resort. Try searching for it by name.",
         'bad_coords' => "Those coordinates don't look right. Try entering a city and state instead.",
         'not_configured' => 'Location lookup is not configured. Please try again later.',
         'geocode_unreachable' => 'The Google Maps API is unreachable right now. Please try again later.',
@@ -64,7 +66,7 @@ class WeatherData extends ComponentBase
 
     public function onRun()
     {
-        $this->runLookup(get('address'), get('lat'), get('lon'));
+        $this->runLookup(get('address'), get('lat'), get('lon'), get('resort'));
     }
 
     /**
@@ -73,7 +75,7 @@ class WeatherData extends ComponentBase
      */
     public function onLookup()
     {
-        $result = $this->runLookup(post('address'), post('lat'), post('lon'));
+        $result = $this->runLookup(post('address'), post('lat'), post('lon'), post('resort'));
 
         return [
             'ok' => (bool) $result,
@@ -87,21 +89,36 @@ class WeatherData extends ComponentBase
      * Resolve the request into a result or an error and publish it to the page.
      * Returns the result array, or null when there is nothing to show.
      */
-    protected function runLookup($address, $lat, $lon): ?array
+    protected function runLookup($address, $lat, $lon, $resortSlug = null): ?array
     {
         $address = is_string($address) ? trim($address) : null;
+        $resortSlug = is_string($resortSlug) ? trim($resortSlug) : null;
         $hasCoords = ($lat !== null && $lat !== '') || ($lon !== null && $lon !== '');
 
         $this->page['query'] = $address;
         $this->page['result'] = null;
         $this->page['lookupError'] = null;
 
-        if (!$address && !$hasCoords) {
+        if (!$address && !$hasCoords && !$resortSlug) {
             return null;
         }
 
+        // Typing a resort's exact name is treated like picking it.
+        $resort = null;
+        if ($resortSlug) {
+            $resort = Resort::isEnabled()->where('slug', $resortSlug)->first();
+            if (!$resort) {
+                return $this->fail('resort_not_found');
+            }
+        } elseif ($address) {
+            $resort = $this->matchResortName($address);
+        }
+
         $query = [];
-        if ($address) {
+        if ($resort) {
+            [$lat, $lon] = [$resort->lat, $resort->lon];
+            $query = ['resort' => $resort->slug];
+        } elseif ($address) {
             $geocode = $this->geocode($address);
             if (isset($geocode['error'])) {
                 return $this->fail($geocode['error']);
@@ -121,6 +138,18 @@ class WeatherData extends ComponentBase
             return $this->fail($result['error']);
         }
 
+        if ($resort) {
+            $result['place'] = $resort->label;
+            $result['resort'] = [
+                'slug' => $resort->slug,
+                'name' => $resort->name,
+                'baseFt' => $resort->base_elev_ft,
+                'summitFt' => $resort->summit_elev_ft,
+            ];
+            $result['pinLat'] = (float) $resort->lat;
+            $result['pinLon'] = (float) $resort->lon;
+        }
+
         $result['shareUrl'] = url('/') . '?' . http_build_query($query);
         $this->page['result'] = $result;
         $this->page['query'] = $address ?: $result['place'];
@@ -128,9 +157,25 @@ class WeatherData extends ComponentBase
         $this->page->meta_title = $this->metaTitle($result);
         $this->page->meta_description = $this->metaDescription($result);
 
-        $this->recordLookup($result);
+        $resort ? $this->recordResortLookup($resort, $result) : $this->recordLookup($result);
 
         return $result;
+    }
+
+    /**
+     * Find an enabled resort whose name (optionally followed by its state) matches exactly.
+     */
+    protected function matchResortName(string $text): ?Resort
+    {
+        $normalized = strtolower(preg_replace('/\s+/', ' ', trim($text)));
+        $name = trim(preg_replace('/,?\s+[a-z]{2}$/', '', $normalized));
+
+        return Resort::isEnabled()
+            ->where(function ($q) use ($normalized, $name) {
+                $q->whereRaw('LOWER(name) = ?', [$normalized])->orWhereRaw('LOWER(name) = ?', [$name]);
+            })
+            ->orderByRaw('LOWER(name) = ? DESC', [$normalized])
+            ->first();
     }
 
     protected function fail(string $code): ?array
@@ -298,15 +343,45 @@ class WeatherData extends ComponentBase
 
         $query = Location::whereKey($location->getKey());
         if (isset($recent[$locationKey])) {
-            if ($updates) {
-                $query->update($updates);
-            }
+            $query->update($updates + $this->conditions($result));
         } else {
-            $query->increment('lookups', 1, $updates + ['last_looked_up_at' => Carbon::now()]);
+            $query->increment('lookups', 1, $updates + ['last_looked_up_at' => Carbon::now()] + $this->conditions($result));
             $recent[$locationKey] = time();
         }
 
         Session::put($sessionKey, $recent);
+    }
+
+    /**
+     * Count a resort lookup (once per session per LOOKUP_DEDUPE_SECONDS)
+     * and remember its latest conditions for the map.
+     */
+    protected function recordResortLookup(Resort $resort, array $result)
+    {
+        $sessionKey = 'cantheymakesnow.recent_resorts';
+        $recent = array_filter(
+            (array) Session::get($sessionKey, []),
+            fn ($at) => $at > time() - self::LOOKUP_DEDUPE_SECONDS
+        );
+
+        $conditions = $this->conditions($result) + ['last_checked_at' => Carbon::now()];
+        $query = Resort::whereKey($resort->getKey());
+        if (isset($recent[$resort->slug])) {
+            $query->update($conditions);
+        } else {
+            $query->increment('lookups', 1, $conditions);
+            $recent[$resort->slug] = time();
+        }
+
+        Session::put($sessionKey, $recent);
+    }
+
+    protected function conditions(array $result): array
+    {
+        return [
+            'last_wet_bulb' => round($result['now']['wetBulbC'], 2),
+            'last_tier' => $result['now']['tier'],
+        ];
     }
 
     /**
