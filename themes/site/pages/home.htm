@@ -36,7 +36,7 @@ meta_description = "This webpage uses your latitude and longitude to retrieve th
         {% endflash %}
 
         <div class="hero-answer">
-            {% if data.lat and data.lon and not data.wetBulb == null %}
+            {% if data.lat and data.lon and data.wetBulb is not null %}
                 <div class="hero-answer__headline" data-tier="{{ snowTier }}">
                     {% if snow %}YES{% else %}NO{% endif %}
                 </div>

@@ -60,8 +60,21 @@ class Plugin extends PluginBase
                 'label' => 'Locations',
                 'url' => Backend::url('albrightlabs/cantheymakesnow/locations'),
                 'icon' => 'icon-snowflake-o',
-                'permissions' => ['*'],
+                'permissions' => ['albrightlabs.cantheymakesnow'],
                 'order' => 500,
+            ],
+        ];
+    }
+
+    /**
+     * registerPermissions used by the backend.
+     */
+    public function registerPermissions()
+    {
+        return [
+            'albrightlabs.cantheymakesnow' => [
+                'tab' => 'CanTheyMakeSnow',
+                'label' => 'Manage lookup locations',
             ],
         ];
     }

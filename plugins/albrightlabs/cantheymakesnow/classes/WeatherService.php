@@ -61,27 +61,38 @@ class WeatherService
     }
 
     /**
-     * Given a NOAA `values` array (each item has `validTime` like
-     * "2024-01-01T00:00:00+00:00/PT3H"), find the entry whose validity
-     * window midpoint is closest to $currentTime.
+     * Given a NOAA `values` array (each item has an ISO 8601 interval
+     * `validTime` like "2024-01-01T00:00:00+00:00/PT3H" or ".../P1DT6H"),
+     * return the entry whose window contains $currentTime. If none does,
+     * fall back to the window nearest to it.
      */
     public function findClosestTime(array $values, Carbon $currentTime): array
     {
         $closestTime = null;
         $minDifference = PHP_INT_MAX;
         $valueAtClosestTime = null;
+        $now = $currentTime->timestamp;
 
         foreach ($values as $item) {
-            $validTime = Carbon::parse(substr($item['validTime'], 0, 19), 'UTC');
+            [$startString, $durationString] = array_pad(explode('/', $item['validTime'], 2), 2, null);
 
-            if (preg_match('/PT(\d+)H/', $item['validTime'], $matches)) {
-                $validTime->addHours((int) $matches[1]);
+            try {
+                $start = Carbon::parse($startString)->utc();
+                $end = $durationString ? $start->copy()->add(new \DateInterval($durationString)) : $start->copy();
+            } catch (\Exception $e) {
+                continue;
             }
 
-            $difference = abs($validTime->timestamp - $currentTime->timestamp);
+            if ($now >= $start->timestamp && $now < $end->timestamp) {
+                return ['time' => $start, 'value' => $item['value']];
+            }
+
+            $difference = $now < $start->timestamp
+                ? $start->timestamp - $now
+                : $now - $end->timestamp;
 
             if ($difference < $minDifference) {
-                $closestTime = $validTime;
+                $closestTime = $start;
                 $minDifference = $difference;
                 $valueAtClosestTime = $item['value'];
             }

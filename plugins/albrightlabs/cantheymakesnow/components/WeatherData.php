@@ -3,7 +3,9 @@
 use Flash;
 use Carbon\Carbon;
 use Cms\Classes\ComponentBase;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use AlbrightLabs\CanTheyMakeSnow\Classes\WeatherService;
@@ -20,9 +22,13 @@ class WeatherData extends ComponentBase
     const HTTP_CONNECT_TIMEOUT = 5;
     const CACHE_TTL_POINTS = 86400;
     const CACHE_TTL_GRIDPOINTS = 1800;
+    const LOOKUP_DEDUPE_SECONDS = 1800;
 
     public $lat;
     public $lon;
+
+    protected $cityLat;
+    protected $cityLon;
     public $snow;
     public $snowTier;
     public $snowTierLabel;
@@ -62,9 +68,13 @@ class WeatherData extends ComponentBase
             }
         }
 
-        if (get('lat') && get('lon')) {
-            $this->lat = get('lat');
-            $this->lon = get('lon');
+        if (get('lat') !== null || get('lon') !== null) {
+            if (!$this->isValidCoordinate(get('lat'), get('lon'))) {
+                Flash::error("Those coordinates don't look right. Try entering a city and state instead.");
+                return redirect()->to(url('/'));
+            }
+            $this->lat = (float) get('lat');
+            $this->lon = (float) get('lon');
         }
 
         if (!is_null($this->lat) && !is_null($this->lon)) {
@@ -82,21 +92,63 @@ class WeatherData extends ComponentBase
         $this->page['address'] = $this->address;
 
         if ($this->state && $this->city) {
-            $location = Location::firstOrCreate(
-                ['city' => $this->city, 'state' => $this->state],
-                ['lat' => $this->lat, 'lon' => $this->lon]
-            );
-
-            if (is_null($location->lat) || is_null($location->lon)) {
-                $location->lat = $this->lat;
-                $location->lon = $this->lon;
-                $location->save();
-            }
-
-            $location->lookups = $location->lookups + 1;
-            $location->last_looked_up_at = Carbon::now();
-            $location->save();
+            $this->recordLookup();
         }
+    }
+
+    protected function isValidCoordinate($lat, $lon): bool
+    {
+        return is_numeric($lat) && is_numeric($lon)
+            && (float) $lat >= -90 && (float) $lat <= 90
+            && (float) $lon >= -180 && (float) $lon <= 180;
+    }
+
+    /**
+     * Count a lookup against the city/state and keep its map pin current.
+     * Pins use NOAA's coordinates for the city itself, never the visitor's
+     * own (possibly GPS-precise) coordinates.
+     */
+    protected function recordLookup()
+    {
+        $sessionKey = 'cantheymakesnow.recent_lookups';
+        $locationKey = "{$this->city}|{$this->state}";
+        $recent = array_filter(
+            (array) Session::get($sessionKey, []),
+            fn ($at) => $at > time() - self::LOOKUP_DEDUPE_SECONDS
+        );
+
+        $hasCityCoords = $this->cityLat !== null && $this->cityLon !== null;
+        $pinLat = $hasCityCoords ? $this->cityLat : round((float) $this->lat, 1);
+        $pinLon = $hasCityCoords ? $this->cityLon : round((float) $this->lon, 1);
+
+        $attributes = ['city' => $this->city, 'state' => $this->state];
+        try {
+            $location = Location::firstOrCreate($attributes, ['lat' => $pinLat, 'lon' => $pinLon]);
+        } catch (QueryException $e) {
+            // Lost a race with a concurrent first lookup of the same city.
+            $location = Location::where($attributes)->first();
+        }
+
+        if (!$location) {
+            return;
+        }
+
+        $updates = [];
+        if ($hasCityCoords || is_null($location->lat) || is_null($location->lon)) {
+            $updates = ['lat' => $pinLat, 'lon' => $pinLon];
+        }
+
+        $query = Location::whereKey($location->getKey());
+        if (isset($recent[$locationKey])) {
+            if ($updates) {
+                $query->update($updates);
+            }
+        } else {
+            $query->increment('lookups', 1, $updates + ['last_looked_up_at' => Carbon::now()]);
+            $recent[$locationKey] = time();
+        }
+
+        Session::put($sessionKey, $recent);
     }
 
     public function onSubmit()
@@ -195,6 +247,13 @@ class WeatherData extends ComponentBase
 
         if ($this->city && $this->state) {
             $this->address = "{$this->city}, {$this->state}";
+        }
+
+        // GeoJSON order: [lon, lat]
+        $cityCoords = $pointsResponse['properties']['relativeLocation']['geometry']['coordinates'] ?? null;
+        if (is_array($cityCoords) && isset($cityCoords[0], $cityCoords[1])) {
+            $this->cityLon = round((float) $cityCoords[0], 6);
+            $this->cityLat = round((float) $cityCoords[1], 6);
         }
 
         $gridId = $pointsResponse['properties']['gridId'] ?? null;

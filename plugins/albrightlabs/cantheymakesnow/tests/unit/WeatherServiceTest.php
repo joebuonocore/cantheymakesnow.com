@@ -120,4 +120,41 @@ class WeatherServiceTest extends TestCase
 
         $this->assertEquals(42, $result['value']);
     }
+
+    public function test_find_closest_time_prefers_window_containing_now()
+    {
+        $now = Carbon::parse('2026-01-01T12:00:00+00:00');
+        $values = [
+            // Ends exactly at 12:00 — no longer valid.
+            ['validTime' => '2026-01-01T06:00:00+00:00/PT6H', 'value' => 1],
+            // 12:00–13:00 contains now.
+            ['validTime' => '2026-01-01T12:00:00+00:00/PT1H', 'value' => 2],
+        ];
+
+        $this->assertEquals(2, $this->service->findClosestTime($values, $now)['value']);
+    }
+
+    public function test_find_closest_time_handles_day_and_minute_durations()
+    {
+        $now = Carbon::parse('2026-01-02T03:00:00+00:00');
+        $values = [
+            ['validTime' => '2026-01-01T00:00:00+00:00/PT30M', 'value' => 1],
+            // Runs for a day and six hours, so it covers now.
+            ['validTime' => '2026-01-01T00:00:00+00:00/P1DT6H', 'value' => 2],
+        ];
+
+        $this->assertEquals(2, $this->service->findClosestTime($values, $now)['value']);
+    }
+
+    public function test_find_closest_time_respects_timezone_offset()
+    {
+        // 07:00-05:00 is 12:00 UTC.
+        $now = Carbon::parse('2026-01-01T12:30:00+00:00');
+        $values = [
+            ['validTime' => '2026-01-01T07:00:00-05:00/PT1H', 'value' => 1],
+            ['validTime' => '2026-01-01T15:00:00+00:00/PT1H', 'value' => 2],
+        ];
+
+        $this->assertEquals(1, $this->service->findClosestTime($values, $now)['value']);
+    }
 }
