@@ -11,7 +11,26 @@ description = "Default layout"
 
             gtag('config', 'G-2QX58NHYF6');
         </script>
-        <script src="https://getbootstrap.com/docs/5.3/assets/js/color-modes.js"></script>
+        <script>
+            (function () {
+                // Follow the OS colour scheme; custom.css uses the same media query.
+                var query = window.matchMedia('(prefers-color-scheme: dark)');
+                function apply() {
+                    document.documentElement.setAttribute('data-bs-theme', query.matches ? 'dark' : 'light');
+                }
+                apply();
+                if (query.addEventListener) {
+                    query.addEventListener('change', apply);
+                }
+
+                // Apply the saved °F/°C choice before first paint.
+                try {
+                    if (localStorage.getItem('ctms.units') === 'c') {
+                        document.documentElement.setAttribute('data-units', 'c');
+                    }
+                } catch (e) {}
+            })();
+        </script>
 
         <title>{{ this.page.meta_title }}</title>
         <meta charset="utf-8" />
@@ -19,30 +38,39 @@ description = "Default layout"
         <meta name="description" content="{{ this.page.meta_description }}" />
         <meta name="title" content="{{ this.page.meta_title }}" />
         <meta name="author" content="Joe Buonocore" />
+        <meta name="ctms-maps-key" content="{{ env('GOOGLE_MAPS_BROWSER_KEY') ?: env('GOOGLE_MAPS_API_KEY') }}" />
+        <meta name="ctms-map-id" content="{{ env('GOOGLE_MAPS_MAP_ID') ?: 'DEMO_MAP_ID' }}" />
 
-        <link rel="canonical" href="https://cantheymakesnow.com{{ this.page.url }}" />
+        {# Resort results are worth indexing on their own; other lookups fold into the home page. #}
+        <link rel="canonical" href="https://cantheymakesnow.com{{ result.resort is defined ? '/?resort=' ~ result.resort.slug : this.page.url }}" />
 
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Can They Make Snow?" />
         <meta property="og:title" content="{{ this.page.meta_title }}" />
         <meta property="og:description" content="{{ this.page.meta_description }}" />
-        <meta property="og:url" content="https://cantheymakesnow.com{{ this.page.url }}" />
+        <meta property="og:url" content="{{ result.shareUrl ?? ('https://cantheymakesnow.com' ~ this.page.url) }}" />
+        {% set ogImage = shareImage ?: defaultShareImage() %}
+        {% if ogImage %}
+        <meta property="og:image" content="{{ ogImage }}" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="{{ ogImage }}" />
+        {% else %}
         <meta name="twitter:card" content="summary" />
+        {% endif %}
         <meta name="twitter:title" content="{{ this.page.meta_title }}" />
         <meta name="twitter:description" content="{{ this.page.meta_description }}" />
 
-        <link rel="stylesheet" href="{{ ['assets/css/app.css']|theme }}" />
         <link rel="stylesheet" href="{{ ['assets/css/custom.css']|theme }}" />
         <link rel="stylesheet" href="{{ ['assets/css/tw.css']|theme }}" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
-        <link rel="icon" type="image/x-icon" href="https://fav.farm/%E2%9D%84%EF%B8%8F">
-
-        <script type="text/javascript" src="{{ ['assets/js/manifest.js']|theme }}"></script>
-        <script type="text/javascript" src="{{ ['assets/js/vendor.js']|theme }}"></script>
-        <script type="text/javascript" src="{{ ['assets/js/app.js']|theme }}"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous" defer></script>
+        <link rel="icon" href="{{ 'assets/images/icons/favicon.ico'|theme }}" sizes="32x32" />
+        <link rel="icon" href="{{ 'assets/images/icons/favicon.svg'|theme }}" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="{{ 'assets/images/icons/apple-touch-icon.png'|theme }}" />
+        <link rel="manifest" href="{{ 'assets/site.webmanifest'|theme }}" />
+        <meta name="theme-color" content="#1c5cab" />
 
         {% styles %}
     </head>
@@ -54,7 +82,8 @@ description = "Default layout"
 
         {% placeholder footer %}
 
-        {% framework extras turbo %}
+        {% framework extras %}
+        <script src="{{ ['assets/js/site.js']|theme }}"></script>
         {% scripts %}
     </body>
 </html>

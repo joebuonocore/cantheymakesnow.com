@@ -1,44 +1,33 @@
 <?php namespace AlbrightLabs\CanTheyMakeSnow\Components;
 
-use Flash;
 use Carbon\Carbon;
 use Cms\Classes\ComponentBase;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
-use AlbrightLabs\CanTheyMakeSnow\Classes\WeatherService;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Session;
+use AlbrightLabs\CanTheyMakeSnow\Classes\ShareImage;
+use AlbrightLabs\CanTheyMakeSnow\Classes\SnowReport;
 use AlbrightLabs\CanTheyMakeSnow\Models\Location;
+use AlbrightLabs\CanTheyMakeSnow\Models\Resort;
 
 /**
  * WeatherData Component
+ *
+ * Runs a lookup (address, coordinates or resort) through SnowReport and
+ * exposes a single `result` (or `lookupError`) to the theme's `result`
+ * partial. Used both on page load (shareable GET URLs) and through the
+ * onLookup AJAX handler, and records lookups for the map.
  *
  * @link https://docs.octobercms.com/3.x/extend/cms-components.html
  */
 class WeatherData extends ComponentBase
 {
-    const HTTP_TIMEOUT = 10;
-    const HTTP_CONNECT_TIMEOUT = 5;
-    const CACHE_TTL_POINTS = 86400;
-    const CACHE_TTL_GRIDPOINTS = 1800;
+    const LOOKUP_DEDUPE_SECONDS = 1800;
 
-    public $lat;
-    public $lon;
-    public $snow;
-    public $snowTier;
-    public $snowTierLabel;
-
-    public $address;
-
-    public $city;
-    public $state;
-
-    public $data;
-
-    protected WeatherService $weather;
+    protected SnowReport $report;
 
     public function init()
     {
-        $this->weather = new WeatherService();
+        $this->report = new SnowReport();
     }
 
     public function componentDetails()
@@ -56,212 +45,132 @@ class WeatherData extends ComponentBase
 
     public function onRun()
     {
-        if (get('address')) {
-            if (!$this->setLatLon(get('address'))) {
-                return redirect()->to(url('/'));
-            }
-        }
-
-        if (get('lat') && get('lon')) {
-            $this->lat = get('lat');
-            $this->lon = get('lon');
-        }
-
-        if (!is_null($this->lat) && !is_null($this->lon)) {
-            $this->data = $this->getData();
-            $this->page['data'] = $this->data;
-        }
-
-        $this->page['lat'] = $this->lat;
-        $this->page['lon'] = $this->lon;
-        $this->page['snow'] = $this->snow;
-        $this->page['snowTier'] = $this->snowTier;
-        $this->page['snowTierLabel'] = $this->snowTierLabel;
-        $this->page['city'] = $this->city;
-        $this->page['state'] = $this->state;
-        $this->page['address'] = $this->address;
-
-        if ($this->state && $this->city) {
-            $location = Location::firstOrCreate(
-                ['city' => $this->city, 'state' => $this->state],
-                ['lat' => $this->lat, 'lon' => $this->lon]
-            );
-
-            if (is_null($location->lat) || is_null($location->lon)) {
-                $location->lat = $this->lat;
-                $location->lon = $this->lon;
-                $location->save();
-            }
-
-            $location->lookups = $location->lookups + 1;
-            $location->last_looked_up_at = Carbon::now();
-            $location->save();
-        }
-    }
-
-    public function onSubmit()
-    {
-        $address = urlencode(post('address'));
-        return redirect()->to(url('/')."?address={$address}");
+        $this->runLookup(get('address'), get('lat'), get('lon'), get('resort'));
     }
 
     /**
-     * Geocode a free-text address via Google Maps.
-     * Returns true on success, false on failure (with a flash error set).
+     * AJAX lookup. Updates the `result` partial and returns data the
+     * browser needs to keep the URL, title and map in sync.
      */
-    public function setLatLon($address)
+    public function onLookup()
     {
-        $apiKey = env('GOOGLE_MAPS_SERVER_KEY') ?: env('GOOGLE_MAPS_API_KEY');
-
-        if (!$apiKey) {
-            Flash::error('Location lookup is not configured. Please try again later.');
-            return false;
-        }
-
-        try {
-            $response = Http::connectTimeout(self::HTTP_CONNECT_TIMEOUT)
-                ->timeout(self::HTTP_TIMEOUT)
-                ->get('https://maps.googleapis.com/maps/api/geocode/json', [
-                    'address' => $address,
-                    'key' => $apiKey,
-                ]);
-        } catch (\Throwable $e) {
-            Log::warning('Geocode network error', ['address' => $address, 'error' => $e->getMessage()]);
-            Flash::error("The Google Maps API is unreachable right now. Please try again later.");
-            return false;
-        }
-
-        if (!$response->successful()) {
-            Log::warning('Geocode HTTP error', ['address' => $address, 'status' => $response->status()]);
-            Flash::error("Location lookup is temporarily unavailable. Please try again later.");
-            return false;
-        }
-
-        $jsonData = $response->json();
-        $gStatus = $jsonData['status'] ?? null;
-
-        if ($gStatus === 'OK' && !empty($jsonData['results'])) {
-            $this->lat = $jsonData['results'][0]['geometry']['location']['lat'];
-            $this->lon = $jsonData['results'][0]['geometry']['location']['lng'];
-            return true;
-        }
-
-        Log::warning('Geocode non-OK', [
-            'address' => $address,
-            'google_status' => $gStatus,
-            'google_error' => $jsonData['error_message'] ?? null,
-        ]);
-
-        switch ($gStatus) {
-            case 'ZERO_RESULTS':
-                Flash::error("We couldn't find that location. Try a different city and state.");
-                break;
-            case 'OVER_QUERY_LIMIT':
-                Flash::error("Too many lookups right now. Please try again in a moment.");
-                break;
-            case 'REQUEST_DENIED':
-            case 'INVALID_REQUEST':
-            case 'UNKNOWN_ERROR':
-            default:
-                Flash::error("Location lookup is temporarily unavailable. Please try again later.");
-                break;
-        }
-        return false;
-    }
-
-    public function getData()
-    {
-        if (!$this->lat || !$this->lon) {
-            return null;
-        }
-
-        $latitude = $this->weather->customRound((float) $this->lat);
-        $longitude = $this->weather->customRound((float) $this->lon);
-
-        $pointsKey = "noaa:points:{$latitude},{$longitude}";
-        $pointsResponse = Cache::get($pointsKey);
-        if (!$pointsResponse) {
-            $pointsResponse = $this->fetchNoaa("https://api.weather.gov/points/{$latitude},{$longitude}");
-            if ($pointsResponse) {
-                Cache::put($pointsKey, $pointsResponse, self::CACHE_TTL_POINTS);
-            }
-        }
-        if (!$pointsResponse) {
-            return null;
-        }
-
-        $this->city = $pointsResponse['properties']['relativeLocation']['properties']['city'] ?? null;
-        $this->state = $pointsResponse['properties']['relativeLocation']['properties']['state'] ?? null;
-
-        if ($this->city && $this->state) {
-            $this->address = "{$this->city}, {$this->state}";
-        }
-
-        $gridId = $pointsResponse['properties']['gridId'] ?? null;
-        $gridX = $pointsResponse['properties']['gridX'] ?? null;
-        $gridY = $pointsResponse['properties']['gridY'] ?? null;
-
-        if (!$gridId || $gridX === null || $gridY === null) {
-            return null;
-        }
-
-        $gridKey = "noaa:grid:{$gridId}:{$gridX},{$gridY}";
-        $gridpoints = Cache::get($gridKey);
-        if (!$gridpoints) {
-            $gridpoints = $this->fetchNoaa("https://api.weather.gov/gridpoints/{$gridId}/{$gridX},{$gridY}");
-            if ($gridpoints) {
-                Cache::put($gridKey, $gridpoints, self::CACHE_TTL_GRIDPOINTS);
-            }
-        }
-        if (!$gridpoints) {
-            return null;
-        }
-
-        $temperatures = $gridpoints['properties']['temperature']['values'] ?? [];
-        $humidities = $gridpoints['properties']['relativeHumidity']['values'] ?? [];
-        $temperatureUom = $gridpoints['properties']['temperature']['uom'] ?? 'wmoUnit:degC';
-
-        $currentTime = Carbon::now('UTC');
-        $closestTemperature = $this->weather->findClosestTime($temperatures, $currentTime);
-        $closestHumidity = $this->weather->findClosestTime($humidities, $currentTime);
-
-        $wetBulb = null;
-        if ($closestTemperature['value'] !== null && $closestHumidity['value'] !== null) {
-            $dryBulbTemp = $this->weather->toCelsius((float) $closestTemperature['value'], $temperatureUom);
-            $closestTemperature['value'] = $dryBulbTemp;
-            $wetBulb = $this->weather->calculateWetBulb($dryBulbTemp, (float) $closestHumidity['value']);
-        }
-
-        $tier = $this->weather->snowmakingTier($wetBulb);
-        $this->snow = $tier['snow'];
-        $this->snowTier = $tier['tier'];
-        $this->snowTierLabel = $tier['label'];
+        $result = $this->runLookup(post('address'), post('lat'), post('lon'), post('resort'));
 
         return [
-            'lat' => $this->lat,
-            'lon' => $this->lon,
-            'closestTemperature' => $closestTemperature,
-            'closestHumidity' => $closestHumidity,
-            'wetBulb' => $wetBulb,
+            'ok' => (bool) $result,
+            'shareUrl' => $result['shareUrl'] ?? null,
+            'pageTitle' => $result ? $this->report->metaTitle($result) : null,
+            'pin' => $result ? ['lat' => $result['pinLat'], 'lng' => $result['pinLon'], 'tier' => $result['now']['tier']] : null,
         ];
     }
 
-    protected function fetchNoaa($url)
+    /**
+     * Resolve the request into a result or an error and publish it to the page.
+     * Returns the result array, or null when there is nothing to show.
+     */
+    protected function runLookup($address, $lat, $lon, $resortSlug = null): ?array
     {
+        $this->page['query'] = is_string($address) ? trim($address) : null;
+        $this->page['result'] = null;
+        $this->page['lookupError'] = null;
+
+        $report = $this->report->resolve($address, $lat, $lon, $resortSlug);
+        if (!$report) {
+            return null;
+        }
+        if (isset($report['error'])) {
+            $this->page['lookupError'] = ['code' => $report['error'], 'message' => SnowReport::errorMessage($report['error'])];
+            return null;
+        }
+
+        $result = $report['result'];
+        $this->page['result'] = $result;
+        $this->page['query'] = $report['address'] ?: $result['place'];
+        $this->page->meta_title = $this->report->metaTitle($result);
+        $this->page->meta_description = $this->report->metaDescription($result);
+        $this->page['shareImage'] = ShareImage::available() ? url('share.png') . '?' . http_build_query($result['query']) : null;
+
+        $report['resort'] ? $this->recordResortLookup($report['resort'], $result) : $this->recordLookup($result);
+
+        return $result;
+    }
+
+    /**
+     * Count a lookup against the city/state and keep its map pin current.
+     * A city is counted once per visitor session per LOOKUP_DEDUPE_SECONDS.
+     */
+    protected function recordLookup(array $result)
+    {
+        if (!$result['city'] || !$result['state']) {
+            return;
+        }
+
+        $sessionKey = 'cantheymakesnow.recent_lookups';
+        $locationKey = "{$result['city']}|{$result['state']}";
+        $recent = array_filter(
+            (array) Session::get($sessionKey, []),
+            fn ($at) => $at > time() - self::LOOKUP_DEDUPE_SECONDS
+        );
+
+        $pin = ['lat' => $result['pinLat'], 'lon' => $result['pinLon']];
+        $attributes = ['city' => $result['city'], 'state' => $result['state']];
         try {
-            $response = Http::withHeaders(['User-Agent' => 'cantheymakesnow.com (support@albrightlabs.com)'])
-                ->connectTimeout(self::HTTP_CONNECT_TIMEOUT)
-                ->timeout(self::HTTP_TIMEOUT)
-                ->get($url);
-        } catch (\Throwable $e) {
-            return null;
+            $location = Location::firstOrCreate($attributes, $pin);
+        } catch (QueryException $e) {
+            // Lost a race with a concurrent first lookup of the same city.
+            $location = Location::where($attributes)->first();
         }
 
-        if (!in_array($response->status(), [200, 301], true)) {
-            return null;
+        if (!$location) {
+            return;
         }
 
-        return $response->json();
+        $updates = [];
+        if ($result['hasCityCoords'] || is_null($location->lat) || is_null($location->lon)) {
+            $updates = $pin;
+        }
+
+        $query = Location::whereKey($location->getKey());
+        if (isset($recent[$locationKey])) {
+            $query->update($updates + ['last_looked_up_at' => Carbon::now()] + $this->conditions($result));
+        } else {
+            $query->increment('lookups', 1, $updates + ['last_looked_up_at' => Carbon::now()] + $this->conditions($result));
+            $recent[$locationKey] = time();
+        }
+
+        Session::put($sessionKey, $recent);
+    }
+
+    /**
+     * Count a resort lookup (once per session per LOOKUP_DEDUPE_SECONDS)
+     * and remember its latest conditions for the map.
+     */
+    protected function recordResortLookup(Resort $resort, array $result)
+    {
+        $sessionKey = 'cantheymakesnow.recent_resorts';
+        $recent = array_filter(
+            (array) Session::get($sessionKey, []),
+            fn ($at) => $at > time() - self::LOOKUP_DEDUPE_SECONDS
+        );
+
+        $conditions = $this->conditions($result) + ['last_checked_at' => Carbon::now()];
+        $query = Resort::whereKey($resort->getKey());
+        if (isset($recent[$resort->slug])) {
+            $query->update($conditions);
+        } else {
+            $query->increment('lookups', 1, $conditions);
+            $recent[$resort->slug] = time();
+        }
+
+        Session::put($sessionKey, $recent);
+    }
+
+    protected function conditions(array $result): array
+    {
+        return [
+            'last_wet_bulb' => round($result['now']['wetBulbC'], 2),
+            'last_tier' => $result['now']['tier'],
+        ];
     }
 
 }

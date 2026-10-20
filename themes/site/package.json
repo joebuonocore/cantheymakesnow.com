@@ -2,12 +2,7 @@
   "name": "cantheymakesnow-theme",
   "version": "1.0.0",
   "description": "Theme for cantheymakesnow.com",
-  "main": "assets/src/js/app.js",
   "scripts": {
-    "mix": "mix",
-    "mix:watch": "mix watch",
-    "mix:watch-poll": "mix watch -- --watch-options-poll=1000",
-    "mix:build": "mix --production",
     "dev": "npx tailwindcss -i tailwind.css -o assets/css/tw.css --watch",
     "build": "npx tailwindcss -i tailwind.css -o assets/css/tw.css --minify"
   },
@@ -19,8 +14,7 @@
     "october",
     "octobercms",
     "theme",
-    "laravel",
-    "bootstrap"
+    "laravel"
   ],
   "author": {
     "name": "Albright Labs LLC"
@@ -28,14 +22,6 @@
   "license": "MIT",
   "homepage": "https://cantheymakesnow.com",
   "devDependencies": {
-    "laravel-mix": "^6.0.49",
-    "sass": "^1.45.0",
-    "sass-loader": "^12.1.0"
-  },
-  "dependencies": {
-    "@popperjs/core": "^2.11.6",
-    "bootstrap": "^5.2.3",
-    "jquery": "^3.6.0",
     "tailwindcss": "^3.2.4"
   }
 }

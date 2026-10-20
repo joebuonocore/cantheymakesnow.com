@@ -3,63 +3,52 @@ layout = "default"
 title = "Home"
 description = "Home page"
 meta_title = "Can They Make Snow?"
-meta_description = "This webpage uses your latitude and longitude to retrieve the current temperature and relative humidity from NOAA and uses that data to calculate the wet bulb temperature to determine if artificial snow could be made at your location."
+meta_description = "A live wet-bulb check: NOAA's hourly forecast for your location tells you whether snowmakers can run now, and when the next snowmaking window opens."
 
 [WeatherData]
 
 [Locations]
 ==
-{% if snow %}{% partial 'snow' %}{% endif %}
+<script type="application/json" id="resortData">{{ resorts|json_encode|raw }}</script>
 
-<main class="screen" data-tier="{{ snowTier|default('') }}">
+<main class="screen">
 
     <section class="screen__content">
         {% partial 'header' %}
 
-        <form id="lookupForm" data-request="WeatherData::onSubmit" class="hero-form">
-            <label class="visually-hidden" for="address">City, State</label>
-            <div class="input-group">
-                <button type="button" id="useMyLocation" class="btn btn-outline-secondary rounded-0" title="Use my current location" aria-label="Use my current location">📍</button>
-                <input type="text" name="address" id="address" placeholder="City, State" class="form-control rounded-0" value="{{ address }}">
-                <button type="submit" id="lookupSubmit" class="btn btn-primary rounded-0">Submit</button>
+        <form id="lookupForm" action="{{ 'home'|page }}" method="get" class="hero-form" autocomplete="off">
+            <label class="visually-hidden" for="address">City, state or ski resort</label>
+            <div class="search">
+                <div class="input-group">
+                    <button type="button" id="useMyLocation" class="btn btn-outline-secondary rounded-0" title="Use my current location" aria-label="Use my current location">📍</button>
+                    <input type="text" name="address" id="address" placeholder="City, state or ski resort" class="form-control rounded-0" value="{{ query }}"
+                        role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggestions" spellcheck="false">
+                    <button type="submit" id="lookupSubmit" class="btn btn-primary rounded-0">Check</button>
+                </div>
+                <div class="suggest" hidden>
+                    <ul id="suggestions" class="suggest__list" role="listbox" aria-label="Suggestions"></ul>
+                    <p class="suggest__attribution" hidden>Place suggestions by Google</p>
+                </div>
             </div>
             <details class="hero-howto">
                 <summary>How this works</summary>
                 <div class="how-it-works-body">
-                    We retrieve current temperature and relative humidity from NOAA and calculate the wet-bulb temperature at your location. Snowmakers rely on wet-bulb because it accounts for both cold and dry air &mdash; the two conditions that let water droplets freeze in flight.
+                    We pull NOAA's hourly forecast for your location and calculate the wet-bulb temperature for each hour. Snowmakers rely on wet-bulb because it accounts for both cold and dry air &mdash; the two conditions that let water droplets freeze in flight. Below {{ (-2)|temp|raw }} they can run; below {{ (-4)|temp|raw }} the snow is good quality.
                 </div>
             </details>
         </form>
 
-        {% flash error %}
-            <div class="hero-alert" role="alert">{{ message }}</div>
-        {% endflash %}
+        <p id="formNotice" class="hero-alert" role="alert" hidden></p>
 
-        <div class="hero-answer">
-            {% if data.lat and data.lon and not data.wetBulb == null %}
-                <div class="hero-answer__headline" data-tier="{{ snowTier }}">
-                    {% if snow %}YES{% else %}NO{% endif %}
-                </div>
-                <p class="hero-answer__meta">
-                    {{ data.wetBulb|number_format(2, '.', ',') }}&thinsp;&deg;C wet-bulb in <strong>{{ city }}, {{ state }}</strong>
-                </p>
-                <div class="snow-tier snow-tier--{{ snowTier }} hero-answer__tier">
-                    <div class="snow-tier__dot" aria-hidden="true"></div>
-                    <div class="snow-tier__body">
-                        <div class="snow-tier__label">{{ snowTierLabel }}</div>
-                        <div class="snow-tier__hint">Snowmakers need wet-bulb temperatures below &minus;2&deg;C to run, and colder than &minus;4&deg;C for quality snow.</div>
-                    </div>
-                </div>
-            {% elseif lat or lon or address %}
-                <p class="hero-answer__error">⚠️ We couldn't load weather data for that location.</p>
-            {% else %}
-                <p class="hero-answer__prompt">Enter a city and state, or tap 📍 to use your current location.</p>
-            {% endif %}
+        <div id="savedPlaces" class="saved" aria-label="Saved and recent places" hidden></div>
+
+        <div id="result" class="result" aria-live="polite">
+            {% partial 'result' %}
         </div>
     </section>
 
     <section class="screen__map">
-        {% if locations|length %}{% partial 'map' %}{% endif %}
+        {% partial 'map' %}
     </section>
 
     <footer class="screen__footer">
@@ -67,40 +56,3 @@ meta_description = "This webpage uses your latitude and longitude to retrieve th
     </footer>
 
 </main>
-
-<script>
-    (function () {
-        const form = document.getElementById('lookupForm');
-        const submit = document.getElementById('lookupSubmit');
-        if (form && submit) {
-            form.addEventListener('submit', function () {
-                submit.disabled = true;
-                submit.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-            });
-        }
-
-        const locBtn = document.getElementById('useMyLocation');
-        if (locBtn) {
-            locBtn.addEventListener('click', function () {
-                if (!navigator.geolocation) {
-                    alert('Geolocation is not supported by this browser.');
-                    return;
-                }
-                locBtn.disabled = true;
-                locBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-                navigator.geolocation.getCurrentPosition(
-                    function (position) {
-                        const lat = encodeURIComponent(position.coords.latitude);
-                        const lon = encodeURIComponent(position.coords.longitude);
-                        window.location.href = `${window.location.origin}${window.location.pathname}?lat=${lat}&lon=${lon}`;
-                    },
-                    function () {
-                        locBtn.disabled = false;
-                        locBtn.textContent = '📍';
-                        alert("We couldn't get your location. Try entering a city and state instead.");
-                    }
-                );
-            });
-        }
-    })();
-</script>

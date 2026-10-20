@@ -1,0 +1,25 @@
+description = "Wet-bulb gauge: where the current value sits against the snowmaking tiers. Expects value (°C), tier, label."
+==
+{# Scale runs -15°C to +10°C; band edges follow WeatherService::snowmakingTier(). #}
+{% set lo = -15 %}{% set hi = 10 %}
+{% set pos = (((max(lo, min(hi, value)) - lo) / (hi - lo)) * 100)|round(1) %}
+{% set edge = { ideal: -7, great: -4, marginal: -2, too_warm: 0 } %}
+<div class="gauge" data-tier="{{ tier }}">
+    <div class="gauge__label">
+        <span class="gauge__key" aria-hidden="true"></span>
+        {{ label }}
+    </div>
+    <div class="gauge__track" role="img" aria-label="Wet-bulb {{ value|round(1) }}°C on a scale from {{ lo }}°C to {{ hi }}°C. Snowmaking needs below -2°C.">
+        <span class="gauge__band" data-tier="ideal" style="width: {{ ((edge.ideal - lo) / (hi - lo) * 100)|round(2) }}%"></span>
+        <span class="gauge__band" data-tier="great" style="width: {{ ((edge.great - edge.ideal) / (hi - lo) * 100)|round(2) }}%"></span>
+        <span class="gauge__band" data-tier="marginal" style="width: {{ ((edge.marginal - edge.great) / (hi - lo) * 100)|round(2) }}%"></span>
+        <span class="gauge__band" data-tier="too_warm" style="width: {{ ((edge.too_warm - edge.marginal) / (hi - lo) * 100)|round(2) }}%"></span>
+        <span class="gauge__band" data-tier="no_chance" style="width: {{ ((hi - edge.too_warm) / (hi - lo) * 100)|round(2) }}%"></span>
+        <span class="gauge__marker" style="left: {{ pos }}%"></span>
+    </div>
+    <div class="gauge__scale">
+        <span>Colder</span>
+        <span class="gauge__line" style="left: {{ ((edge.marginal - lo) / (hi - lo) * 100)|round(2) }}%">Snowmaking line {{ (-2)|temp|raw }}</span>
+        <span>Warmer</span>
+    </div>
+</div>

@@ -1,46 +1,12 @@
-##
-description = "map partial"
+description = "Interactive map: resorts and looked-up cities coloured by last known snowmaking tier. Driven by site.js."
 ==
-<div id="map" class="screen__map-canvas" style="width: 100%; height: 100%;"></div>
+<div id="map" class="screen__map-canvas" aria-label="Map of resorts and recently checked places. Click anywhere to check that spot."></div>
+<script type="application/json" id="mapData">{{ mapPoints|json_encode|raw }}</script>
 
-<script>
-    window.__snowLocations = [
-        {% for location in locations %}
-        { city: {{ location.city|json_encode|raw }}, state: {{ location.state|json_encode|raw }}, lat: {{ location.lat }}, lng: {{ location.lon }} },
-        {% endfor %}
-    ];
-
-    function initMap() {
-        const map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 3,
-            center: { lat: 39.8283, lng: -98.5795 },
-            mapTypeId: 'roadmap'
-        });
-
-        const bounds = new google.maps.LatLngBounds();
-        let markerCount = 0;
-
-        for (const location of window.__snowLocations) {
-            const position = { lat: location.lat, lng: location.lng };
-            new google.maps.Marker({
-                position: position,
-                map: map,
-                title: `${location.city}, ${location.state}`
-            });
-            bounds.extend(position);
-            markerCount++;
-        }
-
-        if (markerCount === 1) {
-            map.setCenter(bounds.getCenter());
-            map.setZoom(8);
-        } else if (markerCount > 1) {
-            map.fitBounds(bounds, 60);
-        }
-    }
-
-    window.initMap = initMap;
-</script>
-
-<script async src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_BROWSER_KEY') ?: env('GOOGLE_MAPS_API_KEY') }}&callback=initMap">
-</script>
+<div class="map-legend" aria-hidden="true">
+    <span><i class="map-pin" data-tier="great"></i>Snowmaking</span>
+    <span><i class="map-pin" data-tier="too_warm"></i>Too warm</span>
+    <span><i class="map-pin map-pin--resort"></i>Resort</span>
+    <span><i class="map-pin map-pin--stale" data-tier="great"></i>Not checked in 3h</span>
+</div>
+<p class="map-hint">Click a pin or anywhere on the map to check it.</p>

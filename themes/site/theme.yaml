@@ -3,7 +3,7 @@ description: "Theme for cantheymakesnow.com"
 author: "Albright Labs LLC"
 homepage: "https://github.com/joebuonocore/cantheymakesnow.com"
 authorCode: "AlbrightLabs"
-code: "bootstrap-starter-kit"
+code: "cantheymakesnow"
 parent: ""
 database: "0"
 previewImage: assets/images/theme-preview.png

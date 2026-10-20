@@ -1,0 +1,52 @@
+description = "Lookup result: answer, gauge, 48-hour forecast. Re-rendered by WeatherData::onLookup."
+==
+{% if lookupError %}
+    <p class="hero-answer__error" role="alert" data-error="{{ lookupError.code }}">{{ lookupError.message }}</p>
+{% elseif result %}
+    {% set now = result.now %}
+    {% set snow = now.tier in ['ideal', 'great', 'marginal'] %}
+    {% if snow %}{% partial 'snow' %}{% endif %}
+
+    <div class="hero-answer" data-share-url="{{ result.shareUrl }}" data-place="{{ result.place }}"
+        data-pin-lat="{{ result.pinLat }}" data-pin-lng="{{ result.pinLon }}" data-tier="{{ now.tier }}">
+        <div class="hero-answer__headline" data-answer="{{ snow ? 'yes' : 'no' }}">{{ snow ? 'YES' : 'NO' }}</div>
+        <p class="hero-answer__meta">
+            {{ now.wetBulbC|temp|raw }} wet-bulb in <strong>{{ result.place }}</strong>
+        </p>
+        <p class="hero-answer__inputs">
+            {{ now.tempC|temp|raw }} air &middot; {{ now.rh|round }}% humidity
+        </p>
+
+        <div class="hero-answer__actions">
+            <button type="button" class="btn btn-sm btn-outline-secondary rounded-0" data-action="favorite" aria-pressed="false">☆ Save</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary rounded-0" data-action="share">Share</button>
+        </div>
+
+        {% partial 'gauge' value=now.wetBulbC tier=now.tier label=now.label %}
+
+        <p class="hero-answer__window" data-state="{{ result.windows.state }}">{{ result.windows.text }}</p>
+
+        {% partial 'forecast' chart=result.chart hourly=result.hourly %}
+
+        <p class="hero-answer__source">
+            Forecast for {{ now.timeLabel }}
+            {% if result.updatedLabel %}&middot; NOAA grid updated {{ result.updatedLabel }}{% endif %}
+            {% if result.elevationFt %}&middot; grid elevation {{ result.elevationFt|number_format }} ft{% endif %}
+        </p>
+        {% if result.resort and result.resort.baseFt %}
+            <p class="hero-answer__source">
+                Checked at the base area ({{ result.resort.baseFt|number_format }} ft){% if result.resort.summitFt %}; the summit ({{ result.resort.summitFt|number_format }} ft) is usually colder{% endif %}.
+            </p>
+        {% endif %}
+        {% if result.observation %}
+            {% set obs = result.observation %}
+            <p class="hero-answer__source">
+                Nearest station <abbr title="{{ obs.stationName }}">{{ obs.stationId }}</abbr>
+                observed {{ obs.tempC|temp|raw }} and {{ obs.rh|round }}% humidity at {{ obs.timeLabel }}
+                ({{ obs.wetBulbC|temp|raw }} wet-bulb).
+            </p>
+        {% endif %}
+    </div>
+{% else %}
+    <p class="hero-answer__prompt">Enter a city, state or ski resort, or tap 📍 to use your current location.</p>
+{% endif %}

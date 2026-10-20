@@ -1,0 +1,31 @@
+columns:
+    name:
+        label: Name
+        searchable: true
+        sortable: true
+    state:
+        label: State
+        searchable: true
+        sortable: true
+    lat:
+        label: Lat
+    lon:
+        label: Lon
+    base_elev_ft:
+        label: Base (ft)
+        sortable: true
+    summit_elev_ft:
+        label: Summit (ft)
+        sortable: true
+    lookups:
+        label: Lookups
+        sortable: true
+    last_tier:
+        label: Last tier
+    last_checked_at:
+        label: Last checked
+        type: timetense
+        sortable: true
+    is_enabled:
+        label: Enabled
+        type: switch
