@@ -3,6 +3,7 @@
 use Carbon\Carbon;
 use Cms\Classes\ComponentBase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use AlbrightLabs\CanTheyMakeSnow\Classes\Throttle;
@@ -105,10 +106,13 @@ class Alerts extends ComponentBase
         // Already confirmed: don't let anyone change someone else's settings;
         // send the owner their manage link instead.
         if ($subscription->exists && $subscription->confirmed_at && !$subscriber->unsubscribed_at) {
-            $this->sendOnce("manage:{$subscriber->id}", 'albrightlabs.cantheymakesnow::mail.manage', $subscriber, [
+            $sent = $this->sendOnce("manage:{$subscriber->id}", 'albrightlabs.cantheymakesnow::mail.manage', $subscriber, [
                 'resort' => $resort->label,
                 'manageUrl' => $subscriber->manageUrl(),
             ]);
+            if (!$sent) {
+                return $this->reply(false, "We couldn't send email just now. Please try again in a few minutes.");
+            }
             return $this->reply(true, "You're already getting alerts for {$resort->name}. We've emailed a link to change them. {$inbox}");
         }
 
@@ -116,12 +120,15 @@ class Alerts extends ComponentBase
         $subscription->confirmed_at = null;
         $subscription->save();
 
-        $this->sendOnce("confirm:{$subscription->id}", 'albrightlabs.cantheymakesnow::mail.confirm', $subscriber, [
+        $sent = $this->sendOnce("confirm:{$subscription->id}", 'albrightlabs.cantheymakesnow::mail.confirm', $subscriber, [
             'resort' => $resort->label,
             'what' => $subscription->describe(),
             'confirmUrl' => $subscription->confirmUrl(),
             'days' => Subscription::CONFIRM_LINK_DAYS,
         ]);
+        if (!$sent) {
+            return $this->reply(false, "We couldn't send the confirmation email just now. Please try again in a few minutes.");
+        }
 
         return $this->reply(true, "Almost done. {$inbox}");
     }
@@ -201,16 +208,25 @@ class Alerts extends ComponentBase
 
     /**
      * Send a transactional email unless the same one went out recently
-     * (double clicks, repeated submits).
+     * (double clicks, repeated submits). Returns false if sending failed,
+     * so the visitor can be told and retry.
      */
-    protected function sendOnce(string $key, string $view, Subscriber $subscriber, array $vars): void
+    protected function sendOnce(string $key, string $view, Subscriber $subscriber, array $vars): bool
     {
-        if (!Cache::add("ctms:mail:{$key}", 1, self::RESEND_SECONDS)) {
-            return;
+        $cacheKey = "ctms:mail:{$key}";
+        if (!Cache::add($cacheKey, 1, self::RESEND_SECONDS)) {
+            return true;
         }
-        Mail::send($view, $vars + ['manageUrl' => $subscriber->manageUrl()], function ($message) use ($subscriber) {
-            $message->to($subscriber->email);
-        });
+        try {
+            Mail::send($view, $vars + ['manageUrl' => $subscriber->manageUrl()], function ($message) use ($subscriber) {
+                $message->to($subscriber->email);
+            });
+        } catch (\Throwable $e) {
+            Cache::forget($cacheKey);
+            Log::error('Alert signup email failed', ['view' => $view, 'subscriber' => $subscriber->id, 'error' => $e->getMessage()]);
+            return false;
+        }
+        return true;
     }
 
     protected function reply(bool $ok, string $message): array
