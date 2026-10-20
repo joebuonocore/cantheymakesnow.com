@@ -37,6 +37,6 @@ class Subscribers extends Controller
     {
         parent::__construct();
 
-        BackendMenu::setContext('AlbrightLabs.CanTheyMakeSnow', 'locations', 'subscribers');
+        BackendMenu::setContext('AlbrightLabs.CanTheyMakeSnow', 'subscribers');
     }
 }
