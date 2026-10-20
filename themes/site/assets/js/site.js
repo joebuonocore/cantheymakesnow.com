@@ -550,6 +550,176 @@
         });
     }
 
+    // ---- Map ------------------------------------------------------------------
+
+    var TIER_NAMES = {
+        ideal: 'Ideal snowmaking', great: 'Great snowmaking', marginal: 'Marginal snowmaking',
+        too_warm: 'Too warm', no_chance: 'Too warm'
+    };
+    var STALE_MS = 3 * 3600 * 1000;
+
+    function initMap() {
+        var el = document.getElementById('map');
+        if (!el) {
+            return;
+        }
+
+        var points = readJson('mapData') || [];
+        var started = false;
+        var map = null;
+        var libs = null;
+        var markers = [];
+        var current = null;
+        var pendingPin = null;
+
+        function round3(n) {
+            return Math.round(n * 1000) / 1000;
+        }
+
+        function pinElement(point, isCurrent) {
+            var pin = document.createElement('div');
+            pin.className = 'map-pin';
+            if (point.type === 'resort') {
+                pin.classList.add('map-pin--resort');
+            }
+            if (isCurrent) {
+                pin.classList.add('map-pin--current');
+            }
+            if (point.tier) {
+                pin.setAttribute('data-tier', point.tier);
+            } else {
+                pin.classList.add('map-pin--unknown');
+            }
+            if (!isCurrent && (!point.checkedAt || Date.now() - Date.parse(point.checkedAt) > STALE_MS)) {
+                pin.classList.add('map-pin--stale');
+            }
+            return pin;
+        }
+
+        function title(point) {
+            var fresh = point.checkedAt && Date.now() - Date.parse(point.checkedAt) <= STALE_MS;
+            return point.label + (point.tier ? ' — ' + TIER_NAMES[point.tier] + (fresh ? '' : ' when last checked') : '');
+        }
+
+        function addPoint(point) {
+            var marker = new libs.marker.AdvancedMarkerElement({
+                map: map,
+                position: { lat: point.lat, lng: point.lng },
+                content: pinElement(point, false),
+                title: title(point),
+                gmpClickable: true
+            });
+            marker.addEventListener('gmp-click', function () {
+                if (point.type === 'resort') {
+                    lookup({ resort: point.slug });
+                } else {
+                    lookup({ lat: point.lat, lon: point.lng });
+                }
+            });
+            markers.push({ marker: marker, point: point });
+        }
+
+        /** Highlight the place just checked and refresh any matching pin's tier. */
+        function showResult(pin) {
+            if (!map) {
+                pendingPin = pin;
+                return;
+            }
+            var position = { lat: pin.lat, lng: pin.lng };
+            var point = { type: 'current', label: 'Checked here', tier: pin.tier, lat: pin.lat, lng: pin.lng };
+            if (current) {
+                current.position = position;
+                current.content = pinElement(point, true);
+            } else {
+                current = new libs.marker.AdvancedMarkerElement({
+                    map: map, position: position, content: pinElement(point, true), title: 'Checked here', zIndex: 1000
+                });
+            }
+
+            markers.forEach(function (m) {
+                if (Math.abs(m.point.lat - pin.lat) < 0.01 && Math.abs(m.point.lng - pin.lng) < 0.01) {
+                    m.point.tier = pin.tier;
+                    m.point.checkedAt = new Date().toISOString();
+                    m.marker.content = pinElement(m.point, false);
+                    m.marker.title = title(m.point);
+                }
+            });
+
+            map.panTo(position);
+            if (map.getZoom() < 7) {
+                map.setZoom(7);
+            }
+        }
+
+        function build() {
+            var wide = window.matchMedia('(min-width: 992px)').matches;
+            map = new libs.maps.Map(el, {
+                center: { lat: 39.5, lng: -98.35 },
+                zoom: wide ? 4 : 3,
+                mapId: meta('ctms-map-id') || 'DEMO_MAP_ID',
+                colorScheme: 'FOLLOW_SYSTEM',
+                clickableIcons: false,
+                streetViewControl: false,
+                mapTypeControl: false,
+                fullscreenControl: true
+            });
+
+            CTMS.map = map;
+            points.forEach(addPoint);
+
+            map.addListener('click', function (event) {
+                if (event.latLng) {
+                    lookup({ lat: round3(event.latLng.lat()), lon: round3(event.latLng.lng()) });
+                }
+            });
+
+            var answer = document.querySelector('#result .hero-answer');
+            if (pendingPin) {
+                showResult(pendingPin);
+            } else if (answer && answer.dataset.pinLat) {
+                showResult({ lat: parseFloat(answer.dataset.pinLat), lng: parseFloat(answer.dataset.pinLng), tier: answer.dataset.tier });
+            }
+        }
+
+        function start() {
+            if (started) {
+                return;
+            }
+            started = true;
+            loadMaps()
+                .then(function (maps) { return Promise.all([maps.importLibrary('maps'), maps.importLibrary('marker')]); })
+                .then(function (loaded) {
+                    libs = { maps: loaded[0], marker: loaded[1] };
+                    build();
+                })
+                .catch(function (e) {
+                    el.classList.add('is-unavailable');
+                    el.textContent = 'The map is unavailable right now.';
+                    console.info(e.message);
+                });
+        }
+
+        // Load only once the map is on screen and the browser is idle, so it never delays the answer.
+        var idle = window.requestIdleCallback || function (cb) { return setTimeout(cb, 1200); };
+        if ('IntersectionObserver' in window) {
+            var observer = new IntersectionObserver(function (entries) {
+                if (entries.some(function (e) { return e.isIntersecting; })) {
+                    observer.disconnect();
+                    idle(start, { timeout: 3000 });
+                }
+            });
+            observer.observe(el);
+        } else {
+            idle(start, { timeout: 3000 });
+        }
+
+        document.addEventListener('ctms:result', function (event) {
+            if (event.detail && event.detail.pin) {
+                showResult(event.detail.pin);
+            }
+        });
+    }
+
     // ---- Boot ---------------------------------------------------------------
 
     function boot() {
@@ -560,6 +730,7 @@
         initLookupForm();
         initSearch();
         initForecast();
+        initMap();
     }
 
     if (document.readyState === 'loading') {

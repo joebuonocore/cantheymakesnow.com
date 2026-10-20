@@ -443,3 +443,56 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
 .suggest__sub { font-size: 0.8rem; color: var(--text-muted); }
 .suggest__heading { padding: 0.35rem 0.75rem 0.15rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); list-style: none; }
 .suggest__attribution { margin: 0; padding: 0.25rem 0.75rem 0.4rem; font-size: 0.7rem; color: var(--text-muted); text-align: right; }
+
+/* --- Map --- */
+.screen__map-canvas { width: 100%; height: 100%; }
+.screen__map-canvas.is-unavailable { display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.9rem; }
+.map-pin {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--tier, #8a8984);
+    border: 2px solid #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+    cursor: pointer;
+}
+.map-pin--resort { border-radius: 2px; transform: rotate(45deg); width: 12px; height: 12px; }
+.map-pin--unknown { --tier: #8a8984; }
+.map-pin--stale { opacity: 0.45; }
+.map-pin--current { width: 22px; height: 22px; border-width: 3px; box-shadow: 0 0 0 4px rgba(42, 120, 214, 0.35), 0 1px 4px rgba(0, 0, 0, 0.5); }
+.map-legend {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.45rem 0.6rem;
+    background: var(--surface-raised);
+    border: 1px solid var(--chart-grid);
+    font-size: 0.72rem;
+    line-height: 1.3;
+    pointer-events: none;
+    z-index: 2;
+}
+.map-legend span { display: flex; align-items: center; gap: 0.4rem; }
+.map-legend .map-pin { width: 10px; height: 10px; border-width: 1.5px; box-shadow: none; }
+.map-legend .map-pin--resort { width: 8px; height: 8px; margin: 0 1px; --tier: #8a8984; }
+.map-hint {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 0.25rem 0.6rem;
+    background: var(--surface-raised);
+    border: 1px solid var(--chart-grid);
+    font-size: 0.72rem;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 2;
+}
+@media (max-width: 991.98px) {
+    .map-legend { display: none; }
+}

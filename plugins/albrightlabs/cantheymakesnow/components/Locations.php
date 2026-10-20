@@ -38,6 +38,42 @@ class Locations extends ComponentBase
 
         $this->resorts = $this->getResorts();
         $this->page['resorts'] = $this->resorts;
+
+        $this->page['mapPoints'] = $this->getMapPoints();
+    }
+
+    /**
+     * Resorts and looked-up cities as plain map points with their last
+     * known snowmaking tier and when it was checked (ISO 8601, or null).
+     */
+    public function getMapPoints(): array
+    {
+        $points = [];
+
+        foreach ($this->resorts as $resort) {
+            $points[] = [
+                'type' => 'resort',
+                'slug' => $resort->slug,
+                'label' => "{$resort->name}, {$resort->state}",
+                'lat' => (float) $resort->lat,
+                'lng' => (float) $resort->lon,
+                'tier' => $resort->last_tier,
+                'checkedAt' => $resort->last_checked_at ? $resort->last_checked_at->toIso8601String() : null,
+            ];
+        }
+
+        foreach ($this->locations as $location) {
+            $points[] = [
+                'type' => 'city',
+                'label' => "{$location->city}, {$location->state}",
+                'lat' => (float) $location->lat,
+                'lng' => (float) $location->lon,
+                'tier' => $location->last_tier,
+                'checkedAt' => $location->last_looked_up_at ? $location->last_looked_up_at->toIso8601String() : null,
+            ];
+        }
+
+        return $points;
     }
 
     public function getResorts()

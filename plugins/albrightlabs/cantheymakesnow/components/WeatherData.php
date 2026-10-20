@@ -343,7 +343,7 @@ class WeatherData extends ComponentBase
 
         $query = Location::whereKey($location->getKey());
         if (isset($recent[$locationKey])) {
-            $query->update($updates + $this->conditions($result));
+            $query->update($updates + ['last_looked_up_at' => Carbon::now()] + $this->conditions($result));
         } else {
             $query->increment('lookups', 1, $updates + ['last_looked_up_at' => Carbon::now()] + $this->conditions($result));
             $recent[$locationKey] = time();
