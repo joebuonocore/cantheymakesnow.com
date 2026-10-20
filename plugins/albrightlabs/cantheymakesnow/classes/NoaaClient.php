@@ -33,6 +33,14 @@ class NoaaClient
     }
 
     /**
+     * 7-day forecast in 12-hour day/night periods.
+     */
+    public function forecast(string $gridId, int $gridX, int $gridY): array
+    {
+        return $this->cached("noaa:forecast:{$gridId}:{$gridX},{$gridY}", self::CACHE_TTL_GRIDPOINTS, "/gridpoints/{$gridId}/{$gridX},{$gridY}/forecast");
+    }
+
+    /**
      * Latest observation from the nearest station to a grid cell.
      * Adds a 'station' key (id, name, elevation in metres) to the data.
      */
