@@ -1,0 +1,25 @@
+# ===================================
+#  Form Behavior Config
+# ===================================
+
+# Record name
+name: Subscriber
+
+# Model Form Field configuration
+form: $/albrightlabs/cantheymakesnow/models/subscriber/fields.yaml
+
+# Model Class name
+modelClass: AlbrightLabs\CanTheyMakeSnow\Models\Subscriber
+
+# Default redirect
+defaultRedirect: albrightlabs/cantheymakesnow/subscribers
+
+# Update page
+update:
+    title: backend::lang.form.update_title
+    redirect: albrightlabs/cantheymakesnow/subscribers
+    redirectClose: albrightlabs/cantheymakesnow/subscribers
+
+# Preview page
+preview:
+    title: backend::lang.form.preview_title

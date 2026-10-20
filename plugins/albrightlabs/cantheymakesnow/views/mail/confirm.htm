@@ -1,0 +1,11 @@
+subject = "Confirm your alerts for {{ resort }}"
+layout = "default"
+description = "Double opt-in link for a new resort alert subscription"
+==
+Please confirm that you'd like email alerts for **{{ resort }}**: {{ what }}.
+
+{% partial 'button' url=confirmUrl body %}
+    Confirm alerts
+{% endpartial %}
+
+This link works for {{ days }} days. If you didn't ask for these alerts, ignore this email and you won't hear from us.

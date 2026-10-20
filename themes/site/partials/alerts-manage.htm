@@ -1,0 +1,61 @@
+description = "Manage form for one subscriber's alerts (re-rendered by Alerts handlers). Expects subscriber, subscriptions, alertsMessage."
+==
+{% if alertsMessage %}<p class="alerts-page__notice" role="status">{{ alertsMessage }}</p>{% endif %}
+
+{% if subscriber.unsubscribed_at %}
+    <h1 class="alerts-page__title">You're unsubscribed</h1>
+    <p>{{ subscriber.email }} won't get any alerts.</p>
+    <form data-request="Alerts::onResubscribe" data-request-data="token: '{{ subscriber.token }}'">
+        <button type="submit" class="btn btn-outline-secondary rounded-0">Turn alerts back on</button>
+    </form>
+{% else %}
+    <h1 class="alerts-page__title">Your alerts</h1>
+    <p class="alerts-page__email">{{ subscriber.email }}</p>
+
+    {% if subscriptions|length %}
+        <form class="alerts-manage" data-request="Alerts::onSave" data-request-data="token: '{{ subscriber.token }}'">
+            {% for sub in subscriptions %}
+                <fieldset class="alerts-manage__resort">
+                    <legend>
+                        <a href="{{ 'home'|page }}?resort={{ sub.resort.slug }}">{{ sub.resort.label }}</a>
+                    </legend>
+                    <label class="alerts-option">
+                        <input type="checkbox" name="subs[{{ sub.id }}][snowmaking]" value="1" {{ sub.snowmaking ? 'checked' }}>
+                        Snowmaking windows
+                        <select name="subs[{{ sub.id }}][snowmaking_min_tier]" class="form-select form-select-sm rounded-0" aria-label="Which snowmaking windows">
+                            <option value="marginal" {{ sub.snowmaking_min_tier == 'marginal' ? 'selected' }}>any window</option>
+                            <option value="great" {{ sub.snowmaking_min_tier == 'great' ? 'selected' }}>great or better</option>
+                        </select>
+                    </label>
+                    <label class="alerts-option">
+                        <input type="checkbox" name="subs[{{ sub.id }}][powder]" value="1" {{ sub.powder ? 'checked' }}>
+                        Powder, at least
+                        <select name="subs[{{ sub.id }}][powder_threshold_in]" class="form-select form-select-sm rounded-0" aria-label="Powder threshold">
+                            {% for inches, cm in { 3: 8, 6: 15, 12: 30 } %}
+                                <option value="{{ inches }}" {{ sub.powder_threshold_in == inches ? 'selected' }}>{{ inches }}″ ({{ cm }} cm)</option>
+                            {% endfor %}
+                        </select>
+                        in 48 hours
+                    </label>
+                    <button type="button" class="btn btn-link btn-sm alerts-manage__remove"
+                        data-request="Alerts::onRemove" data-request-data="token: '{{ subscriber.token }}', id: {{ sub.id }}">Remove {{ sub.resort.name }}</button>
+                </fieldset>
+            {% endfor %}
+
+            <fieldset class="alerts-manage__units">
+                <legend>Units in emails</legend>
+                <label class="alerts-option"><input type="radio" name="units" value="f" {{ subscriber.units != 'c' ? 'checked' }}> °F, inches, mph</label>
+                <label class="alerts-option"><input type="radio" name="units" value="c" {{ subscriber.units == 'c' ? 'checked' }}> °C, cm, km/h</label>
+            </fieldset>
+
+            <button type="submit" class="btn btn-primary rounded-0">Save</button>
+        </form>
+    {% else %}
+        <p>No resorts yet. Look up a ski resort and tap <strong>🔔 Get alerts</strong> to add one.</p>
+    {% endif %}
+
+    <p class="alerts-page__stop">
+        Want to stop everything?
+        <button type="button" class="btn btn-link btn-sm p-0 align-baseline" data-request="Alerts::onUnsubscribeAll" data-request-data="token: '{{ subscriber.token }}'">Unsubscribe from all alerts</button>
+    </p>
+{% endif %}

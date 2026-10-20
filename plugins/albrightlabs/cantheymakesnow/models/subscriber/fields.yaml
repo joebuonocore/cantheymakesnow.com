@@ -1,0 +1,27 @@
+fields:
+    email:
+        label: Email
+        type: text
+        disabled: true
+        span: left
+    units:
+        label: Units
+        type: dropdown
+        options:
+            f: °F / inches / mph
+            c: °C / cm / km/h
+        span: right
+    confirmed_at:
+        label: Confirmed
+        type: datepicker
+        disabled: true
+        span: left
+    unsubscribed_at:
+        label: Unsubscribed
+        type: datepicker
+        span: right
+        comment: Clear to resume alerts; set to stop them.
+    subscriptions:
+        label: Resorts
+        type: partial
+        path: $/albrightlabs/cantheymakesnow/models/subscriber/_subscriptions.htm

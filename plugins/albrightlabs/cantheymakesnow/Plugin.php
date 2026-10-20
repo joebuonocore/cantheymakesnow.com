@@ -49,6 +49,18 @@ class Plugin extends PluginBase
         return [
             'AlbrightLabs\CanTheyMakeSnow\Components\WeatherData' => 'WeatherData',
             'AlbrightLabs\CanTheyMakeSnow\Components\Locations' => 'Locations',
+            'AlbrightLabs\CanTheyMakeSnow\Components\Alerts' => 'Alerts',
+        ];
+    }
+
+    /**
+     * registerMailTemplates: alert emails and the opt-in/manage messages.
+     */
+    public function registerMailTemplates()
+    {
+        return [
+            'albrightlabs.cantheymakesnow::mail.confirm',
+            'albrightlabs.cantheymakesnow::mail.manage',
         ];
     }
 
@@ -110,6 +122,12 @@ class Plugin extends PluginBase
                         'url' => Backend::url('albrightlabs/cantheymakesnow/resorts'),
                         'permissions' => ['albrightlabs.cantheymakesnow'],
                     ],
+                    'subscribers' => [
+                        'label' => 'Alert subscribers',
+                        'icon' => 'icon-envelope-o',
+                        'url' => Backend::url('albrightlabs/cantheymakesnow/subscribers'),
+                        'permissions' => ['albrightlabs.cantheymakesnow'],
+                    ],
                 ],
             ],
         ];
@@ -123,7 +141,7 @@ class Plugin extends PluginBase
         return [
             'albrightlabs.cantheymakesnow' => [
                 'tab' => 'CanTheyMakeSnow',
-                'label' => 'Manage lookup locations and resorts',
+                'label' => 'Manage lookup locations, resorts and alert subscribers',
             ],
         ];
     }

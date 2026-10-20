@@ -18,3 +18,7 @@ v1.1.0:
 v1.1.1:
     - Store last known snowmaking conditions on locations for map pins
     - add_conditions_to_locations_table.php
+v1.2.0:
+    - Add email alert subscribers and per-resort subscriptions
+    - create_subscribers_table.php
+    - create_subscriptions_table.php

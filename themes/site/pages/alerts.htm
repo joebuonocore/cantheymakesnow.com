@@ -1,0 +1,55 @@
+url = "/alerts/:action?/:token?"
+layout = "default"
+title = "Alerts"
+description = "Snowmaking and powder email alerts: about, manage and unsubscribe."
+meta_title = "Snowmaking & powder alerts · Can They Make Snow?"
+meta_description = "Get an email when your ski resort can make snow, or when a powder day is on the way. Free, from NOAA forecasts."
+
+[Alerts]
+==
+<main class="screen screen--simple">
+    <section class="screen__content">
+        {% partial 'header' %}
+        <div class="alerts-page">
+            {% if alertsAction == 'invalid' %}
+                <h1 class="alerts-page__title">That link isn't valid</h1>
+                <p>It may be mistyped or very old. Every alert email has a working link at the bottom to manage or stop alerts.</p>
+                <p><a href="{{ 'home'|page }}" class="btn btn-primary rounded-0">Back to the snow check</a></p>
+            {% elseif alertsAction == 'unsubscribe' %}
+                <div id="alertsManage">
+                    {% if subscriber.unsubscribed_at %}
+                        {% partial 'alerts-manage' %}
+                    {% else %}
+                        <h1 class="alerts-page__title">Stop all alerts?</h1>
+                        <p>{{ subscriber.email }} will stop getting snowmaking and powder alerts for every resort.</p>
+                        <form data-request="Alerts::onUnsubscribeAll" data-request-data="token: '{{ subscriber.token }}'">
+                            <button type="submit" class="btn btn-primary rounded-0">Unsubscribe</button>
+                            <a href="{{ subscriber.manageUrl() }}" class="btn btn-outline-secondary rounded-0">Change alerts instead</a>
+                        </form>
+                    {% endif %}
+                </div>
+            {% elseif alertsAction == 'manage' %}
+                {% if confirmedResort %}
+                    <p class="alerts-page__notice" role="status">✓ You're subscribed to alerts for <strong>{{ confirmedResort.label }}</strong>.</p>
+                {% endif %}
+                <div id="alertsManage">{% partial 'alerts-manage' %}</div>
+            {% else %}
+                <h1 class="alerts-page__title">Snowmaking &amp; powder alerts</h1>
+                {% if linkExpired %}
+                    <p class="alerts-page__notice" role="status">That confirmation link has expired. Sign up again from the resort's page and we'll send a fresh one.</p>
+                {% endif %}
+                <p>Get an email when a ski resort you care about can make snow, or when a powder day is on the way. Alerts are free and come from NOAA's forecast, checked every hour.</p>
+                <ul>
+                    <li><strong>Snowmaking windows</strong>: when the forecast shows hours cold and dry enough to make snow (wet-bulb below 28°F / −2°C), or only great ones (below 25°F / −4°C).</li>
+                    <li><strong>Powder</strong>: when 3″, 6″ or 12″ of new snow is forecast in the next 48 hours.</li>
+                </ul>
+                <p>At most one email per resort per alert type per day, never between 10 PM and 6 AM resort time. To sign up, look up a ski resort and tap <strong>🔔 Get alerts</strong>.</p>
+                <p><a href="{{ 'home'|page }}" class="btn btn-primary rounded-0">Find a resort</a></p>
+            {% endif %}
+        </div>
+    </section>
+
+    <footer class="screen__footer">
+        {% partial 'footer' %}
+    </footer>
+</main>

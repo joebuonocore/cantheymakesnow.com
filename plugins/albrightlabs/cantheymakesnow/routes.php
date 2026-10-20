@@ -3,6 +3,8 @@
 use AlbrightLabs\CanTheyMakeSnow\Classes\ShareImage;
 use AlbrightLabs\CanTheyMakeSnow\Classes\SnowReport;
 use AlbrightLabs\CanTheyMakeSnow\Models\Resort;
+use AlbrightLabs\CanTheyMakeSnow\Models\Subscriber;
+use AlbrightLabs\CanTheyMakeSnow\Models\Subscription;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -46,12 +48,51 @@ Route::get('share.png', function () {
     ]);
 });
 
+/**
+ * Alert confirmation link (signed, from the confirm email). Confirms the
+ * subscription and its subscriber, then shows the manage page.
+ */
+Route::get('alerts/confirm/{subscription}', function ($id) {
+    if (!request()->hasValidSignature(false)) {
+        return redirect('alerts?expired=1');
+    }
+    $subscription = Subscription::with(['subscriber', 'resort'])->find($id);
+    if (!$subscription) {
+        return redirect('alerts?expired=1');
+    }
+
+    $subscription->confirmed_at = $subscription->confirmed_at ?: now();
+    $subscription->save();
+    $subscriber = $subscription->subscriber;
+    $subscriber->confirmed_at = $subscriber->confirmed_at ?: now();
+    $subscriber->unsubscribed_at = null;
+    $subscriber->save();
+
+    return redirect('alerts/manage/' . $subscriber->token . '?' . http_build_query(['confirmed' => $subscription->resort->slug]));
+})->name('ctms.alerts.confirm');
+
+/**
+ * RFC 8058 one-click unsubscribe (the List-Unsubscribe header in alert
+ * emails). Mail clients POST here; a GET shows the confirm page instead.
+ */
+Route::match(['get', 'post'], 'alerts/unsubscribe-now/{token}', function ($token) {
+    $subscriber = Subscriber::findByToken($token);
+    if (request()->isMethod('get')) {
+        return redirect('alerts/unsubscribe/' . $token);
+    }
+    if ($subscriber && !$subscriber->unsubscribed_at) {
+        $subscriber->unsubscribed_at = now();
+        $subscriber->save();
+    }
+    return response('Unsubscribed.', 200, ['Content-Type' => 'text/plain']);
+});
+
 // robots.txt and favicon.ico are static files in the web root: nginx serves
 // those two names itself and would 404 them before they reach the app.
 
 Route::get('sitemap.xml', function () {
     $base = rtrim(url('/'), '/');
-    $urls = ["{$base}/"];
+    $urls = ["{$base}/", "{$base}/alerts", "{$base}/privacy"];
     foreach (Resort::isEnabled()->orderBy('slug')->pluck('slug') as $slug) {
         $urls[] = "{$base}/?" . http_build_query(['resort' => $slug]);
     }

@@ -876,6 +876,80 @@
 
     // ---- Boot ---------------------------------------------------------------
 
+    // ---- Email alerts signup ---------------------------------------------------
+    // Delegated, because the result (and its form) is re-rendered by lookups.
+
+    function initAlerts() {
+        document.addEventListener('click', function (event) {
+            var button = event.target.closest && event.target.closest('[data-action="alerts"]');
+            if (!button) {
+                return;
+            }
+            var form = document.getElementById('alertsForm');
+            if (!form) {
+                return;
+            }
+            form.hidden = !form.hidden;
+            button.setAttribute('aria-expanded', form.hidden ? 'false' : 'true');
+            if (!form.hidden) {
+                form.querySelector('input[type="email"]').focus();
+            }
+        });
+
+        document.addEventListener('submit', function (event) {
+            var form = event.target;
+            if (!form.classList || !form.classList.contains('alerts-form')) {
+                return;
+            }
+            event.preventDefault();
+            if (!window.oc) {
+                return;
+            }
+
+            var message = form.querySelector('.alerts-form__message');
+            var submit = form.querySelector('[type="submit"]');
+            var show = function (text, ok) {
+                message.textContent = text;
+                message.hidden = false;
+                message.classList.toggle('is-error', !ok);
+            };
+
+            var email = form.elements.email.value.trim();
+            if (!form.elements.email.checkValidity() || !email) {
+                show('Please enter a valid email address.', false);
+                form.elements.email.focus();
+                return;
+            }
+
+            submit.disabled = true;
+            oc.ajax('Alerts::onSubscribe', {
+                data: {
+                    resort: form.getAttribute('data-resort'),
+                    email: email,
+                    snowmaking: form.elements.snowmaking.checked ? 1 : 0,
+                    snowmaking_min_tier: form.elements.snowmaking_min_tier.value,
+                    powder: form.elements.powder.checked ? 1 : 0,
+                    powder_threshold_in: form.elements.powder_threshold_in.value,
+                    units: units()
+                },
+                successFunc: function (el, data) {
+                    data = data || {};
+                    show(data.message || 'Check your inbox to confirm.', !!data.ok);
+                    if (data.ok) {
+                        form.elements.email.value = '';
+                    }
+                },
+                errorFunc: function () {
+                    show('Something went wrong. Please try again.', false);
+                    return false;
+                },
+                completeFunc: function () {
+                    submit.disabled = false;
+                }
+            });
+        });
+    }
+
     function boot() {
         syncUnitButtons();
         document.querySelectorAll('.units-toggle [data-units]').forEach(function (button) {
@@ -885,6 +959,7 @@
         initSearch();
         initForecast();
         initSaved();
+        initAlerts();
         initMap();
     }
 

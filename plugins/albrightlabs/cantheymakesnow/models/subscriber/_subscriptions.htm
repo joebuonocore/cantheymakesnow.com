@@ -1,0 +1,14 @@
+<table class="table data">
+    <thead><tr><th>Resort</th><th>Alerts</th><th>Confirmed</th><th>Last snowmaking alert</th><th>Last powder alert</th></tr></thead>
+    <tbody>
+        <?php foreach ($formModel->subscriptions()->with('resort')->get() as $sub): ?>
+            <tr>
+                <td><?= e($sub->resort?->label) ?></td>
+                <td><?= e($sub->describe()) ?></td>
+                <td><?= $sub->confirmed_at ? e($sub->confirmed_at->toDayDateTimeString()) : 'Pending' ?></td>
+                <td><?= $sub->last_snowmaking_sent_at ? e($sub->last_snowmaking_sent_at->diffForHumans()) : '—' ?></td>
+                <td><?= $sub->last_powder_sent_at ? e($sub->last_powder_sent_at->diffForHumans()) : '—' ?></td>
+            </tr>
+        <?php endforeach ?>
+    </tbody>
+</table>

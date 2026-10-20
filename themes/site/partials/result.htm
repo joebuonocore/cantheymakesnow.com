@@ -26,7 +26,11 @@ description = "Lookup result: answer, gauge, 48-hour forecast. Re-rendered by We
         <div class="hero-answer__actions">
             <button type="button" class="btn btn-sm btn-outline-secondary rounded-0" data-action="favorite" aria-pressed="false">☆ Save</button>
             <button type="button" class="btn btn-sm btn-outline-secondary rounded-0" data-action="share">Share</button>
+            {% if result.resort %}
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-0" data-action="alerts" aria-expanded="false" aria-controls="alertsForm">🔔 Get alerts</button>
+            {% endif %}
         </div>
+        {% if result.resort %}{% partial 'alerts-form' %}{% endif %}
 
         {% partial 'gauge' value=now.wetBulbC tier=now.tier label=now.label %}
 
