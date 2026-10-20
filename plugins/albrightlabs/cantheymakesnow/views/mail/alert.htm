@@ -1,0 +1,19 @@
+subject = "{{ subject|raw }}"
+layout = "default"
+description = "Snowmaking and powder alerts for a subscriber's resorts (one email per hourly check)"
+==
+{% for item in items %}
+**{{ item.resort }}**
+
+{% for line in item.lines %}
+- {{ line }}
+{% endfor %}
+
+[See the full forecast]({{ item.url }})
+
+{% endfor %}
+---
+
+You're getting this because you signed up for alerts at cantheymakesnow.com. Forecasts come from NOAA and can change.
+
+[Manage alerts]({{ manageUrl }}) · [Unsubscribe]({{ unsubscribeUrl }})

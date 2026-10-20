@@ -207,6 +207,7 @@ class SnowReport
                 'timeLabel' => $current['time']->copy()->setTimezone($timeZone)->format('g A'),
             ],
             'windows' => $this->weather->describeWindows($windows, $now, $timeZone, $seriesEnd),
+            'windowList' => $windows,
             'chart' => (new ForecastChart())->build($series, $timeZone, $lat, $lon),
             'hourly' => array_map(fn ($p) => $p + [
                 'label' => $p['time']->copy()->setTimezone($timeZone)->format('D g A'),

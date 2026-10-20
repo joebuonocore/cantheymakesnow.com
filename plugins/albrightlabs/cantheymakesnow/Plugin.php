@@ -30,7 +30,16 @@ class Plugin extends PluginBase
      */
     public function register()
     {
-        //
+        $this->registerConsoleCommand('ctms.send-alerts', \AlbrightLabs\CanTheyMakeSnow\Console\SendAlerts::class);
+    }
+
+    /**
+     * registerSchedule: check alerts hourly (the host already runs
+     * `php artisan schedule:run` every minute).
+     */
+    public function registerSchedule($schedule)
+    {
+        $schedule->command('ctms:send-alerts')->hourly()->withoutOverlapping(30);
     }
 
     /**
@@ -61,6 +70,7 @@ class Plugin extends PluginBase
         return [
             'albrightlabs.cantheymakesnow::mail.confirm',
             'albrightlabs.cantheymakesnow::mail.manage',
+            'albrightlabs.cantheymakesnow::mail.alert',
         ];
     }
 
