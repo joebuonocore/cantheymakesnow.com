@@ -39,6 +39,11 @@ return [
             'oc-text-spaced' => 'Spaced',
             'oc-text-uppercase' => 'Uppercase',
         ],
+        'style_inline' => [
+            'oc-class-code' => 'Code',
+            'oc-class-highlighted' => 'Highlighted',
+            'oc-class-transparency' => 'Transparent',
+        ],
         'style_link' => [
             'oc-link-green' => 'Green',
             'oc-link-strong' => 'Strong',

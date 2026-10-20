@@ -28,7 +28,7 @@ Run the unit tests with `php vendor/bin/phpunit -c plugins/albrightlabs/cantheym
 # Installation Guide
 
 ## Requirements
-Ensure the server hosting this application meets all requirements to run an October CMS V3 project.
+October CMS 4 (Laravel 12) on PHP 8.2 or newer, MySQL, and Composer with the October CMS gateway credentials in `auth.json`.
 
 ## Installation Steps
 
@@ -69,7 +69,6 @@ MAIL_HOST=smtp-relay.brevo.com
 MAIL_PORT=587
 MAIL_USERNAME=support@albrightlabs.com
 MAIL_PASSWORD=
-MAIL_ENCRYPTION=null
 MAIL_FROM_ADDRESS=noreply@cantheymakesnow.com
 MAIL_FROM_NAME="${APP_NAME}"
 ```

@@ -128,10 +128,11 @@
         notice('');
         setBusy(true);
 
+        // October 4 calls successFunc(el, context, data).
         oc.ajax('WeatherData::onLookup', {
             data: params,
             update: { result: '#result' },
-            successFunc: function (el, data) {
+            successFunc: function (el, context, data) {
                 afterLookup(data || {}, options);
             },
             errorFunc: function () {
@@ -932,7 +933,7 @@
                     powder_threshold_in: form.elements.powder_threshold_in.value,
                     units: units()
                 },
-                successFunc: function (el, data) {
+                successFunc: function (el, context, data) {
                     data = data || {};
                     show(data.message || 'Check your inbox to confirm.', !!data.ok);
                     if (data.ok) {
