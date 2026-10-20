@@ -47,8 +47,16 @@ description = "Default layout"
         <meta property="og:site_name" content="Can They Make Snow?" />
         <meta property="og:title" content="{{ this.page.meta_title }}" />
         <meta property="og:description" content="{{ this.page.meta_description }}" />
-        <meta property="og:url" content="https://cantheymakesnow.com{{ this.page.url }}" />
+        <meta property="og:url" content="{{ result.shareUrl ?? ('https://cantheymakesnow.com' ~ this.page.url) }}" />
+        {% if shareImage %}
+        <meta property="og:image" content="{{ shareImage }}" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="{{ shareImage }}" />
+        {% else %}
         <meta name="twitter:card" content="summary" />
+        {% endif %}
         <meta name="twitter:title" content="{{ this.page.meta_title }}" />
         <meta name="twitter:description" content="{{ this.page.meta_description }}" />
 

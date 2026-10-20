@@ -17,6 +17,11 @@ description = "Lookup result: answer, gauge, 48-hour forecast. Re-rendered by We
             {{ now.tempC|temp|raw }} air &middot; {{ now.rh|round }}% humidity
         </p>
 
+        <div class="hero-answer__actions">
+            <button type="button" class="btn btn-sm btn-outline-secondary rounded-0" data-action="favorite" aria-pressed="false">☆ Save</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary rounded-0" data-action="share">Share</button>
+        </div>
+
         {% partial 'gauge' value=now.wetBulbC tier=now.tier label=now.label %}
 
         <p class="hero-answer__window" data-state="{{ result.windows.state }}">{{ result.windows.text }}</p>

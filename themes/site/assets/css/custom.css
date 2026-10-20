@@ -116,6 +116,18 @@ body {
 .form-control:focus {
     box-shadow: none !important;
 }
+/* Keyboard focus stays visible even though Bootstrap's focus glow is removed. */
+.btn:focus-visible,
+.form-control:focus-visible,
+.units-toggle button:focus-visible,
+.saved__chip:focus-visible,
+.saved__clear:focus-visible,
+.hero-howto summary:focus-visible,
+.forecast__table summary:focus-visible,
+.screen__footer a:focus-visible {
+    outline: 2px solid var(--answer-yes);
+    outline-offset: 2px;
+}
 
 /* --- Single-viewport layout --- */
 html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
@@ -496,3 +508,30 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
 @media (max-width: 991.98px) {
     .map-legend { display: none; }
 }
+
+/* --- Saved places and actions --- */
+.saved { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: -0.4rem; }
+.saved__chip {
+    border: 1px solid var(--chart-grid);
+    background: transparent;
+    color: inherit;
+    font-size: 0.8rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.saved__chip:hover { background: var(--chart-grid); }
+.saved__clear { border: 0; background: transparent; color: var(--text-muted); font-size: 0.75rem; text-decoration: underline; padding: 0.2rem 0.3rem; }
+.hero-answer__actions { display: flex; justify-content: center; gap: 0.5rem; }
+.hero-answer__actions [aria-pressed="true"] { border-color: var(--answer-yes); color: var(--answer-yes); }
+
+/* --- Single-column pages (404, error) --- */
+.screen--simple {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 1fr auto;
+    grid-template-areas: "content" "footer";
+}
+.screen--simple .screen__content { width: 100%; max-width: 720px; margin: 0 auto; }

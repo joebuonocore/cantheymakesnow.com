@@ -438,7 +438,6 @@
             active = -1;
             if (!query) {
                 close();
-                document.dispatchEvent(new CustomEvent('ctms:search-empty', { detail: { render: showItems } }));
                 return;
             }
 
@@ -481,23 +480,12 @@
             });
         }
 
-        /** Let other modules (saved locations) show their own items in the list. */
-        function showItems(extra) {
-            items = extra;
-            active = -1;
-            render(false);
-        }
-        CTMS.showSuggestions = showItems;
-
         function choose(item) {
             close();
             sessionToken = null;
             if (item.type === 'resort') {
                 input.value = item.label + ', ' + item.sub;
                 lookup({ resort: item.slug });
-            } else if (item.params) {
-                input.value = item.label;
-                lookup(item.params);
             } else {
                 input.value = item.query || item.label;
                 lookup({ address: item.query || item.label });
@@ -508,12 +496,7 @@
             clearTimeout(timer);
             timer = setTimeout(update, 150);
         });
-        input.addEventListener('focus', function () {
-            ensurePlaces();
-            if (!input.value.trim()) {
-                update();
-            }
-        });
+        input.addEventListener('focus', ensurePlaces);
         input.addEventListener('keydown', function (event) {
             if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
                 if (!items.length) {
@@ -548,6 +531,149 @@
                 choose(items[li.dataset.index]);
             }
         });
+    }
+
+    // ---- Saved places, favourite and share -------------------------------------
+
+    var MAX_RECENTS = 5;
+    var MAX_FAVORITES = 12;
+
+    /** Saved places are {label, search} where search is the share URL's query string. */
+    function searchOf(shareUrl) {
+        try {
+            return new URL(shareUrl, window.location.href).search;
+        } catch (e) {
+            return '';
+        }
+    }
+
+    function currentAnswer() {
+        var answer = document.querySelector('#result .hero-answer');
+        return answer ? { label: answer.dataset.place, search: searchOf(answer.dataset.shareUrl), url: answer.dataset.shareUrl } : null;
+    }
+
+    function initSaved() {
+        var container = document.getElementById('savedPlaces');
+        var resultEl = document.getElementById('result');
+        if (!container || !resultEl) {
+            return;
+        }
+
+        function favorites() { return store.get('ctms.favorites', []); }
+        function recents() { return store.get('ctms.recents', []); }
+        function isFavorite(search) {
+            return favorites().some(function (f) { return f.search === search; });
+        }
+
+        function chip(place, starred) {
+            var button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'saved__chip';
+            button.textContent = (starred ? '★ ' : '') + place.label;
+            button.addEventListener('click', function () {
+                document.getElementById('address').value = place.label;
+                lookup(paramsFromSearch(place.search));
+            });
+            return button;
+        }
+
+        function renderChips() {
+            var favs = favorites();
+            var recent = recents().filter(function (r) { return !isFavorite(r.search); });
+            container.textContent = '';
+            favs.forEach(function (f) { container.appendChild(chip(f, true)); });
+            recent.forEach(function (r) { container.appendChild(chip(r, false)); });
+            if (recent.length) {
+                var clear = document.createElement('button');
+                clear.type = 'button';
+                clear.className = 'saved__clear';
+                clear.textContent = 'Clear recent';
+                clear.addEventListener('click', function () {
+                    store.set('ctms.recents', []);
+                    renderChips();
+                });
+                container.appendChild(clear);
+            }
+            container.hidden = !(favs.length || recent.length);
+        }
+
+        function syncFavoriteButton() {
+            var button = resultEl.querySelector('[data-action="favorite"]');
+            var place = currentAnswer();
+            if (!button || !place) {
+                return;
+            }
+            var saved = isFavorite(place.search);
+            button.setAttribute('aria-pressed', saved ? 'true' : 'false');
+            button.textContent = saved ? '★ Saved' : '☆ Save';
+        }
+
+        function rememberRecent() {
+            var place = currentAnswer();
+            if (!place || !place.search) {
+                return;
+            }
+            var list = recents().filter(function (r) { return r.search !== place.search; });
+            list.unshift({ label: place.label, search: place.search });
+            store.set('ctms.recents', list.slice(0, MAX_RECENTS));
+        }
+
+        resultEl.addEventListener('click', function (event) {
+            var button = event.target.closest('[data-action]');
+            var place = currentAnswer();
+            if (!button || !place) {
+                return;
+            }
+
+            if (button.dataset.action === 'favorite') {
+                var list = favorites();
+                if (isFavorite(place.search)) {
+                    list = list.filter(function (f) { return f.search !== place.search; });
+                } else {
+                    list.unshift({ label: place.label, search: place.search });
+                }
+                if (!store.set('ctms.favorites', list.slice(0, MAX_FAVORITES))) {
+                    notice("Your browser isn't letting this site save places.");
+                }
+                syncFavoriteButton();
+                renderChips();
+            } else if (button.dataset.action === 'share') {
+                share(place, button);
+            }
+        });
+
+        document.addEventListener('ctms:result', function (event) {
+            if (event.detail && event.detail.ok) {
+                rememberRecent();
+            }
+            syncFavoriteButton();
+            renderChips();
+        });
+
+        if (currentAnswer()) {
+            rememberRecent();
+        }
+        syncFavoriteButton();
+        renderChips();
+    }
+
+    function share(place, button) {
+        var title = document.title;
+        if (navigator.share) {
+            navigator.share({ title: title, url: place.url }).catch(function () {});
+            return;
+        }
+        var done = function () {
+            var original = button.textContent;
+            button.textContent = 'Link copied';
+            setTimeout(function () { button.textContent = original; }, 2000);
+        };
+        var fallback = function () { notice('Copy this link to share: ' + place.url); };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(place.url).then(done, fallback);
+        } else {
+            fallback();
+        }
     }
 
     // ---- Map ------------------------------------------------------------------
@@ -699,18 +825,29 @@
                 });
         }
 
-        // Load only once the map is on screen and the browser is idle, so it never delays the answer.
+        // Load only once the map is on screen, the page has painted and the browser
+        // is idle, so the map never delays the answer.
         var idle = window.requestIdleCallback || function (cb) { return setTimeout(cb, 1200); };
+        function afterPaint(cb) {
+            function go() {
+                requestAnimationFrame(function () { requestAnimationFrame(function () { idle(cb, { timeout: 3000 }); }); });
+            }
+            if (document.readyState === 'complete') {
+                go();
+            } else {
+                window.addEventListener('load', go, { once: true });
+            }
+        }
         if ('IntersectionObserver' in window) {
             var observer = new IntersectionObserver(function (entries) {
                 if (entries.some(function (e) { return e.isIntersecting; })) {
                     observer.disconnect();
-                    idle(start, { timeout: 3000 });
+                    afterPaint(start);
                 }
             });
             observer.observe(el);
         } else {
-            idle(start, { timeout: 3000 });
+            afterPaint(start);
         }
 
         document.addEventListener('ctms:result', function (event) {
@@ -730,6 +867,7 @@
         initLookupForm();
         initSearch();
         initForecast();
+        initSaved();
         initMap();
     }
 

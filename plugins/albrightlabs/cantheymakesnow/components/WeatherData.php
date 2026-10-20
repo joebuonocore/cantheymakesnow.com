@@ -3,52 +3,31 @@
 use Carbon\Carbon;
 use Cms\Classes\ComponentBase;
 use Illuminate\Database\QueryException;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
-use AlbrightLabs\CanTheyMakeSnow\Classes\ForecastChart;
-use AlbrightLabs\CanTheyMakeSnow\Classes\NoaaClient;
-use AlbrightLabs\CanTheyMakeSnow\Classes\WeatherService;
+use AlbrightLabs\CanTheyMakeSnow\Classes\ShareImage;
+use AlbrightLabs\CanTheyMakeSnow\Classes\SnowReport;
 use AlbrightLabs\CanTheyMakeSnow\Models\Location;
 use AlbrightLabs\CanTheyMakeSnow\Models\Resort;
 
 /**
  * WeatherData Component
  *
- * Looks up a place (free-text address or coordinates), pulls NOAA's hourly
- * grid forecast and nearest station observation, and exposes a single
- * `result` (or `lookupError`) to the theme's `result` partial. Used both on
- * page load (shareable GET URLs) and through the onLookup AJAX handler.
+ * Runs a lookup (address, coordinates or resort) through SnowReport and
+ * exposes a single `result` (or `lookupError`) to the theme's `result`
+ * partial. Used both on page load (shareable GET URLs) and through the
+ * onLookup AJAX handler, and records lookups for the map.
  *
  * @link https://docs.octobercms.com/3.x/extend/cms-components.html
  */
 class WeatherData extends ComponentBase
 {
-    const HTTP_TIMEOUT = 10;
-    const HTTP_CONNECT_TIMEOUT = 5;
     const LOOKUP_DEDUPE_SECONDS = 1800;
-    const FORECAST_HOURS = 48;
-    const OBSERVATION_MAX_AGE_SECONDS = 7200;
 
-    const ERRORS = [
-        'resort_not_found' => "We don't know that resort. Try searching for it by name.",
-        'bad_coords' => "Those coordinates don't look right. Try entering a city and state instead.",
-        'not_configured' => 'Location lookup is not configured. Please try again later.',
-        'geocode_unreachable' => 'The Google Maps API is unreachable right now. Please try again later.',
-        'geocode_unavailable' => 'Location lookup is temporarily unavailable. Please try again later.',
-        'not_found' => "We couldn't find that location. Try a different city and state.",
-        'over_limit' => 'Too many lookups right now. Please try again in a moment.',
-        'outside_us' => 'NOAA forecasts only cover the US and its territories, so we can\'t check that location.',
-        'weather_unavailable' => "We couldn't load NOAA weather data for that location. Please try again shortly.",
-    ];
-
-    protected WeatherService $weather;
-    protected NoaaClient $noaa;
+    protected SnowReport $report;
 
     public function init()
     {
-        $this->weather = new WeatherService();
-        $this->noaa = new NoaaClient();
+        $this->report = new SnowReport();
     }
 
     public function componentDetails()
@@ -80,7 +59,7 @@ class WeatherData extends ComponentBase
         return [
             'ok' => (bool) $result,
             'shareUrl' => $result['shareUrl'] ?? null,
-            'pageTitle' => $result ? $this->metaTitle($result) : null,
+            'pageTitle' => $result ? $this->report->metaTitle($result) : null,
             'pin' => $result ? ['lat' => $result['pinLat'], 'lng' => $result['pinLon'], 'tier' => $result['now']['tier']] : null,
         ];
     }
@@ -91,219 +70,29 @@ class WeatherData extends ComponentBase
      */
     protected function runLookup($address, $lat, $lon, $resortSlug = null): ?array
     {
-        $address = is_string($address) ? trim($address) : null;
-        $resortSlug = is_string($resortSlug) ? trim($resortSlug) : null;
-        $hasCoords = ($lat !== null && $lat !== '') || ($lon !== null && $lon !== '');
-
-        $this->page['query'] = $address;
+        $this->page['query'] = is_string($address) ? trim($address) : null;
         $this->page['result'] = null;
         $this->page['lookupError'] = null;
 
-        if (!$address && !$hasCoords && !$resortSlug) {
+        $report = $this->report->resolve($address, $lat, $lon, $resortSlug);
+        if (!$report) {
+            return null;
+        }
+        if (isset($report['error'])) {
+            $this->page['lookupError'] = ['code' => $report['error'], 'message' => SnowReport::errorMessage($report['error'])];
             return null;
         }
 
-        // Typing a resort's exact name is treated like picking it.
-        $resort = null;
-        if ($resortSlug) {
-            $resort = Resort::isEnabled()->where('slug', $resortSlug)->first();
-            if (!$resort) {
-                return $this->fail('resort_not_found');
-            }
-        } elseif ($address) {
-            $resort = $this->matchResortName($address);
-        }
-
-        $query = [];
-        if ($resort) {
-            [$lat, $lon] = [$resort->lat, $resort->lon];
-            $query = ['resort' => $resort->slug];
-        } elseif ($address) {
-            $geocode = $this->geocode($address);
-            if (isset($geocode['error'])) {
-                return $this->fail($geocode['error']);
-            }
-            [$lat, $lon] = [$geocode['lat'], $geocode['lon']];
-            $query = ['address' => $address];
-        } else {
-            if (!$this->isValidCoordinate($lat, $lon)) {
-                return $this->fail('bad_coords');
-            }
-            // Three decimals (~100m) is plenty for a forecast grid and keeps share URLs tidy.
-            $query = ['lat' => round((float) $lat, 3), 'lon' => round((float) $lon, 3)];
-        }
-
-        $result = $this->lookup((float) $lat, (float) $lon);
-        if (isset($result['error'])) {
-            return $this->fail($result['error']);
-        }
-
-        if ($resort) {
-            $result['place'] = $resort->label;
-            $result['resort'] = [
-                'slug' => $resort->slug,
-                'name' => $resort->name,
-                'baseFt' => $resort->base_elev_ft,
-                'summitFt' => $resort->summit_elev_ft,
-            ];
-            $result['pinLat'] = (float) $resort->lat;
-            $result['pinLon'] = (float) $resort->lon;
-        }
-
-        $result['shareUrl'] = url('/') . '?' . http_build_query($query);
+        $result = $report['result'];
         $this->page['result'] = $result;
-        $this->page['query'] = $address ?: $result['place'];
+        $this->page['query'] = $report['address'] ?: $result['place'];
+        $this->page->meta_title = $this->report->metaTitle($result);
+        $this->page->meta_description = $this->report->metaDescription($result);
+        $this->page['shareImage'] = ShareImage::available() ? url('share.png') . '?' . http_build_query($result['query']) : null;
 
-        $this->page->meta_title = $this->metaTitle($result);
-        $this->page->meta_description = $this->metaDescription($result);
-
-        $resort ? $this->recordResortLookup($resort, $result) : $this->recordLookup($result);
+        $report['resort'] ? $this->recordResortLookup($report['resort'], $result) : $this->recordLookup($result);
 
         return $result;
-    }
-
-    /**
-     * Find an enabled resort whose name (optionally followed by its state) matches exactly.
-     */
-    protected function matchResortName(string $text): ?Resort
-    {
-        $normalized = strtolower(preg_replace('/\s+/', ' ', trim($text)));
-        $name = trim(preg_replace('/,?\s+[a-z]{2}$/', '', $normalized));
-
-        return Resort::isEnabled()
-            ->where(function ($q) use ($normalized, $name) {
-                $q->whereRaw('LOWER(name) = ?', [$normalized])->orWhereRaw('LOWER(name) = ?', [$name]);
-            })
-            ->orderByRaw('LOWER(name) = ? DESC', [$normalized])
-            ->first();
-    }
-
-    protected function fail(string $code): ?array
-    {
-        $this->page['lookupError'] = ['code' => $code, 'message' => self::ERRORS[$code] ?? self::ERRORS['weather_unavailable']];
-        return null;
-    }
-
-    protected function isValidCoordinate($lat, $lon): bool
-    {
-        return is_numeric($lat) && is_numeric($lon)
-            && (float) $lat >= -90 && (float) $lat <= 90
-            && (float) $lon >= -180 && (float) $lon <= 180;
-    }
-
-    /**
-     * Fetch NOAA data for a point and assemble everything the result view needs.
-     * Returns the result array or ['error' => code].
-     */
-    public function lookup(float $lat, float $lon): array
-    {
-        $points = $this->noaa->points($this->weather->customRound($lat), $this->weather->customRound($lon));
-        if (!$points['ok']) {
-            return ['error' => $points['error'] === 'not_found' ? 'outside_us' : 'weather_unavailable'];
-        }
-
-        $props = $points['data']['properties'] ?? [];
-        $gridId = $props['gridId'] ?? null;
-        $gridX = $props['gridX'] ?? null;
-        $gridY = $props['gridY'] ?? null;
-        if (!$gridId || $gridX === null || $gridY === null) {
-            return ['error' => 'weather_unavailable'];
-        }
-
-        $grid = $this->noaa->gridpoints($gridId, (int) $gridX, (int) $gridY);
-        if (!$grid['ok']) {
-            return ['error' => 'weather_unavailable'];
-        }
-
-        $gridProps = $grid['data']['properties'] ?? [];
-        $timeZone = $props['timeZone'] ?? 'America/New_York';
-        $now = Carbon::now('UTC');
-
-        $series = $this->weather->hourlySeries(
-            $gridProps['temperature']['values'] ?? [],
-            $gridProps['relativeHumidity']['values'] ?? [],
-            $gridProps['temperature']['uom'] ?? 'wmoUnit:degC',
-            $now,
-            self::FORECAST_HOURS
-        );
-        if (!$series) {
-            return ['error' => 'weather_unavailable'];
-        }
-
-        $current = $series[0];
-        $tier = $this->weather->snowmakingTier($current['wetBulbC']);
-        $seriesEnd = end($series)['time']->copy()->addHour();
-        $windows = $this->weather->snowmakingWindows($series);
-
-        $city = $props['relativeLocation']['properties']['city'] ?? null;
-        $state = $props['relativeLocation']['properties']['state'] ?? null;
-        // GeoJSON order: [lon, lat]
-        $cityCoords = $props['relativeLocation']['geometry']['coordinates'] ?? null;
-        $hasCityCoords = is_array($cityCoords) && isset($cityCoords[0], $cityCoords[1]);
-
-        $elevationM = $gridProps['elevation']['value'] ?? null;
-        $updated = isset($gridProps['updateTime']) ? Carbon::parse($gridProps['updateTime']) : null;
-
-        return [
-            'place' => $city && $state ? "{$city}, {$state}" : sprintf('%.2f, %.2f', $lat, $lon),
-            'city' => $city,
-            'state' => $state,
-            'timeZone' => $timeZone,
-            // Map pins use NOAA's coordinates for the city, never the visitor's own.
-            'pinLat' => $hasCityCoords ? round((float) $cityCoords[1], 6) : round($lat, 1),
-            'pinLon' => $hasCityCoords ? round((float) $cityCoords[0], 6) : round($lon, 1),
-            'hasCityCoords' => $hasCityCoords,
-            'now' => $current + [
-                'tier' => $tier['tier'],
-                'label' => $tier['label'],
-                'timeLabel' => $current['time']->copy()->setTimezone($timeZone)->format('g A'),
-            ],
-            'windows' => $this->weather->describeWindows($windows, $now, $timeZone, $seriesEnd),
-            'chart' => (new ForecastChart())->build($series, $timeZone, $lat, $lon),
-            'hourly' => array_map(fn ($p) => $p + [
-                'label' => $p['time']->copy()->setTimezone($timeZone)->format('D g A'),
-            ], $series),
-            'elevationFt' => $elevationM !== null ? (int) round($elevationM * 3.28084) : null,
-            'updatedLabel' => $updated ? $updated->setTimezone($timeZone)->format('g:i A') : null,
-            'observation' => $this->observation($gridId, (int) $gridX, (int) $gridY, $timeZone, $now),
-        ];
-    }
-
-    /**
-     * Latest nearby station reading, if fresh enough to be a useful reality check.
-     */
-    protected function observation(string $gridId, int $gridX, int $gridY, string $timeZone, Carbon $now): ?array
-    {
-        $response = $this->noaa->latestObservation($gridId, $gridX, $gridY);
-        if (!$response['ok']) {
-            return null;
-        }
-
-        $observation = $this->weather->parseObservation($response['data']);
-        if (!$observation || $now->timestamp - $observation['time']->timestamp > self::OBSERVATION_MAX_AGE_SECONDS) {
-            return null;
-        }
-
-        $station = $response['data']['station'];
-        return $observation + [
-            'stationId' => $station['id'],
-            'stationName' => $station['name'],
-            'timeLabel' => $observation['time']->copy()->setTimezone($timeZone)->format('g:i A'),
-            'tier' => $this->weather->snowmakingTier($observation['wetBulbC'])['tier'],
-        ];
-    }
-
-    protected function metaTitle(array $result): string
-    {
-        $answer = $this->weather->snowmakingTier($result['now']['wetBulbC'])['snow'] ? 'YES' : 'NO';
-        return "{$answer}: can they make snow in {$result['place']}?";
-    }
-
-    protected function metaDescription(array $result): string
-    {
-        $f = round($this->weather->toFahrenheit($result['now']['wetBulbC']));
-        $c = round($result['now']['wetBulbC'], 1);
-        return "{$result['now']['label']} in {$result['place']}: {$f}°F ({$c}°C) wet-bulb. {$result['windows']['text']}";
     }
 
     /**
@@ -384,68 +173,4 @@ class WeatherData extends ComponentBase
         ];
     }
 
-    /**
-     * Geocode a free-text address via Google Maps.
-     * Returns ['lat' => float, 'lon' => float] or ['error' => code].
-     */
-    protected function geocode(string $address): array
-    {
-        $apiKey = env('GOOGLE_MAPS_SERVER_KEY') ?: env('GOOGLE_MAPS_API_KEY');
-
-        if (!$apiKey) {
-            return ['error' => 'not_configured'];
-        }
-
-        try {
-            $response = Http::connectTimeout(self::HTTP_CONNECT_TIMEOUT)
-                ->timeout(self::HTTP_TIMEOUT)
-                ->get('https://maps.googleapis.com/maps/api/geocode/json', [
-                    'address' => $address,
-                    'key' => $apiKey,
-                ]);
-        } catch (\Throwable $e) {
-            Log::warning('Geocode network error', ['address' => $address, 'error' => $e->getMessage()]);
-            return ['error' => 'geocode_unreachable'];
-        }
-
-        if (!$response->successful()) {
-            Log::warning('Geocode HTTP error', ['address' => $address, 'status' => $response->status()]);
-            return ['error' => 'geocode_unavailable'];
-        }
-
-        $jsonData = $response->json();
-        $gStatus = $jsonData['status'] ?? null;
-
-        if ($gStatus === 'OK' && !empty($jsonData['results'])) {
-            $first = $jsonData['results'][0];
-            $country = null;
-            foreach ($first['address_components'] ?? [] as $component) {
-                if (in_array('country', $component['types'] ?? [], true)) {
-                    $country = $component['short_name'] ?? null;
-                }
-            }
-            if ($country && !$this->weather->isNoaaCountry($country)) {
-                return ['error' => 'outside_us'];
-            }
-            return [
-                'lat' => (float) $first['geometry']['location']['lat'],
-                'lon' => (float) $first['geometry']['location']['lng'],
-            ];
-        }
-
-        Log::warning('Geocode non-OK', [
-            'address' => $address,
-            'google_status' => $gStatus,
-            'google_error' => $jsonData['error_message'] ?? null,
-        ]);
-
-        switch ($gStatus) {
-            case 'ZERO_RESULTS':
-                return ['error' => 'not_found'];
-            case 'OVER_QUERY_LIMIT':
-                return ['error' => 'over_limit'];
-            default:
-                return ['error' => 'geocode_unavailable'];
-        }
-    }
 }

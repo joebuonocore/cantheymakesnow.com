@@ -5,12 +5,22 @@ description = "We're sorry, but something went wrong and the page cannot be disp
 meta_title = "Error"
 meta_description = "We're sorry, but something went wrong and the page cannot be displayed."
 ==
-<div class="px-4 py-5 my-5 text-center">
-  <h1 class="display-5 fw-bold">Error</h1>
-  <div class="col-lg-6 mx-auto">
-    <p class="lead mb-4">We're sorry, but something went wrong and the page cannot be displayed.</p>
-    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-      <a href="{{ 'home'|page }}" class="btn btn-primary px-4 gap-3">Go to home</a>
-    </div>
-  </div>
-</div>
+<main class="screen screen--simple">
+    <section class="screen__content">
+        {% partial 'header' %}
+        <div class="result">
+            <div class="hero-answer">
+                <div class="hero-answer__headline" data-answer="no">Oops</div>
+                <p class="hero-answer__meta"><strong>Something went wrong</strong></p>
+                <p class="hero-answer__inputs">Sorry, the page couldn't be displayed. Please try again in a moment.</p>
+                <div class="hero-answer__actions">
+                    <a href="{{ 'home'|page }}" class="btn btn-primary rounded-0">Check a location</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="screen__footer">
+        {% partial 'footer' %}
+    </footer>
+</main>
