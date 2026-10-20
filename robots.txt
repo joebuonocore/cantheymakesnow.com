@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin
+Disallow: /*address=
+Disallow: /*lat=
+
+Sitemap: https://cantheymakesnow.com/sitemap.xml

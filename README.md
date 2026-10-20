@@ -100,7 +100,7 @@ CLIENT_IP_HEADER=CF-Connecting-IP
 ```
 
 ### Links, robots and sitemap
-`robots.txt` and `sitemap.xml` (home plus every enabled resort) are served by the plugin. Absolute links (share URLs, `og:image`, the sitemap) are built from the request, so in production set `APP_URL=https://cantheymakesnow.com` and `LINK_POLICY=force`.
+`robots.txt` and `favicon.ico` are static files in the web root (nginx answers those names itself); `sitemap.xml` (home plus every enabled resort) is served by the plugin. Absolute links (share URLs, `og:image`, the sitemap) are built from the request, so in production set `APP_URL=https://cantheymakesnow.com` and `LINK_POLICY=force`.
 
 ### 8. Run migrations
 ```bash
