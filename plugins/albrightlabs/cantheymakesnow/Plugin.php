@@ -1,6 +1,7 @@
 <?php namespace AlbrightLabs\CanTheyMakeSnow;
 
 use Backend;
+use AlbrightLabs\CanTheyMakeSnow\Classes\ShareImage;
 use System\Classes\PluginBase;
 
 /**
@@ -67,6 +68,10 @@ class Plugin extends PluginBase
         };
 
         return [
+            'functions' => [
+                // Site-wide card for pages without a lookup result (null if it can't be drawn).
+                'defaultShareImage' => fn () => ShareImage::available() ? url('share.png') : null,
+            ],
             'filters' => [
                 'temp' => function ($celsius, $decimals = 0) use ($format) {
                     if ($celsius === null) {

@@ -4,7 +4,7 @@
  * Draws a 1200×630 social share card for a SnowReport result with GD.
  *
  * Needs a TrueType font: OG_FONT_PATH, or assets/fonts/share.ttf in this
- * plugin. Without one (or without GD's FreeType support) available() is
+ * plugin (Inter Bold, SIL Open Font License; see assets/fonts/OFL.txt). Without one (or without GD's FreeType support) available() is
  * false and pages simply omit og:image.
  */
 class ShareImage
@@ -47,21 +47,11 @@ class ShareImage
             return null;
         }
 
-        $font = self::fontPath();
-        $img = imagecreatetruecolor(self::WIDTH, self::HEIGHT);
-        $c = [];
-        foreach (self::COLORS as $name => [$r, $g, $b]) {
-            $c[$name] = imagecolorallocate($img, $r, $g, $b);
-        }
-        imagefilledrectangle($img, 0, 0, self::WIDTH, self::HEIGHT, $c['bg']);
-
+        [$img, $c, $font] = $this->canvas();
         $snow = in_array($result['now']['tier'], ['ideal', 'great', 'marginal'], true);
         $contentWidth = self::WIDTH - self::PAD * 2;
 
-        imagettftext($img, 22, 0, self::PAD, 84, $c['muted'], $font, 'CAN THEY MAKE SNOW?');
-        $this->textRight($img, 22, 84, $c['muted'], $font, 'cantheymakesnow.com');
-
-        imagettftext($img, 150, 0, self::PAD - 6, 250, $snow ? $c['yes'] : $c['muted'], $font, $snow ? 'YES' : 'NO');
+        imagettftext($img, 128, 0, self::PAD - 5, 250, $snow ? $c['yes'] : $c['muted'], $font, $snow ? 'YES' : 'NO');
 
         $this->fitText($img, 46, self::PAD, 330, $contentWidth, $c['text'], $font, $result['place']);
 
@@ -74,6 +64,60 @@ class ShareImage
         $this->bars($img, $c, $result['hourly'] ?? [], 470, 590);
         imagettftext($img, 16, 0, self::PAD, 616, $c['muted'], $font, 'Next 48 hours · NOAA forecast');
 
+        return $this->png($img);
+    }
+
+    /**
+     * Site-wide card for links to the home page and other pages without a result.
+     */
+    public function renderDefault(): ?string
+    {
+        if (!self::available()) {
+            return null;
+        }
+
+        [$img, $c, $font] = $this->canvas();
+        $contentWidth = self::WIDTH - self::PAD * 2;
+
+        $this->fitText($img, 76, self::PAD, 220, $contentWidth, $c['text'], $font, 'Can they make snow?');
+        $this->fitText($img, 30, self::PAD, 290, $contentWidth, $c['line'], $font, 'A live snowmaking check for any US town or ski resort.');
+        $this->fitText($img, 26, self::PAD, 340, $contentWidth, $c['muted'], $font, 'Wet-bulb temperature, the next 48 hours and the next snowmaking window.');
+
+        // An illustrative night of cooling, drawn like the result chart.
+        $weather = new WeatherService();
+        $hourly = [];
+        for ($i = 0; $i < 48; $i++) {
+            $wetBulb = round(-2.5 + 5.5 * cos(($i + 6) / 24 * 2 * M_PI), 1);
+            $tier = $weather->snowmakingTier($wetBulb);
+            $hourly[] = ['wetBulbC' => $wetBulb, 'snow' => $tier['snow'], 'tier' => $tier['tier']];
+        }
+        $this->bars($img, $c, $hourly, 420, 590);
+        imagettftext($img, 16, 0, self::PAD, 616, $c['muted'], $font, 'Forecasts from NOAA · free, no sign-up');
+
+        return $this->png($img);
+    }
+
+    /**
+     * Blank card with the shared header. Returns [image, colors, font path].
+     */
+    protected function canvas(): array
+    {
+        $font = self::fontPath();
+        $img = imagecreatetruecolor(self::WIDTH, self::HEIGHT);
+        $c = [];
+        foreach (self::COLORS as $name => [$r, $g, $b]) {
+            $c[$name] = imagecolorallocate($img, $r, $g, $b);
+        }
+        imagefilledrectangle($img, 0, 0, self::WIDTH, self::HEIGHT, $c['bg']);
+
+        imagettftext($img, 22, 0, self::PAD, 84, $c['muted'], $font, 'CAN THEY MAKE SNOW?');
+        $this->textRight($img, 22, 84, $c['muted'], $font, 'cantheymakesnow.com');
+
+        return [$img, $c, $font];
+    }
+
+    protected function png($img): string
+    {
         ob_start();
         imagepng($img, null, 6);
         imagedestroy($img);

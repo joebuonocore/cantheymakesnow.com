@@ -89,8 +89,18 @@ The map uses Advanced Markers, which need a Map ID. Create one in Google Cloud (
 GOOGLE_MAPS_MAP_ID=your_map_id_here
 ```
 
-### Share card font (optional)
-The per-result share image (`/share.png`) is drawn with GD and needs a TrueType font. Put one at `plugins/albrightlabs/cantheymakesnow/assets/fonts/share.ttf`, or point `OG_FONT_PATH` at a `.ttf` file. Without a font, pages omit `og:image` and fall back to a text-only preview.
+### Share cards
+Share images (`/share.png` for the home page, `/share.png?resort=…` etc. for results) are drawn with PHP GD and need FreeType support (`php -r 'print_r(gd_info());'` should show `FreeType Support => 1`). The font is Inter Bold, bundled at `plugins/albrightlabs/cantheymakesnow/assets/fonts/share.ttf` under the SIL Open Font License; set `OG_FONT_PATH` to use another `.ttf`. Without GD/FreeType, pages simply omit `og:image`.
+
+### Rate limits and proxies
+Address lookups are limited to 20 geocodes per visitor per minute and map/coordinate lookups to 60 (`classes/Throttle.php`). Behind Cloudflare or another proxy, set the header that carries the visitor's IP, or every visitor shares one limit:
+
+```ini
+CLIENT_IP_HEADER=CF-Connecting-IP
+```
+
+### Links, robots and sitemap
+`robots.txt` and `sitemap.xml` (home plus every enabled resort) are served by the plugin. Absolute links (share URLs, `og:image`, the sitemap) are built from the request, so in production set `APP_URL=https://cantheymakesnow.com` and `LINK_POLICY=force`.
 
 ### 8. Run migrations
 ```bash

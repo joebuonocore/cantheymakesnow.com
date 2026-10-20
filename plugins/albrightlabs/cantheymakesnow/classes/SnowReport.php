@@ -28,6 +28,7 @@ class SnowReport
         'geocode_unavailable' => 'Location lookup is temporarily unavailable. Please try again later.',
         'not_found' => "We couldn't find that location. Try a different city and state.",
         'over_limit' => 'Too many lookups right now. Please try again in a moment.',
+        'rate_limited' => "You're checking a lot of places quickly. Please wait a minute and try again.",
         'outside_us' => 'NOAA forecasts only cover the US and its territories, so we can\'t check that location.',
         'weather_unavailable' => "We couldn't load NOAA weather data for that location. Please try again shortly.",
     ];
@@ -80,6 +81,10 @@ class SnowReport
         } else {
             if (!$this->isValidCoordinate($lat, $lon)) {
                 return ['error' => 'bad_coords'];
+            }
+            // Resorts are a fixed, cached set; arbitrary points are where uncached NOAA calls come from.
+            if (!Throttle::attempt('lookup')) {
+                return ['error' => 'rate_limited'];
             }
             // Three decimals (~100m) is plenty for a forecast grid and keeps share URLs tidy.
             $query = ['lat' => round((float) $lat, 3), 'lon' => round((float) $lon, 3)];
@@ -260,6 +265,9 @@ class SnowReport
         if (!$apiKey) {
             return ['error' => 'not_configured'];
         }
+        if (!Throttle::attempt('geocode')) {
+            return ['error' => 'rate_limited'];
+        }
 
         try {
             $response = Http::connectTimeout(self::HTTP_CONNECT_TIMEOUT)
@@ -304,6 +312,8 @@ class SnowReport
 
         switch ($gStatus) {
             case 'ZERO_RESULTS':
+                // Cached so repeated nonsense queries don't each cost a geocode call.
+                Cache::put($cacheKey, ['error' => 'not_found'], self::CACHE_TTL_GEOCODE);
                 return ['error' => 'not_found'];
             case 'OVER_QUERY_LIMIT':
                 return ['error' => 'over_limit'];
