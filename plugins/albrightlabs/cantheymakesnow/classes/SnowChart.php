@@ -65,12 +65,19 @@ class SnowChart extends ForecastChart
             }
         }
 
+        $peak = array_keys(array_column($buckets, 'in'), max(array_column($buckets, 'in')))[0];
+
         return [
             'width' => self::WIDTH,
             'height' => self::HEIGHT,
             'plotTop' => self::PLOT_TOP,
             'plotBottom' => self::PLOT_BOTTOM,
             'maxIn' => $max,
+            'peak' => [
+                'x' => round($peak * $slot + $slot / 2, 2),
+                'y' => round(self::PLOT_BOTTOM - $buckets[$peak]['in'] * $scale - 4, 2),
+                'in' => $buckets[$peak]['in'],
+            ],
             'bars' => $bars,
             'nights' => $nights,
             'days' => $days,

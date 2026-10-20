@@ -46,6 +46,15 @@
     }
     CTMS.formatTemp = formatTemp;
 
+    // Mirrors Units::snow(): tenths below 1″ (or 2 cm), whole numbers above.
+    function formatSnow(inches) {
+        if (units() === 'c') {
+            var cm = inches * 2.54;
+            return cm.toFixed(cm > 0 && cm < 2 ? 1 : 0) + ' cm';
+        }
+        return inches.toFixed(inches > 0 && inches < 1 ? 1 : 0) + '″';
+    }
+
     function setUnits(next) {
         if (next === 'c') {
             document.documentElement.setAttribute('data-units', 'c');
@@ -206,8 +215,13 @@
     // ---- Forecast chart tooltip ---------------------------------------------
 
     function initForecast() {
-        var chart = document.querySelector('.forecast__chart');
-        if (!chart || chart.dataset.ready) {
+        document.querySelectorAll('.forecast__chart').forEach(initChart);
+    }
+
+    // Hover/tap/arrow-key tooltip for a server-rendered chart. Hit rects carry
+    // data-c (wet-bulb °C) or data-in (snowfall inches) plus a label.
+    function initChart(chart) {
+        if (chart.dataset.ready) {
             return;
         }
         chart.dataset.ready = '1';
@@ -234,9 +248,12 @@
 
             tooltip.textContent = '';
             var value = document.createElement('strong');
-            value.textContent = formatTemp(parseFloat(hit.getAttribute('data-c')));
+            var snow = hit.hasAttribute('data-in');
+            value.textContent = snow
+                ? formatSnow(parseFloat(hit.getAttribute('data-in'))) + ' new snow'
+                : formatTemp(parseFloat(hit.getAttribute('data-c')));
             var meta = document.createElement('span');
-            meta.textContent = hit.getAttribute('data-label') + ' · ' + hit.getAttribute('data-tier-name');
+            meta.textContent = hit.getAttribute('data-label') + (snow ? '' : ' · ' + hit.getAttribute('data-tier-name'));
             tooltip.appendChild(value);
             tooltip.appendChild(meta);
             tooltip.hidden = false;

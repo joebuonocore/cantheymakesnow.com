@@ -1,0 +1,63 @@
+description = "Snow forecast: 24/48/72-hour totals and the 72-hour snowfall chart (SnowChart geometry) with tooltip and table. Expects snow."
+==
+<section class="snowfall" aria-labelledby="snowfallTitle">
+    <h2 class="section-title" id="snowfallTitle">Snow forecast <span>new snow, NOAA forecast</span></h2>
+
+    <dl class="snowfall__totals">
+        {% for hours, total in snow.totals %}
+            <div class="snowfall__total{{ total and total >= 1 ? ' is-snowy' : '' }}">
+                <dt>Next {{ hours }} h</dt>
+                <dd>{{ total is null ? '—' : total|snow|raw }}</dd>
+            </div>
+        {% endfor %}
+    </dl>
+
+    {% set chart = snow.chart %}
+    {% set snowy = chart.bars|filter(b => b.in > 0.05)|length %}
+    {% if not snowy %}
+        <p class="snowfall__none">No new snow in the forecast for the next {{ chart.bars|length * 6 }} hours.</p>
+    {% else %}
+        <figure class="forecast forecast--snow">
+            <div class="forecast__chart" tabindex="0" aria-describedby="snowHelp">
+                <svg viewBox="0 0 {{ chart.width }} {{ chart.height }}" class="forecast__svg" role="img"
+                    aria-label="New snow per 6 hours for the next {{ chart.bars|length * 6 }} hours">
+                    {% for night in chart.nights %}
+                        <rect class="forecast__night" x="{{ night.x }}" y="{{ chart.plotTop }}" width="{{ night.width }}" height="{{ chart.plotBottom - chart.plotTop }}"></rect>
+                    {% endfor %}
+                    {% for bar in chart.bars %}
+                        {% if bar.path %}<path class="forecast__bar forecast__bar--snow" d="{{ bar.path }}"></path>{% endif %}
+                    {% endfor %}
+                    <line class="forecast__threshold" x1="0" x2="{{ chart.width }}" y1="{{ chart.plotBottom }}" y2="{{ chart.plotBottom }}"></line>
+                    <text class="forecast__text forecast__text--strong" x="{{ max(14, min(chart.width - 14, chart.peak.x)) }}" y="{{ max(10, chart.peak.y) }}" text-anchor="middle">
+                        <tspan class="u-f">{{ chart.peak.in|snowText('f') }}</tspan><tspan class="u-c">{{ chart.peak.in|snowText('c') }}</tspan>
+                    </text>
+                    {% for day in chart.days %}
+                        {% if not loop.first %}<line class="forecast__tick" x1="{{ day.x - 2 }}" x2="{{ day.x - 2 }}" y1="{{ chart.plotTop }}" y2="{{ chart.plotBottom + 4 }}"></line>{% endif %}
+                        <text class="forecast__text" x="{{ day.x }}" y="{{ chart.height - 6 }}">{{ day.label }}</text>
+                    {% endfor %}
+                    {% for bar in chart.bars %}
+                        <rect class="forecast__hit" x="{{ bar.x }}" y="0" width="{{ bar.slot }}" height="{{ chart.plotBottom + 4 }}"
+                            data-index="{{ loop.index0 }}" data-label="{{ bar.label }}" data-in="{{ bar.in|round(2) }}"></rect>
+                    {% endfor %}
+                    <line class="forecast__cursor" x1="0" x2="0" y1="{{ chart.plotTop }}" y2="{{ chart.plotBottom }}" hidden></line>
+                </svg>
+                <div class="forecast__tooltip" role="status" hidden></div>
+            </div>
+            <p id="snowHelp" class="visually-hidden">Use the left and right arrow keys to step through 6-hour periods.</p>
+
+            <details class="forecast__table">
+                <summary>Snowfall table</summary>
+                <div class="forecast__table-scroll">
+                    <table class="table table-sm">
+                        <thead><tr><th scope="col">Period</th><th scope="col">New snow</th></tr></thead>
+                        <tbody>
+                            {% for bar in chart.bars %}
+                                <tr><td>{{ bar.label }}</td><td>{{ bar.in|snow|raw }}</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </figure>
+    {% endif %}
+</section>

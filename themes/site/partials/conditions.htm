@@ -1,0 +1,36 @@
+description = "Right now: weather summary, temperature, feels-like, wind, humidity and precipitation chance. Expects result."
+==
+{% set c = result.conditions %}
+{% set icon = c.night and c.icon in ['sun', 'partly'] ? 'moon' : c.icon %}
+<section class="wx-now" aria-labelledby="wxNowTitle">
+    <h2 class="section-title" id="wxNowTitle">Right now</h2>
+    <div class="wx-now__main">
+        <svg class="wx-icon wx-icon--lg" aria-hidden="true"><use href="#wx-{{ icon }}"></use></svg>
+        <div>
+            <div class="wx-now__summary">{{ c.summary ?: 'Conditions unavailable' }}</div>
+            <div class="wx-now__temp">
+                {{- result.now.tempC|temp|raw -}}
+                {% if c.feelsLikeC is not null and (c.feelsLikeC - result.now.tempC)|abs >= 1.5 %}
+                    <span>feels like {{ c.feelsLikeC|temp|raw }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <dl class="wx-stats">
+        {% if c.windMph is not null %}
+            <div><dt>Wind</dt><dd>{{ c.windMph|speed|raw }}{% if c.gustMph is not null and c.gustMph - c.windMph >= 5 %}, gusts {{ c.gustMph|speed|raw }}{% endif %}</dd></div>
+        {% endif %}
+        <div><dt>Humidity</dt><dd>{{ result.now.rh|round }}%</dd></div>
+        {% if c.precipChance is not null %}
+            <div><dt>Precipitation</dt><dd>{{ c.precipChance|round }}% chance</dd></div>
+        {% endif %}
+    </dl>
+    {% if result.observation %}
+        {% set obs = result.observation %}
+        <p class="hero-answer__source">
+            Nearest station <abbr title="{{ obs.stationName }}">{{ obs.stationId }}</abbr> at {{ obs.timeLabel }}:
+            {% if obs.text %}{{ obs.text|lower|capitalize }}, {% endif %}{{ obs.tempC|temp|raw }}, {{ obs.rh|round }}% humidity
+            ({{ obs.wetBulbC|temp|raw }} wet-bulb){% if obs.windMph is not null %}, wind {{ obs.windMph|speed|raw }}{% endif %}.
+        </p>
+    {% endif %}
+</section>
