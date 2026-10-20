@@ -1,0 +1,21 @@
+description = "7-day outlook from NOAA's day/night forecast: one card per day with icon, high/low, short text and snow range. Expects outlook."
+==
+<section class="outlook" aria-labelledby="outlookTitle">
+    <h2 class="section-title" id="outlookTitle">7-day outlook</h2>
+    <ol class="outlook__days">
+        {% for day in outlook %}
+            <li class="outlook__day">
+                <span class="outlook__name">{{ day.name }}</span>
+                <svg class="wx-icon" aria-hidden="true"><use href="#wx-{{ day.highC is null and day.icon in ['sun', 'partly'] ? 'moon' : day.icon }}"></use></svg>
+                <span class="outlook__temps">
+                    {% if day.highC is not null %}<strong>{{ day.highC|temp|raw }}</strong>{% endif %}
+                    {% if day.lowC is not null %}<span>{{ day.lowC|temp|raw }}</span>{% endif %}
+                </span>
+                <span class="outlook__short">{{ day.short }}</span>
+                {% if day.snow and day.snow.hi > 0 %}
+                    <span class="outlook__snow" title="New snow">❄︎ {{ day.snow|snowRange|raw }}</span>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ol>
+</section>

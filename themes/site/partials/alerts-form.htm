@@ -1,0 +1,29 @@
+description = "Alert signup form for a resort result; toggled by the Get alerts button. Expects result (with resort)."
+==
+<form class="alerts-form" id="alertsForm" data-resort="{{ result.resort.slug }}" hidden novalidate>
+    <p class="alerts-form__title">Email me about {{ result.resort.name }} when…</p>
+    <label class="alerts-option">
+        <input type="checkbox" name="snowmaking" value="1" checked>
+        they can make snow:
+        <select name="snowmaking_min_tier" class="form-select form-select-sm rounded-0" aria-label="Which snowmaking windows">
+            <option value="marginal">any window</option>
+            <option value="great">great or better</option>
+        </select>
+    </label>
+    <label class="alerts-option">
+        <input type="checkbox" name="powder" value="1" checked>
+        a powder day is coming:
+        <select name="powder_threshold_in" class="form-select form-select-sm rounded-0" aria-label="Powder threshold">
+            <option value="3">3″ (8 cm)+</option>
+            <option value="6" selected>6″ (15 cm)+</option>
+            <option value="12">12″ (30 cm)+</option>
+        </select>
+    </label>
+    <div class="alerts-form__row">
+        <label class="visually-hidden" for="alertsEmail">Email address</label>
+        <input type="email" id="alertsEmail" name="email" class="form-control rounded-0" placeholder="you@example.com" autocomplete="email" required>
+        <button type="submit" class="btn btn-primary rounded-0">Get alerts</button>
+    </div>
+    <p class="alerts-form__message" role="status" hidden></p>
+    <p class="alerts-form__fine">We'll email a link to confirm. At most one email per alert type per day; unsubscribe anytime. <a href="/privacy">Privacy</a></p>
+</form>

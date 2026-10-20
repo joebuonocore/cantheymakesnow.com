@@ -429,6 +429,100 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
 .forecast__table-scroll { max-height: 240px; overflow-y: auto; margin-top: 0.4rem; }
 .forecast__table table { font-variant-numeric: tabular-nums; margin: 0; }
 
+/* --- Weather sections: Right now, Snow forecast, 7-day outlook --- */
+.section-title { font-weight: 600; font-size: 0.9rem; margin: 0 0 0.5rem; }
+.section-title span { font-weight: 400; color: var(--text-muted); }
+.wx-now, .snowfall, .outlook { width: 100%; padding-top: 1rem; border-top: 1px solid var(--chart-grid); }
+.wx-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+.wx-icon {
+    width: 28px;
+    height: 28px;
+    flex: 0 0 auto;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.wx-icon--lg { width: 44px; height: 44px; }
+.wx-now__main { display: flex; align-items: center; gap: 0.75rem; }
+.wx-now__summary { font-weight: 600; }
+.wx-now__temp { font-size: 1.35rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.wx-now__temp span { font-size: 0.85rem; font-weight: 400; color: var(--text-muted); margin-left: 0.25rem; }
+.wx-stats { display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; margin: 0.6rem 0 0.25rem; font-size: 0.85rem; }
+.wx-stats div { display: flex; gap: 0.35rem; }
+.wx-stats dt { font-weight: 400; color: var(--text-muted); }
+.wx-stats dd { margin: 0; font-variant-numeric: tabular-nums; }
+
+.hero-answer__powder { margin: 0; font-weight: 600; color: var(--answer-yes); }
+.hero-answer__powder:not([data-level]) { font-weight: 500; color: inherit; }
+
+.snowfall__totals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin: 0 0 0.75rem; }
+.snowfall__total { border: 1px solid var(--chart-grid); padding: 0.4rem 0.6rem; }
+.snowfall__total dt { font-size: 0.75rem; font-weight: 400; color: var(--text-muted); }
+.snowfall__total dd { margin: 0; font-size: 1.25rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.snowfall__total.is-snowy { border-color: var(--tier-great); }
+.snowfall__none { margin: 0; font-size: 0.85rem; color: var(--text-muted); }
+.forecast__bar--snow { fill: var(--tier-great); }
+
+.outlook__days {
+    display: flex;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0.4rem;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+}
+.outlook__day {
+    flex: 0 0 6.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    padding: 0.5rem 0.6rem;
+    border: 1px solid var(--chart-grid);
+    scroll-snap-align: start;
+    font-size: 0.8rem;
+}
+.outlook__name { font-weight: 600; }
+.outlook__temps { display: flex; gap: 0.4rem; font-variant-numeric: tabular-nums; }
+.outlook__temps span { color: var(--text-muted); }
+.outlook__short { color: var(--text-muted); line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.outlook__snow { font-weight: 600; color: var(--answer-yes); }
+
+/* --- Alerts: signup form, manage page, privacy page --- */
+.alerts-form {
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--chart-grid);
+    text-align: left;
+    font-size: 0.9rem;
+}
+.alerts-form__title { font-weight: 600; margin: 0 0 0.4rem; }
+.alerts-option { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin: 0 0 0.4rem; }
+.alerts-option .form-select { width: auto; display: inline-block; padding-top: 0.15rem; padding-bottom: 0.15rem; }
+.alerts-form__row { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
+.alerts-form__row .form-control { min-width: 0; }
+.alerts-form__row .btn { flex: 0 0 auto; white-space: nowrap; }
+.alerts-form__message { margin: 0.5rem 0 0; font-weight: 500; }
+.alerts-form__message.is-error { color: var(--bs-danger-text-emphasis, #b02a37); }
+.alerts-form__fine { margin: 0.5rem 0 0; font-size: 0.75rem; color: var(--text-muted); }
+.alerts-form__fine a { color: inherit; }
+
+.alerts-page { padding: 1rem 0 2rem; }
+.alerts-page__title { font-size: 1.6rem; font-weight: 700; margin: 0 0 0.75rem; }
+.alerts-page__email { color: var(--text-muted); margin-top: -0.4rem; }
+.alerts-page__notice { padding: 0.5rem 0.75rem; border-left: 3px solid var(--answer-yes); background: var(--chart-night); }
+.alerts-page .section-title { margin-top: 1.25rem; font-size: 1rem; }
+.alerts-manage__resort, .alerts-manage__units { border: 1px solid var(--chart-grid); padding: 0.6rem 0.9rem 0.4rem; margin: 0 0 0.75rem; }
+.alerts-manage legend { float: none; width: auto; font-size: 1rem; font-weight: 600; padding: 0 0.3rem; margin: 0; }
+.alerts-manage__remove { padding: 0; color: var(--text-muted); }
+.alerts-page__stop { margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-muted); }
+
 /* --- Search suggestions --- */
 .suggest {
     position: absolute;

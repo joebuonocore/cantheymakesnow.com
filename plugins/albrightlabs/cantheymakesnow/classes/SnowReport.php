@@ -17,6 +17,7 @@ class SnowReport
     const HTTP_TIMEOUT = 10;
     const HTTP_CONNECT_TIMEOUT = 5;
     const FORECAST_HOURS = 48;
+    const SNOW_HOURS = 72;
     const OBSERVATION_MAX_AGE_SECONDS = 7200;
     const CACHE_TTL_GEOCODE = 86400;
 
@@ -206,6 +207,7 @@ class SnowReport
                 'timeLabel' => $current['time']->copy()->setTimezone($timeZone)->format('g A'),
             ],
             'windows' => $this->weather->describeWindows($windows, $now, $timeZone, $seriesEnd),
+            'windowList' => $windows,
             'chart' => (new ForecastChart())->build($series, $timeZone, $lat, $lon),
             'hourly' => array_map(fn ($p) => $p + [
                 'label' => $p['time']->copy()->setTimezone($timeZone)->format('D g A'),
@@ -213,8 +215,59 @@ class SnowReport
             'elevationFt' => $elevationM !== null ? (int) round($elevationM * 3.28084) : null,
             'updatedLabel' => $updated ? $updated->setTimezone($timeZone)->format('g:i A') : null,
             'observation' => $this->observation($gridId, (int) $gridX, (int) $gridY, $timeZone, $now),
+            'conditions' => $this->weather->conditionsAt($gridProps, $now) + ['night' => $this->isNight($now, $lat, $lon)],
+            'snow' => $this->snowForecast($gridProps, $now, $timeZone, $lat, $lon),
+            'outlook' => $this->outlook($gridId, (int) $gridX, (int) $gridY),
         ];
     }
+
+    /**
+     * Snowfall over the next 72 hours: totals, chart, and the biggest storm
+     * starting in the next 48 hours (the "powder" headline). Null without data.
+     */
+    protected function snowForecast(array $gridProps, Carbon $now, string $timeZone, float $lat, float $lon): ?array
+    {
+        $buckets = $this->weather->snowfallBuckets(
+            $gridProps['snowfallAmount']['values'] ?? [],
+            $gridProps['snowfallAmount']['uom'] ?? null,
+            $now,
+            self::SNOW_HOURS
+        );
+        if (!$buckets) {
+            return null;
+        }
+
+        $storms = $this->weather->storms($buckets);
+        $powder = $this->weather->biggestStorm($storms, $now);
+        if ($powder) {
+            $local = $now->copy()->setTimezone($timeZone);
+            $powder['byLabel'] = $this->weather->relativeTime($powder['end']->copy()->setTimezone($timeZone), $local);
+            $powder['startLabel'] = $this->weather->relativeTime($powder['start']->copy()->setTimezone($timeZone), $local);
+        }
+
+        return [
+            'totals' => $this->weather->snowTotals($buckets),
+            'storms' => $storms,
+            'powder' => $powder,
+            'chart' => (new SnowChart())->build($buckets, $timeZone, $lat, $lon),
+        ];
+    }
+
+    protected function outlook(string $gridId, int $gridX, int $gridY): array
+    {
+        $response = $this->noaa->forecast($gridId, $gridX, $gridY);
+        return $response['ok'] ? $this->weather->parseOutlook($response['data']) : [];
+    }
+
+    protected function isNight(Carbon $at, float $lat, float $lon): bool
+    {
+        $sun = date_sun_info($at->timestamp, $lat, $lon);
+        if (!is_int($sun['sunrise']) || !is_int($sun['sunset'])) {
+            return $sun['sunrise'] === false;
+        }
+        return $at->timestamp < $sun['sunrise'] || $at->timestamp >= $sun['sunset'];
+    }
+
     /**
      * Latest nearby station reading, if fresh enough to be a useful reality check.
      */

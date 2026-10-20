@@ -2,6 +2,7 @@
 
 use Backend;
 use AlbrightLabs\CanTheyMakeSnow\Classes\ShareImage;
+use AlbrightLabs\CanTheyMakeSnow\Classes\Units;
 use System\Classes\PluginBase;
 
 /**
@@ -29,7 +30,16 @@ class Plugin extends PluginBase
      */
     public function register()
     {
-        //
+        $this->registerConsoleCommand('ctms.send-alerts', \AlbrightLabs\CanTheyMakeSnow\Console\SendAlerts::class);
+    }
+
+    /**
+     * registerSchedule: check alerts hourly (the host already runs
+     * `php artisan schedule:run` every minute).
+     */
+    public function registerSchedule($schedule)
+    {
+        $schedule->command('ctms:send-alerts')->hourly()->withoutOverlapping(30);
     }
 
     /**
@@ -48,24 +58,32 @@ class Plugin extends PluginBase
         return [
             'AlbrightLabs\CanTheyMakeSnow\Components\WeatherData' => 'WeatherData',
             'AlbrightLabs\CanTheyMakeSnow\Components\Locations' => 'Locations',
+            'AlbrightLabs\CanTheyMakeSnow\Components\Alerts' => 'Alerts',
         ];
     }
 
     /**
-     * registerMarkupTags: `temp` renders a Celsius value in both units; the
-     * theme shows one via the html[data-units] attribute. `tempSvg` does the
-     * same with <tspan>s for use inside SVG <text>. Output is numeric only.
+     * registerMailTemplates: alert emails and the opt-in/manage messages.
+     */
+    public function registerMailTemplates()
+    {
+        return [
+            'albrightlabs.cantheymakesnow::mail.confirm',
+            'albrightlabs.cantheymakesnow::mail.manage',
+            'albrightlabs.cantheymakesnow::mail.alert',
+        ];
+    }
+
+    /**
+     * registerMarkupTags: `temp`, `snow`, `snowRange` and `speed` render a
+     * value in both unit systems; the theme shows one via the
+     * html[data-units] attribute. `tempSvg` does the same with <tspan>s for
+     * use inside SVG <text>. Output is numeric only.
      */
     public function registerMarkupTags()
     {
-        $format = function ($celsius, $decimals = 0, $unit = 'c') {
-            $value = $unit === 'f' ? $celsius * 9 / 5 + 32 : $celsius;
-            $text = number_format(round($value, $decimals), $decimals);
-            if ((float) $text == 0) {
-                $text = ltrim($text, '-');
-            }
-            return str_replace('-', "\u{2212}", $text) . ($unit === 'f' ? '°F' : '°C');
-        };
+        $both = fn (callable $format) => '<span class="t"><span class="u-f">' . e($format('f')) . '</span>'
+            . '<span class="u-c">' . e($format('c')) . '</span></span>';
 
         return [
             'functions' => [
@@ -73,20 +91,18 @@ class Plugin extends PluginBase
                 'defaultShareImage' => fn () => ShareImage::available() ? url('share.png') : null,
             ],
             'filters' => [
-                'temp' => function ($celsius, $decimals = 0) use ($format) {
-                    if ($celsius === null) {
-                        return '';
-                    }
-                    return '<span class="t"><span class="u-f">' . $format($celsius, $decimals, 'f') . '</span>'
-                        . '<span class="u-c">' . $format($celsius, $decimals, 'c') . '</span></span>';
-                },
-                'tempSvg' => function ($celsius, $decimals = 0) use ($format) {
-                    if ($celsius === null) {
-                        return '';
-                    }
-                    return '<tspan class="u-f">' . $format($celsius, $decimals, 'f') . '</tspan>'
-                        . '<tspan class="u-c">' . $format($celsius, $decimals, 'c') . '</tspan>';
-                },
+                'temp' => fn ($celsius, $decimals = 0) => $celsius === null ? ''
+                    : $both(fn ($u) => Units::temp($celsius, $u, $decimals)),
+                'tempSvg' => fn ($celsius, $decimals = 0) => $celsius === null ? ''
+                    : '<tspan class="u-f">' . Units::temp($celsius, 'f', $decimals) . '</tspan>'
+                        . '<tspan class="u-c">' . Units::temp($celsius, 'c', $decimals) . '</tspan>',
+                'snow' => fn ($inches) => $inches === null ? ''
+                    : $both(fn ($u) => Units::snow($inches, $u)),
+                'snowText' => fn ($inches, $system = 'f') => $inches === null ? '' : Units::snow($inches, $system),
+                'snowRange' => fn ($range) => empty($range) ? ''
+                    : $both(fn ($u) => Units::snowRange($range['lo'], $range['hi'], $u)),
+                'speed' => fn ($mph) => $mph === null ? ''
+                    : $both(fn ($u) => Units::speed($mph, $u)),
             ],
         ];
     }
@@ -116,6 +132,12 @@ class Plugin extends PluginBase
                         'url' => Backend::url('albrightlabs/cantheymakesnow/resorts'),
                         'permissions' => ['albrightlabs.cantheymakesnow'],
                     ],
+                    'subscribers' => [
+                        'label' => 'Alert subscribers',
+                        'icon' => 'icon-envelope-o',
+                        'url' => Backend::url('albrightlabs/cantheymakesnow/subscribers'),
+                        'permissions' => ['albrightlabs.cantheymakesnow'],
+                    ],
                 ],
             ],
         ];
@@ -129,7 +151,7 @@ class Plugin extends PluginBase
         return [
             'albrightlabs.cantheymakesnow' => [
                 'tab' => 'CanTheyMakeSnow',
-                'label' => 'Manage lookup locations and resorts',
+                'label' => 'Manage lookup locations, resorts and alert subscribers',
             ],
         ];
     }

@@ -1,0 +1,29 @@
+columns:
+    email:
+        label: Email
+        searchable: true
+        sortable: true
+    subscriptions_count:
+        label: Resorts
+        type: number
+        relation: subscriptions
+        useRelationCount: true
+        sortable: false
+    units:
+        label: Units
+    confirmed_at:
+        label: Confirmed
+        type: timetense
+        sortable: true
+    unsubscribed_at:
+        label: Unsubscribed
+        type: timetense
+        sortable: true
+    last_emailed_at:
+        label: Last alert
+        type: timetense
+        sortable: true
+    created_at:
+        label: Signed up
+        type: timetense
+        sortable: true

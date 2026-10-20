@@ -14,6 +14,7 @@ class Throttle
     const LIMITS = [
         'lookup' => 60,
         'geocode' => 20,
+        'subscribe' => 5,
     ];
 
     /**

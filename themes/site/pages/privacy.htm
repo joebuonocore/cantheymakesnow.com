@@ -1,0 +1,34 @@
+url = "/privacy"
+layout = "default"
+title = "Privacy"
+description = "What Can They Make Snow? stores and why."
+meta_title = "Privacy · Can They Make Snow?"
+meta_description = "What Can They Make Snow? stores about you, and how to remove it."
+==
+<main class="screen screen--simple">
+    <section class="screen__content">
+        {% partial 'header' %}
+        <div class="alerts-page">
+            <h1 class="alerts-page__title">Privacy</h1>
+            <p>Can They Make Snow? is run by Albright Labs LLC. We keep as little as we can.</p>
+
+            <h2 class="section-title">Lookups</h2>
+            <p>When you check a place, we count lookups by city and state (not your exact location or address) to show recently checked places on the map. Your current location, if you share it, is only sent to look up the forecast and is not stored.</p>
+
+            <h2 class="section-title">Saved places and settings</h2>
+            <p>Saved and recent places and your °F/°C choice are kept in your browser only.</p>
+
+            <h2 class="section-title">Email alerts</h2>
+            <p>If you sign up for alerts we store your email address, the resorts and alert types you chose, your units, and when we last emailed you. Emails are sent through <a href="https://www.brevo.com/legal/privacypolicy/" target="_blank" rel="noopener">Brevo</a>. We never sell or share your address, and we only email you after you confirm. Every email has a link to change or stop alerts; unsubscribing stops all emails right away. To have your address deleted entirely, email <a href="mailto:support@albrightlabs.com">support@albrightlabs.com</a>.</p>
+
+            <h2 class="section-title">Analytics and maps</h2>
+            <p>We use Google Analytics to count visits and Google Maps for the map and place search; Google's <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">privacy policy</a> applies to those. Forecasts come from NOAA's National Weather Service.</p>
+
+            <p><a href="{{ 'home'|page }}" class="btn btn-primary rounded-0">Back to the snow check</a></p>
+        </div>
+    </section>
+
+    <footer class="screen__footer">
+        {% partial 'footer' %}
+    </footer>
+</main>

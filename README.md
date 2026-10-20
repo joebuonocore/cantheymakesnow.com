@@ -3,19 +3,25 @@ cantheymakesnow.com tells you whether snowmakers can run at a place right now, a
 
 - a YES/NO answer, the air temperature and humidity behind it, and a gauge showing where the wet-bulb sits against the snowmaking tiers
 - a 48-hour wet-bulb chart and the next snowmaking window ("tonight 9 PM – 8 AM")
-- the nearest weather station's latest observation as a reality check
+- right-now weather (sky, feels-like, wind, precipitation chance) and the nearest station's latest observation
+- a snow forecast: 24/48/72-hour new-snow totals, a 72-hour snowfall chart, and a powder line when 6″+ is coming
+- a 7-day outlook with NOAA's snow accumulation ranges
 - an interactive map of ski resorts and recently checked places, coloured by their last known conditions
 
 Results load without a page reload and every result has a shareable URL (`?resort=…`, `?address=…` or `?lat=…&lon=…`) with its own share card. Visitors can switch °F/°C and keep favourite and recent places in their browser.
+
+For ski resorts, visitors can sign up for **email alerts**: snowmaking windows (any, or great+) and/or powder (3″, 6″ or 12″ forecast within 48 hours). Signup is double opt-in per resort; every email has manage and one-click unsubscribe links (`/alerts`).
 
 ## Where things live
 - `plugins/albrightlabs/cantheymakesnow`: weather logic and data
   - `classes/WeatherService.php`: wet-bulb math, tiers, hourly series, snowmaking windows (unit-tested)
   - `classes/NoaaClient.php`, `classes/SnowReport.php`: cached NOAA requests, geocoding, and the full report for a lookup
-  - `classes/ForecastChart.php`, `classes/ShareImage.php`: chart geometry and the share card image
-  - `components/WeatherData.php` (lookups, `onLookup` AJAX handler) and `components/Locations.php` (map and search data)
-  - Backend: **Locations** menu, with lookup locations and the curated **Resorts** list (seeded from `updates/seeds/resorts.json`; base-area coordinates are approximate, so correct them here)
-- `themes/site`: `pages/home.htm`, partials `result`, `gauge`, `forecast`, `map`, and `assets/js/site.js` (no build step)
+  - `classes/ForecastChart.php`, `classes/SnowChart.php`, `classes/ShareImage.php`: chart geometry and the share card image
+  - `classes/AlertRules.php` (when to email, unit-tested) and `console/SendAlerts.php` (`ctms:send-alerts`, scheduled hourly)
+  - `components/WeatherData.php` (lookups, `onLookup` AJAX handler), `components/Locations.php` (map and search data), `components/Alerts.php` (signup, manage, unsubscribe)
+  - `views/mail/`: confirm, manage and alert email templates
+  - Backend: **Locations** menu, with lookup locations, the curated **Resorts** list (seeded from `updates/seeds/resorts.json`; base-area coordinates are approximate, so correct them here) and **Alert subscribers**
+- `themes/site`: `pages/home.htm`, `pages/alerts.htm`, `pages/privacy.htm`, partials `result`, `gauge`, `forecast`, `conditions`, `snowfall`, `outlook`, `alerts-form`, `alerts-manage`, `map`, and `assets/js/site.js` (no build step)
 
 Run the unit tests with `php vendor/bin/phpunit -c plugins/albrightlabs/cantheymakesnow/phpunit.xml`.
 
@@ -101,6 +107,15 @@ CLIENT_IP_HEADER=CF-Connecting-IP
 
 ### Links, robots and sitemap
 `robots.txt` and `favicon.ico` are static files in the web root (nginx answers those names itself); `sitemap.xml` (home plus every enabled resort) is served by the plugin. Absolute links (share URLs, `og:image`, the sitemap) are built from the request, so in production set `APP_URL=https://cantheymakesnow.com` and `LINK_POLICY=force`.
+
+### Alerts
+Alerts are checked by `php artisan ctms:send-alerts`, registered with the scheduler to run hourly, so the server needs Laravel's scheduler (`* * * * * php artisan schedule:run`). Each run:
+
+- builds one report per resort that has confirmed subscriptions (cached NOAA data, no Google calls);
+- sends each subscriber at most one email covering every new alert, never during 10 PM–6 AM resort time, at most once per resort and alert type per 20 hours, and never twice for the same window or storm (a storm gets one follow-up if its forecast grows by half and at least 4″);
+- records the result in the cache key `ctms:alerts:last_run` and the log ("Alerts: N resorts, …").
+
+Check it with `php artisan ctms:send-alerts --dry-run`. `--resort=slug`, `--email=…` and `--force` (ignore quiet hours and spacing) help when testing. Email links are built from `APP_URL`, so it must be `https://cantheymakesnow.com` in production. Locally, run with `MAIL_MAILER=log` to write emails to the log instead of sending them.
 
 ### 8. Run migrations
 ```bash

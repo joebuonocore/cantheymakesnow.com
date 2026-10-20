@@ -46,6 +46,15 @@
     }
     CTMS.formatTemp = formatTemp;
 
+    // Mirrors Units::snow(): tenths below 1″ (or 2 cm), whole numbers above.
+    function formatSnow(inches) {
+        if (units() === 'c') {
+            var cm = inches * 2.54;
+            return cm.toFixed(cm > 0 && cm < 2 ? 1 : 0) + ' cm';
+        }
+        return inches.toFixed(inches > 0 && inches < 1 ? 1 : 0) + '″';
+    }
+
     function setUnits(next) {
         if (next === 'c') {
             document.documentElement.setAttribute('data-units', 'c');
@@ -206,8 +215,13 @@
     // ---- Forecast chart tooltip ---------------------------------------------
 
     function initForecast() {
-        var chart = document.querySelector('.forecast__chart');
-        if (!chart || chart.dataset.ready) {
+        document.querySelectorAll('.forecast__chart').forEach(initChart);
+    }
+
+    // Hover/tap/arrow-key tooltip for a server-rendered chart. Hit rects carry
+    // data-c (wet-bulb °C) or data-in (snowfall inches) plus a label.
+    function initChart(chart) {
+        if (chart.dataset.ready) {
             return;
         }
         chart.dataset.ready = '1';
@@ -234,9 +248,12 @@
 
             tooltip.textContent = '';
             var value = document.createElement('strong');
-            value.textContent = formatTemp(parseFloat(hit.getAttribute('data-c')));
+            var snow = hit.hasAttribute('data-in');
+            value.textContent = snow
+                ? formatSnow(parseFloat(hit.getAttribute('data-in'))) + ' new snow'
+                : formatTemp(parseFloat(hit.getAttribute('data-c')));
             var meta = document.createElement('span');
-            meta.textContent = hit.getAttribute('data-label') + ' · ' + hit.getAttribute('data-tier-name');
+            meta.textContent = hit.getAttribute('data-label') + (snow ? '' : ' · ' + hit.getAttribute('data-tier-name'));
             tooltip.appendChild(value);
             tooltip.appendChild(meta);
             tooltip.hidden = false;
@@ -859,6 +876,80 @@
 
     // ---- Boot ---------------------------------------------------------------
 
+    // ---- Email alerts signup ---------------------------------------------------
+    // Delegated, because the result (and its form) is re-rendered by lookups.
+
+    function initAlerts() {
+        document.addEventListener('click', function (event) {
+            var button = event.target.closest && event.target.closest('[data-action="alerts"]');
+            if (!button) {
+                return;
+            }
+            var form = document.getElementById('alertsForm');
+            if (!form) {
+                return;
+            }
+            form.hidden = !form.hidden;
+            button.setAttribute('aria-expanded', form.hidden ? 'false' : 'true');
+            if (!form.hidden) {
+                form.querySelector('input[type="email"]').focus();
+            }
+        });
+
+        document.addEventListener('submit', function (event) {
+            var form = event.target;
+            if (!form.classList || !form.classList.contains('alerts-form')) {
+                return;
+            }
+            event.preventDefault();
+            if (!window.oc) {
+                return;
+            }
+
+            var message = form.querySelector('.alerts-form__message');
+            var submit = form.querySelector('[type="submit"]');
+            var show = function (text, ok) {
+                message.textContent = text;
+                message.hidden = false;
+                message.classList.toggle('is-error', !ok);
+            };
+
+            var email = form.elements.email.value.trim();
+            if (!form.elements.email.checkValidity() || !email) {
+                show('Please enter a valid email address.', false);
+                form.elements.email.focus();
+                return;
+            }
+
+            submit.disabled = true;
+            oc.ajax('Alerts::onSubscribe', {
+                data: {
+                    resort: form.getAttribute('data-resort'),
+                    email: email,
+                    snowmaking: form.elements.snowmaking.checked ? 1 : 0,
+                    snowmaking_min_tier: form.elements.snowmaking_min_tier.value,
+                    powder: form.elements.powder.checked ? 1 : 0,
+                    powder_threshold_in: form.elements.powder_threshold_in.value,
+                    units: units()
+                },
+                successFunc: function (el, data) {
+                    data = data || {};
+                    show(data.message || 'Check your inbox to confirm.', !!data.ok);
+                    if (data.ok) {
+                        form.elements.email.value = '';
+                    }
+                },
+                errorFunc: function () {
+                    show('Something went wrong. Please try again.', false);
+                    return false;
+                },
+                completeFunc: function () {
+                    submit.disabled = false;
+                }
+            });
+        });
+    }
+
     function boot() {
         syncUnitButtons();
         document.querySelectorAll('.units-toggle [data-units]').forEach(function (button) {
@@ -868,6 +959,7 @@
         initSearch();
         initForecast();
         initSaved();
+        initAlerts();
         initMap();
     }
 

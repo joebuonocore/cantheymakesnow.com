@@ -8,8 +8,11 @@ meta_description = "A live wet-bulb check: NOAA's hourly forecast for your locat
 [WeatherData]
 
 [Locations]
+
+[Alerts]
 ==
 <script type="application/json" id="resortData">{{ resorts|json_encode|raw }}</script>
+{% partial 'wx-icons' %}
 
 <main class="screen">
 

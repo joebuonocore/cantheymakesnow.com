@@ -1,0 +1,13 @@
+subject = "Manage your Can They Make Snow? alerts"
+layout = "default"
+description = "Link to manage alerts, sent when someone signs up an address that is already subscribed"
+==
+Someone (hopefully you) asked for alerts for **{{ resort }}**, which this address already gets.
+
+To change or stop your alerts, use your manage page:
+
+{% partial 'button' url=manageUrl body %}
+    Manage alerts
+{% endpartial %}
+
+If this wasn't you, you can ignore this email; nothing has changed.
