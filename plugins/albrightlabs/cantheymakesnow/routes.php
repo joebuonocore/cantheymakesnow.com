@@ -46,22 +46,8 @@ Route::get('share.png', function () {
     ]);
 });
 
-/**
- * Crawlers may index resort pages but not arbitrary address or coordinate
- * lookups, which would each cost a geocode or an uncached NOAA call.
- */
-Route::get('robots.txt', function () {
-    $lines = [
-        'User-agent: *',
-        'Disallow: /' . trim(config('backend.uri', 'backend'), '/'),
-        'Disallow: /*address=',
-        'Disallow: /*lat=',
-        '',
-        'Sitemap: ' . url('sitemap.xml'),
-    ];
-
-    return response(implode("\n", $lines) . "\n", 200, ['Content-Type' => 'text/plain']);
-});
+// robots.txt and favicon.ico are static files in the web root: nginx serves
+// those two names itself and would 404 them before they reach the app.
 
 Route::get('sitemap.xml', function () {
     $base = rtrim(url('/'), '/');
@@ -78,12 +64,4 @@ Route::get('sitemap.xml', function () {
     $xml .= '</urlset>' . "\n";
 
     return response($xml, 200, ['Content-Type' => 'application/xml']);
-});
-
-// Browsers and feed readers ask for /favicon.ico regardless of the <link> tags.
-Route::get('favicon.ico', function () {
-    return response()->file(themes_path('site/assets/images/icons/favicon.ico'), [
-        'Content-Type' => 'image/x-icon',
-        'Cache-Control' => 'public, max-age=604800',
-    ]);
 });
