@@ -69,11 +69,11 @@ return [
 
     'plugins_path' => env('PLUGINS_PATH'),
 
-    'plugins_asset_url' => env('PLUGINS_ASSET_URL'),
+    'plugins_asset_url' => env('PLUGINS_ASSET_URL', env('ASSET_URL') ? rtrim(env('ASSET_URL'), '/') . '/plugins' : null),
 
     'themes_path' => env('THEMES_PATH'),
 
-    'themes_asset_url' => env('THEMES_ASSET_URL'),
+    'themes_asset_url' => env('THEMES_ASSET_URL', env('ASSET_URL') ? rtrim(env('ASSET_URL'), '/') . '/themes' : null),
 
     'storage_path' => env('STORAGE_PATH'),
 
@@ -177,5 +177,19 @@ return [
     */
 
     'restrict_base_dir' => env('RESTRICT_BASE_DIR', true),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Log Deprecation Warnings
+    |--------------------------------------------------------------------------
+    |
+    | This logs deprecation warnings from PHP code, either by the language or
+    | from developer code, in the event log. This should be set to true in
+    | development environments to ensure code is maintained and breaking
+    | changes are fixed before they happen.
+    |
+    */
+
+    'log_deprecations' => env('LOG_DEPRECATIONS', false),
 
 ];

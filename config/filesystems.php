@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('FILESYSTEM_DRIVER', 'local'),
+    'default' => env('FILESYSTEM_DISK', 'local'),
 
     /*
     |--------------------------------------------------------------------------
@@ -30,18 +30,20 @@ return [
 
     'disks' => [
 
-        'local' => [
-            'driver' => 'local',
-            'root' => storage_path('app'),
-            'throw' => false,
-        ],
-
+        // October CMS Disks
+        //
+        // - uploads   : files created via System\Models\File attachments
+        // - media     : files created using the media module
+        // - resources : automatically generated assets (thumbs, combined JS/CSS)
+        // - assets    : asset files created the cms editor, used with ASSET_PATH
+        //
         'uploads' => [
             'driver' => 'local',
             'root' => storage_path('app/uploads'),
             'url' => '/storage/app/uploads',
             'visibility' => 'public',
             'throw' => false,
+            'report' => false,
         ],
 
         'media' => [
@@ -50,6 +52,7 @@ return [
             'url' => '/storage/app/media',
             'visibility' => 'public',
             'throw' => false,
+            'report' => false,
         ],
 
         'resources' => [
@@ -58,6 +61,35 @@ return [
             'url' => '/storage/app/resources',
             'visibility' => 'public',
             'throw' => false,
+            'report' => false,
+        ],
+
+        'assets' => [
+            'driver' => 'local',
+            'root' => storage_path('app/assets'),
+            'url' => '/storage/app/assets',
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+
+        // Standard Laravel Disks
+        //
+        'local' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private'),
+            'serve' => true,
+            'throw' => false,
+            'report' => false,
+        ],
+
+        'public' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public'),
+            'url' => rtrim(env('APP_URL', ''), '/').'/storage/app/public',
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
         ],
 
         's3' => [
@@ -70,8 +102,26 @@ return [
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'throw' => false,
+            'report' => false,
         ],
 
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Symbolic Links
+    |--------------------------------------------------------------------------
+    |
+    | Here you may configure the symbolic links that will be created when the
+    | `storage:link` Artisan command is executed. The array keys should be
+    | the locations of the links and the values should be their targets.
+    |
+    | For October CMS, we recommend using the `october:mirror` command instead
+    |
+    */
+
+    'links' => [
+        public_path('storage/app/public') => storage_path('app/public'),
     ],
 
 ];

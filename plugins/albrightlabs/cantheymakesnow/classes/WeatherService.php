@@ -251,7 +251,8 @@ class WeatherService
     public function relativeTime(Carbon $time, Carbon $reference, bool $compact = false): string
     {
         $clock = $time->format('g A');
-        $days = $reference->copy()->startOfDay()->diffInDays($time->copy()->startOfDay(), false);
+        // Carbon 3 returns a float here; compare whole calendar days.
+        $days = (int) round($reference->copy()->startOfDay()->diffInDays($time->copy()->startOfDay(), false));
 
         if ($compact && ($days === 0 || ($days === 1 && $time->hour < 12))) {
             return $clock;

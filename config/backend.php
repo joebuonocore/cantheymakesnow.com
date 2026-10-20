@@ -36,7 +36,7 @@ return [
     | - menu_mode: inline, text, tile, collapse, icons, left
     | - color_mode: light, dark, auto
     | - color_palette: default, classic, oxford, console, valentino, punch
-    | - login_background_type: color, wallpaper, october_ai_images
+    | - login_background_type: color, wallpaper, gradient, ai_images
     | - login_background_wallpaper_size: auto, cover
     | - login_image_type: autumn_images, custom
     |
@@ -136,13 +136,14 @@ return [
     |
     | Specify the password policy for backend administrators.
     |
-    | allow_reset       - Allow administrators to reset their own passwords via self service
-    | min_length        - Password minimum length between 4 - 128 chars
-    | require_uppercase - Require at least one uppercase letter (A–Z)
-    | require_lowercase - Require at least one lowercase letter (a–z)
-    | require_number    - Require at least one number
-    | require_nonalpha  - Require at least one non-alphanumeric character
-    | expire_days       - Enable password expiration after number of days, false to disable
+    | allow_reset            - Allow administrators to reset their own passwords via self service
+    | min_length             - Password minimum length between 4 - 128 chars
+    | require_uppercase      - Require at least one uppercase letter (A-Z)
+    | require_lowercase      - Require at least one lowercase letter (a-z)
+    | require_number         - Require at least one number
+    | require_nonalpha       - Require at least one non-alphanumeric character
+    | expire_days            - Enable password expiration after number of days, false to disable
+    | reset_expire_minutes   - Password reset tokens expire after this many minutes, 0 to disable
     |
     */
 
@@ -154,7 +155,22 @@ return [
         'require_number' => false,
         'require_nonalpha' => false,
         'expire_days' => false,
+        'reset_expire_minutes' => 60,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Peer Management
+    |--------------------------------------------------------------------------
+    |
+    | When enabled, admin users can manage other users at the same role level
+    | in addition to their users below their role (direct reports).
+    |
+    | When disabled, users can only manage their direct reports and not peers.
+    |
+    */
+
+    'user_peer_management' => false,
 
     /*
     |--------------------------------------------------------------------------
@@ -207,5 +223,22 @@ return [
     */
 
     'middleware_group' => 'web',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Enable Service Workers
+    |--------------------------------------------------------------------------
+    |
+    | When enabled, the backend registers a service worker that propagates the
+    | current asset version across the entire ESM dependency graph, so a single
+    | version bump invalidates all imported modules (not just entry points).
+    |
+    | true  - service worker is registered
+    | false - service worker is unregistered (kill switch)
+    | null  - inverse of app.debug (off in dev, on in production)
+    |
+    */
+
+    'enable_service_workers' => null,
 
 ];

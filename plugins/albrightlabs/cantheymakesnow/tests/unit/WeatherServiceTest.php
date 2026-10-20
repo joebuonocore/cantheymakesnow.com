@@ -330,4 +330,17 @@ class WeatherServiceTest extends TestCase
 
         $this->assertEquals(1, $this->service->findClosestTime($values, $now)['value']);
     }
+
+    public function test_relative_time_uses_calendar_days()
+    {
+        $ref = Carbon::parse('2026-12-10 13:00', 'America/New_York');
+        $at = fn (string $t) => Carbon::parse($t, 'America/New_York');
+
+        $this->assertSame('today 3 PM', $this->service->relativeTime($at('2026-12-10 15:00'), $ref));
+        $this->assertSame('tonight 9 PM', $this->service->relativeTime($at('2026-12-10 21:00'), $ref));
+        $this->assertSame('tomorrow 6 AM', $this->service->relativeTime($at('2026-12-11 06:00'), $ref));
+        $this->assertSame('tomorrow night 8 PM', $this->service->relativeTime($at('2026-12-11 20:00'), $ref));
+        $this->assertSame('Sat 10 AM', $this->service->relativeTime($at('2026-12-12 10:00'), $ref));
+        $this->assertSame('8 AM', $this->service->relativeTime($at('2026-12-11 08:00'), $ref, true));
+    }
 }
