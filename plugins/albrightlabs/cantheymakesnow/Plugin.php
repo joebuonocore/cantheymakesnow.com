@@ -125,30 +125,32 @@ class Plugin extends PluginBase
         return [
             'locations' => [
                 'label' => 'Locations',
-                'url' => Backend::url('albrightlabs/cantheymakesnow/locations'),
+                'url' => Backend::url('albrightlabs/cantheymakesnow/resorts'),
                 'icon' => 'icon-snowflake-o',
                 'permissions' => ['albrightlabs.cantheymakesnow'],
                 'order' => 500,
                 'sideMenu' => [
-                    'locations' => [
-                        'label' => 'Lookup locations',
-                        'icon' => 'icon-map-marker',
-                        'url' => Backend::url('albrightlabs/cantheymakesnow/locations'),
-                        'permissions' => ['albrightlabs.cantheymakesnow'],
-                    ],
                     'resorts' => [
                         'label' => 'Resorts',
                         'icon' => 'icon-area-chart',
                         'url' => Backend::url('albrightlabs/cantheymakesnow/resorts'),
                         'permissions' => ['albrightlabs.cantheymakesnow'],
                     ],
-                    'subscribers' => [
-                        'label' => 'Alert subscribers',
-                        'icon' => 'icon-envelope-o',
-                        'url' => Backend::url('albrightlabs/cantheymakesnow/subscribers'),
+                    'locations' => [
+                        'label' => 'Locations',
+                        'icon' => 'icon-map-marker',
+                        'url' => Backend::url('albrightlabs/cantheymakesnow/locations'),
                         'permissions' => ['albrightlabs.cantheymakesnow'],
                     ],
                 ],
+            ],
+            'subscribers' => [
+                'label' => 'Subscribers',
+                'url' => Backend::url('albrightlabs/cantheymakesnow/subscribers'),
+                'icon' => 'icon-users',
+                'iconSvg' => 'plugins/albrightlabs/cantheymakesnow/assets/images/subscribers.png',
+                'permissions' => ['albrightlabs.cantheymakesnow'],
+                'order' => 501,
             ],
         ];
     }
@@ -161,7 +163,7 @@ class Plugin extends PluginBase
         return [
             'albrightlabs.cantheymakesnow' => [
                 'tab' => 'CanTheyMakeSnow',
-                'label' => 'Manage lookup locations, resorts and alert subscribers',
+                'label' => 'Manage locations, resorts and subscribers',
             ],
         ];
     }

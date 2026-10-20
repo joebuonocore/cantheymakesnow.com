@@ -9,7 +9,7 @@ list: $/albrightlabs/cantheymakesnow/models/subscriber/columns.yaml
 modelClass: AlbrightLabs\CanTheyMakeSnow\Models\Subscriber
 
 # List Title
-title: Alert Subscribers
+title: Subscribers
 
 # Link URL for each record
 recordUrl: albrightlabs/cantheymakesnow/subscribers/update/:id
