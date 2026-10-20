@@ -1,15 +1,15 @@
 subject = "{{ subject|raw }}"
-layout = "default"
+layout = "albrightlabs.cantheymakesnow::mail.layout-ctms"
 description = "Snowmaking and powder alerts for a subscriber's resorts (one email per hourly check)"
 ==
 {% for item in items %}
-**{{ item.resort }}**
+### {{ item.resort }}
 
 {% for line in item.lines %}
 - {{ line }}
 {% endfor %}
 
-[See the full forecast]({{ item.url }})
+[See the full forecast →]({{ item.url }})
 
 {% endfor %}
 ---

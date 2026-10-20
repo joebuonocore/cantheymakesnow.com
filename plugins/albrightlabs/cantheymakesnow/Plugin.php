@@ -63,6 +63,16 @@ class Plugin extends PluginBase
     }
 
     /**
+     * registerMailLayouts: branded layout used by every email this plugin sends.
+     */
+    public function registerMailLayouts()
+    {
+        return [
+            'ctms' => 'albrightlabs.cantheymakesnow::mail.layout-ctms',
+        ];
+    }
+
+    /**
      * registerMailTemplates: alert emails and the opt-in/manage messages.
      */
     public function registerMailTemplates()
