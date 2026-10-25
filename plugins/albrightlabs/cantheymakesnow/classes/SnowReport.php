@@ -389,7 +389,7 @@ class SnowReport
             $parts = array_map(fn ($z) => strtolower($z['label']) . ' ' . $temp($z['now']['wetBulbC']), $zones);
             return "{$lead}: " . implode(', ', $parts) . ' wet-bulb. ' . $zones[$answer['zone']]['windows']['text'];
         }
-        return "{$result['now']['label']} in {$result['place']}: {$temp($result['now']['wetBulbC'])} wet-bulb. {$result['windows']['text']}";
+        return "{$result['place']}: {$temp($result['now']['wetBulbC'])} wet-bulb. {$result['now']['label']}. {$result['windows']['text']}";
     }
 
     /**
