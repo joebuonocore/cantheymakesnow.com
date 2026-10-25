@@ -10,6 +10,8 @@ cantheymakesnow.com tells you whether snowmakers can run at a place right now, a
 
 Results load without a page reload and every result has a shareable URL (`?resort=…`, `?address=…` or `?lat=…&lon=…`) with its own share card. Visitors can switch °F/°C and keep favourite and recent places in their browser.
 
+Ski resorts are checked at the **base and the summit**. The summit uses NOAA's forecast for the summit's own grid cell (summit coordinates are stored per resort: the top of the highest lift, found from OpenStreetMap lift data and editable in the backend). When a resort has no summit point, or it falls in the base's grid cell, the summit is estimated from the base forecast with standard lapse rates (air −6.5 °C/km, dewpoint −1.8 °C/km) and marked "est." The answer is YES when either can make snow, map pins use the colder of the two, and snowmaking alerts consider both.
+
 For ski resorts, visitors can sign up for **email alerts**: snowmaking windows (any, or great+) and/or powder (3″, 6″ or 12″ forecast within 48 hours). Signup is double opt-in per resort; every email has manage and one-click unsubscribe links (`/alerts`).
 
 ## Where things live

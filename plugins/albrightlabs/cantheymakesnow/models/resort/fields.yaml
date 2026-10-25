@@ -30,3 +30,10 @@ fields:
         label: Summit elevation (ft)
         type: number
         span: right
+    summit_lat:
+        label: Latitude (summit)
+        span: left
+        comment: Top of the highest lift. Leave blank to estimate the summit from elevation.
+    summit_lon:
+        label: Longitude (summit)
+        span: right

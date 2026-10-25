@@ -6,7 +6,9 @@
   "lat": 43.626,
   "lon": -72.797,
   "base_elev_ft": 1165,
-  "summit_elev_ft": 4241
+  "summit_elev_ft": 4241,
+  "summit_lat": 43.60474,
+  "summit_lon": -72.81869
  },
  {
   "name": "Stowe Mountain Resort",
@@ -15,7 +17,9 @@
   "lat": 44.53,
   "lon": -72.781,
   "base_elev_ft": 1559,
-  "summit_elev_ft": 3625
+  "summit_elev_ft": 3625,
+  "summit_lat": 44.53763,
+  "summit_lon": -72.81421
  },
  {
   "name": "Okemo Mountain Resort",
@@ -24,7 +28,9 @@
   "lat": 43.401,
   "lon": -72.717,
   "base_elev_ft": 1144,
-  "summit_elev_ft": 3344
+  "summit_elev_ft": 3344,
+  "summit_lat": 43.4036,
+  "summit_lon": -72.7513
  },
  {
   "name": "Mount Snow",
@@ -33,7 +39,9 @@
   "lat": 42.96,
   "lon": -72.92,
   "base_elev_ft": 1900,
-  "summit_elev_ft": 3600
+  "summit_elev_ft": 3600,
+  "summit_lat": 42.95925,
+  "summit_lon": -72.92276
  },
  {
   "name": "Stratton Mountain",
@@ -42,7 +50,9 @@
   "lat": 43.113,
   "lon": -72.908,
   "base_elev_ft": 1872,
-  "summit_elev_ft": 3875
+  "summit_elev_ft": 3875,
+  "summit_lat": 43.09514,
+  "summit_lon": -72.92054
  },
  {
   "name": "Sugarbush Resort",
@@ -51,7 +61,9 @@
   "lat": 44.136,
   "lon": -72.894,
   "base_elev_ft": 1483,
-  "summit_elev_ft": 4083
+  "summit_elev_ft": 4083,
+  "summit_lat": 44.16055,
+  "summit_lon": -72.92913
  },
  {
   "name": "Jay Peak Resort",
@@ -60,7 +72,9 @@
   "lat": 44.937,
   "lon": -72.505,
   "base_elev_ft": 1815,
-  "summit_elev_ft": 3968
+  "summit_elev_ft": 3968,
+  "summit_lat": 44.92438,
+  "summit_lon": -72.52592
  },
  {
   "name": "Smugglers' Notch Resort",
@@ -69,7 +83,9 @@
   "lat": 44.588,
   "lon": -72.79,
   "base_elev_ft": 1030,
-  "summit_elev_ft": 3640
+  "summit_elev_ft": 3640,
+  "summit_lat": 44.56147,
+  "summit_lon": -72.75885
  },
  {
   "name": "Bolton Valley",
@@ -78,7 +94,9 @@
   "lat": 44.421,
   "lon": -72.85,
   "base_elev_ft": 1570,
-  "summit_elev_ft": 3150
+  "summit_elev_ft": 3150,
+  "summit_lat": 44.41496,
+  "summit_lon": -72.83437
  },
  {
   "name": "Mad River Glen",
@@ -96,7 +114,9 @@
   "lat": 43.228,
   "lon": -72.937,
   "base_elev_ft": 1950,
-  "summit_elev_ft": 3284
+  "summit_elev_ft": 3284,
+  "summit_lat": 43.22739,
+  "summit_lon": -72.93949
  },
  {
   "name": "Pico Mountain",
@@ -105,7 +125,9 @@
   "lat": 43.661,
   "lon": -72.842,
   "base_elev_ft": 2000,
-  "summit_elev_ft": 3967
+  "summit_elev_ft": 3967,
+  "summit_lat": 43.63971,
+  "summit_lon": -72.83573
  },
  {
   "name": "Burke Mountain",
@@ -114,7 +136,9 @@
   "lat": 44.571,
   "lon": -71.894,
   "base_elev_ft": 1150,
-  "summit_elev_ft": 3267
+  "summit_elev_ft": 3267,
+  "summit_lat": 44.5708,
+  "summit_lon": -71.89412
  },
  {
   "name": "Magic Mountain",
@@ -123,7 +147,9 @@
   "lat": 43.202,
   "lon": -72.774,
   "base_elev_ft": 1350,
-  "summit_elev_ft": 2850
+  "summit_elev_ft": 2850,
+  "summit_lat": 43.19165,
+  "summit_lon": -72.75888
  },
  {
   "name": "Loon Mountain",
@@ -132,7 +158,9 @@
   "lat": 44.036,
   "lon": -71.621,
   "base_elev_ft": 950,
-  "summit_elev_ft": 3050
+  "summit_elev_ft": 3050,
+  "summit_lat": 44.03505,
+  "summit_lon": -71.61992
  },
  {
   "name": "Cannon Mountain",
@@ -141,7 +169,9 @@
   "lat": 44.156,
   "lon": -71.698,
   "base_elev_ft": 2000,
-  "summit_elev_ft": 4080
+  "summit_elev_ft": 4080,
+  "summit_lat": 44.15774,
+  "summit_lon": -71.69919
  },
  {
   "name": "Bretton Woods",
@@ -150,7 +180,9 @@
   "lat": 44.258,
   "lon": -71.441,
   "base_elev_ft": 1500,
-  "summit_elev_ft": 3100
+  "summit_elev_ft": 3100,
+  "summit_lat": 44.24333,
+  "summit_lon": -71.47062
  },
  {
   "name": "Waterville Valley",
@@ -159,7 +191,9 @@
   "lat": 43.965,
   "lon": -71.528,
   "base_elev_ft": 1984,
-  "summit_elev_ft": 4004
+  "summit_elev_ft": 4004,
+  "summit_lat": 43.95937,
+  "summit_lon": -71.55577
  },
  {
   "name": "Attitash Mountain Resort",
@@ -168,7 +202,9 @@
   "lat": 44.083,
   "lon": -71.229,
   "base_elev_ft": 600,
-  "summit_elev_ft": 2350
+  "summit_elev_ft": 2350,
+  "summit_lat": 44.0687,
+  "summit_lon": -71.21968
  },
  {
   "name": "Wildcat Mountain",
@@ -177,7 +213,9 @@
   "lat": 44.264,
   "lon": -71.239,
   "base_elev_ft": 1950,
-  "summit_elev_ft": 4062
+  "summit_elev_ft": 4062,
+  "summit_lat": 44.24938,
+  "summit_lon": -71.22487
  },
  {
   "name": "Cranmore Mountain",
@@ -186,7 +224,9 @@
   "lat": 44.056,
   "lon": -71.11,
   "base_elev_ft": 950,
-  "summit_elev_ft": 2000
+  "summit_elev_ft": 2000,
+  "summit_lat": 44.05715,
+  "summit_lon": -71.09257
  },
  {
   "name": "Gunstock Mountain Resort",
@@ -195,7 +235,9 @@
   "lat": 43.544,
   "lon": -71.368,
   "base_elev_ft": 900,
-  "summit_elev_ft": 2267
+  "summit_elev_ft": 2267,
+  "summit_lat": 43.52616,
+  "summit_lon": -71.37844
  },
  {
   "name": "Mount Sunapee",
@@ -204,7 +246,9 @@
   "lat": 43.332,
   "lon": -72.082,
   "base_elev_ft": 1233,
-  "summit_elev_ft": 2743
+  "summit_elev_ft": 2743,
+  "summit_lat": 43.3144,
+  "summit_lon": -72.07326
  },
  {
   "name": "Ragged Mountain",
@@ -213,7 +257,9 @@
   "lat": 43.479,
   "lon": -71.844,
   "base_elev_ft": 1250,
-  "summit_elev_ft": 2286
+  "summit_elev_ft": 2286,
+  "summit_lat": 43.47249,
+  "summit_lon": -71.84497
  },
  {
   "name": "Pats Peak",
@@ -222,7 +268,9 @@
   "lat": 43.178,
   "lon": -71.795,
   "base_elev_ft": 710,
-  "summit_elev_ft": 1460
+  "summit_elev_ft": 1460,
+  "summit_lat": 43.15187,
+  "summit_lon": -71.79723
  },
  {
   "name": "Sunday River",
@@ -231,7 +279,9 @@
   "lat": 44.473,
   "lon": -70.857,
   "base_elev_ft": 800,
-  "summit_elev_ft": 3140
+  "summit_elev_ft": 3140,
+  "summit_lat": 44.4604,
+  "summit_lon": -70.9055
  },
  {
   "name": "Sugarloaf",
@@ -240,7 +290,9 @@
   "lat": 45.031,
   "lon": -70.313,
   "base_elev_ft": 1417,
-  "summit_elev_ft": 4237
+  "summit_elev_ft": 4237,
+  "summit_lat": 45.03179,
+  "summit_lon": -70.31485
  },
  {
   "name": "Saddleback Maine",
@@ -249,7 +301,9 @@
   "lat": 44.951,
   "lon": -70.507,
   "base_elev_ft": 2120,
-  "summit_elev_ft": 4120
+  "summit_elev_ft": 4120,
+  "summit_lat": 44.93501,
+  "summit_lon": -70.50927
  },
  {
   "name": "Shawnee Peak",
@@ -258,7 +312,9 @@
   "lat": 44.059,
   "lon": -70.814,
   "base_elev_ft": 600,
-  "summit_elev_ft": 1900
+  "summit_elev_ft": 1900,
+  "summit_lat": 44.04719,
+  "summit_lon": -70.82109
  },
  {
   "name": "Wachusett Mountain",
@@ -267,7 +323,9 @@
   "lat": 42.503,
   "lon": -71.887,
   "base_elev_ft": 1000,
-  "summit_elev_ft": 2006
+  "summit_elev_ft": 2006,
+  "summit_lat": 42.48995,
+  "summit_lon": -71.88743
  },
  {
   "name": "Jiminy Peak",
@@ -276,7 +334,9 @@
   "lat": 42.556,
   "lon": -73.292,
   "base_elev_ft": 1150,
-  "summit_elev_ft": 2380
+  "summit_elev_ft": 2380,
+  "summit_lat": 42.59782,
+  "summit_lon": -73.27044
  },
  {
   "name": "Berkshire East",
@@ -285,7 +345,9 @@
   "lat": 42.622,
   "lon": -72.875,
   "base_elev_ft": 610,
-  "summit_elev_ft": 1790
+  "summit_elev_ft": 1790,
+  "summit_lat": 42.61365,
+  "summit_lon": -72.87011
  },
  {
   "name": "Whiteface Mountain",
@@ -294,7 +356,9 @@
   "lat": 44.353,
   "lon": -73.859,
   "base_elev_ft": 1220,
-  "summit_elev_ft": 4386
+  "summit_elev_ft": 4386,
+  "summit_lat": 44.36445,
+  "summit_lon": -73.89945
  },
  {
   "name": "Gore Mountain",
@@ -303,7 +367,9 @@
   "lat": 43.673,
   "lon": -74.006,
   "base_elev_ft": 998,
-  "summit_elev_ft": 3600
+  "summit_elev_ft": 3600,
+  "summit_lat": 43.67209,
+  "summit_lon": -74.04815
  },
  {
   "name": "Hunter Mountain",
@@ -312,7 +378,9 @@
   "lat": 42.202,
   "lon": -74.231,
   "base_elev_ft": 1600,
-  "summit_elev_ft": 3200
+  "summit_elev_ft": 3200,
+  "summit_lat": 42.20054,
+  "summit_lon": -74.2303
  },
  {
   "name": "Windham Mountain",
@@ -321,7 +389,9 @@
   "lat": 42.294,
   "lon": -74.257,
   "base_elev_ft": 1500,
-  "summit_elev_ft": 3100
+  "summit_elev_ft": 3100,
+  "summit_lat": 42.28714,
+  "summit_lon": -74.24611
  },
  {
   "name": "Belleayre Mountain",
@@ -330,7 +400,9 @@
   "lat": 42.133,
   "lon": -74.505,
   "base_elev_ft": 2025,
-  "summit_elev_ft": 3429
+  "summit_elev_ft": 3429,
+  "summit_lat": 42.12834,
+  "summit_lon": -74.51857
  },
  {
   "name": "Holiday Valley",
@@ -339,7 +411,9 @@
   "lat": 42.265,
   "lon": -78.668,
   "base_elev_ft": 1500,
-  "summit_elev_ft": 2250
+  "summit_elev_ft": 2250,
+  "summit_lat": 42.2558,
+  "summit_lon": -78.69139
  },
  {
   "name": "Greek Peak",
@@ -348,7 +422,9 @@
   "lat": 42.505,
   "lon": -76.145,
   "base_elev_ft": 1148,
-  "summit_elev_ft": 2100
+  "summit_elev_ft": 2100,
+  "summit_lat": 42.50155,
+  "summit_lon": -76.1534
  },
  {
   "name": "Bristol Mountain",
@@ -357,7 +433,9 @@
   "lat": 42.745,
   "lon": -77.403,
   "base_elev_ft": 1200,
-  "summit_elev_ft": 2200
+  "summit_elev_ft": 2200,
+  "summit_lat": 42.74113,
+  "summit_lon": -77.42156
  },
  {
   "name": "Seven Springs",
@@ -366,7 +444,9 @@
   "lat": 40.023,
   "lon": -79.297,
   "base_elev_ft": 2240,
-  "summit_elev_ft": 2990
+  "summit_elev_ft": 2990,
+  "summit_lat": 40.02393,
+  "summit_lon": -79.30984
  },
  {
   "name": "Camelback Resort",
@@ -375,7 +455,9 @@
   "lat": 41.051,
   "lon": -75.356,
   "base_elev_ft": 1250,
-  "summit_elev_ft": 2133
+  "summit_elev_ft": 2133,
+  "summit_lat": 41.04414,
+  "summit_lon": -75.35838
  },
  {
   "name": "Blue Mountain Resort",
@@ -384,7 +466,9 @@
   "lat": 40.822,
   "lon": -75.513,
   "base_elev_ft": 460,
-  "summit_elev_ft": 1600
+  "summit_elev_ft": 1600,
+  "summit_lat": 40.80984,
+  "summit_lon": -75.5083
  },
  {
   "name": "Elk Mountain",
@@ -393,7 +477,9 @@
   "lat": 41.722,
   "lon": -75.557,
   "base_elev_ft": 1693,
-  "summit_elev_ft": 2693
+  "summit_elev_ft": 2693,
+  "summit_lat": 41.71578,
+  "summit_lon": -75.56
  },
  {
   "name": "Whitetail Resort",
@@ -402,7 +488,9 @@
   "lat": 39.741,
   "lon": -77.933,
   "base_elev_ft": 865,
-  "summit_elev_ft": 1800
+  "summit_elev_ft": 1800,
+  "summit_lat": 39.75036,
+  "summit_lon": -77.94053
  },
  {
   "name": "Liberty Mountain Resort",
@@ -411,7 +499,9 @@
   "lat": 39.763,
   "lon": -77.375,
   "base_elev_ft": 620,
-  "summit_elev_ft": 1190
+  "summit_elev_ft": 1190,
+  "summit_lat": 39.75649,
+  "summit_lon": -77.36881
  },
  {
   "name": "Roundtop Mountain Resort",
@@ -420,7 +510,9 @@
   "lat": 40.111,
   "lon": -76.927,
   "base_elev_ft": 755,
-  "summit_elev_ft": 1355
+  "summit_elev_ft": 1355,
+  "summit_lat": 40.10326,
+  "summit_lon": -76.92548
  },
  {
   "name": "Mountain Creek",
@@ -429,7 +521,9 @@
   "lat": 41.191,
   "lon": -74.508,
   "base_elev_ft": 440,
-  "summit_elev_ft": 1480
+  "summit_elev_ft": 1480,
+  "summit_lat": 41.1764,
+  "summit_lon": -74.51078
  },
  {
   "name": "Snowshoe Mountain",
@@ -438,7 +532,9 @@
   "lat": 38.41,
   "lon": -79.994,
   "base_elev_ft": 3348,
-  "summit_elev_ft": 4848
+  "summit_elev_ft": 4848,
+  "summit_lat": 38.40168,
+  "summit_lon": -79.99264
  },
  {
   "name": "Wintergreen Resort",
@@ -447,7 +543,9 @@
   "lat": 37.923,
   "lon": -78.942,
   "base_elev_ft": 2847,
-  "summit_elev_ft": 3851
+  "summit_elev_ft": 3851,
+  "summit_lat": 37.92095,
+  "summit_lon": -78.94616
  },
  {
   "name": "Massanutten Resort",
@@ -456,7 +554,9 @@
   "lat": 38.409,
   "lon": -78.743,
   "base_elev_ft": 1600,
-  "summit_elev_ft": 2880
+  "summit_elev_ft": 2880,
+  "summit_lat": 38.39284,
+  "summit_lon": -78.76899
  },
  {
   "name": "Wisp Resort",
@@ -465,7 +565,9 @@
   "lat": 39.557,
   "lon": -79.362,
   "base_elev_ft": 2400,
-  "summit_elev_ft": 3115
+  "summit_elev_ft": 3115,
+  "summit_lat": 39.54957,
+  "summit_lon": -79.36964
  },
  {
   "name": "Sugar Mountain",
@@ -474,7 +576,9 @@
   "lat": 36.13,
   "lon": -81.859,
   "base_elev_ft": 4100,
-  "summit_elev_ft": 5300
+  "summit_elev_ft": 5300,
+  "summit_lat": 36.1247,
+  "summit_lon": -81.87537
  },
  {
   "name": "Beech Mountain Resort",
@@ -483,7 +587,9 @@
   "lat": 36.195,
   "lon": -81.88,
   "base_elev_ft": 4675,
-  "summit_elev_ft": 5506
+  "summit_elev_ft": 5506,
+  "summit_lat": 36.1855,
+  "summit_lon": -81.88044
  },
  {
   "name": "Appalachian Ski Mtn",
@@ -492,7 +598,9 @@
   "lat": 36.174,
   "lon": -81.665,
   "base_elev_ft": 3635,
-  "summit_elev_ft": 4000
+  "summit_elev_ft": 4000,
+  "summit_lat": 36.17114,
+  "summit_lon": -81.66469
  },
  {
   "name": "Cataloochee Ski Area",
@@ -501,7 +609,9 @@
   "lat": 35.561,
   "lon": -83.09,
   "base_elev_ft": 4660,
-  "summit_elev_ft": 5400
+  "summit_elev_ft": 5400,
+  "summit_lat": 35.55498,
+  "summit_lon": -83.08765
  },
  {
   "name": "Mad River Mountain",
@@ -510,7 +620,9 @@
   "lat": 40.319,
   "lon": -83.683,
   "base_elev_ft": 1160,
-  "summit_elev_ft": 1460
+  "summit_elev_ft": 1460,
+  "summit_lat": 40.31327,
+  "summit_lon": -83.67554
  },
  {
   "name": "Boyne Mountain",
@@ -519,7 +631,9 @@
   "lat": 45.165,
   "lon": -84.932,
   "base_elev_ft": 650,
-  "summit_elev_ft": 1150
+  "summit_elev_ft": 1150,
+  "summit_lat": 45.16291,
+  "summit_lon": -84.94455
  },
  {
   "name": "The Highlands",
@@ -528,7 +642,9 @@
   "lat": 45.47,
   "lon": -84.927,
   "base_elev_ft": 735,
-  "summit_elev_ft": 1287
+  "summit_elev_ft": 1287,
+  "summit_lat": 45.47199,
+  "summit_lon": -84.94773
  },
  {
   "name": "Crystal Mountain",
@@ -537,7 +653,9 @@
   "lat": 44.522,
   "lon": -85.993,
   "base_elev_ft": 800,
-  "summit_elev_ft": 1175
+  "summit_elev_ft": 1175,
+  "summit_lat": 44.52368,
+  "summit_lon": -85.99869
  },
  {
   "name": "Granite Peak",
@@ -546,7 +664,9 @@
   "lat": 44.934,
   "lon": -89.682,
   "base_elev_ft": 1200,
-  "summit_elev_ft": 1900
+  "summit_elev_ft": 1900,
+  "summit_lat": 44.92155,
+  "summit_lon": -89.69389
  },
  {
   "name": "Lutsen Mountains",
@@ -555,7 +675,9 @@
   "lat": 47.663,
   "lon": -90.716,
   "base_elev_ft": 700,
-  "summit_elev_ft": 1688
+  "summit_elev_ft": 1688,
+  "summit_lat": 47.66383,
+  "summit_lon": -90.73482
  },
  {
   "name": "Spirit Mountain",
@@ -564,7 +686,9 @@
   "lat": 46.718,
   "lon": -92.217,
   "base_elev_ft": 700,
-  "summit_elev_ft": 1360
+  "summit_elev_ft": 1360,
+  "summit_lat": 46.7171,
+  "summit_lon": -92.22016
  },
  {
   "name": "Vail",
@@ -573,7 +697,9 @@
   "lat": 39.64,
   "lon": -106.374,
   "base_elev_ft": 8120,
-  "summit_elev_ft": 11570
+  "summit_elev_ft": 11570,
+  "summit_lat": 39.60496,
+  "summit_lon": -106.35628
  },
  {
   "name": "Beaver Creek",
@@ -582,7 +708,9 @@
   "lat": 39.602,
   "lon": -106.517,
   "base_elev_ft": 8100,
-  "summit_elev_ft": 11440
+  "summit_elev_ft": 11440,
+  "summit_lat": 39.56627,
+  "summit_lon": -106.50847
  },
  {
   "name": "Breckenridge",
@@ -591,7 +719,9 @@
   "lat": 39.48,
   "lon": -106.067,
   "base_elev_ft": 9600,
-  "summit_elev_ft": 12998
+  "summit_elev_ft": 12998,
+  "summit_lat": 39.47273,
+  "summit_lon": -106.10129
  },
  {
   "name": "Keystone",
@@ -600,7 +730,9 @@
   "lat": 39.605,
   "lon": -105.954,
   "base_elev_ft": 9280,
-  "summit_elev_ft": 12408
+  "summit_elev_ft": 12408,
+  "summit_lat": 39.57901,
+  "summit_lon": -105.94043
  },
  {
   "name": "Copper Mountain",
@@ -609,7 +741,9 @@
   "lat": 39.502,
   "lon": -106.151,
   "base_elev_ft": 9712,
-  "summit_elev_ft": 12313
+  "summit_elev_ft": 12313,
+  "summit_lat": 39.46828,
+  "summit_lon": -106.17436
  },
  {
   "name": "Arapahoe Basin",
@@ -618,7 +752,9 @@
   "lat": 39.642,
   "lon": -105.871,
   "base_elev_ft": 10520,
-  "summit_elev_ft": 13050
+  "summit_elev_ft": 13050,
+  "summit_lat": 39.62303,
+  "summit_lon": -105.87336
  },
  {
   "name": "Winter Park Resort",
@@ -627,7 +763,9 @@
   "lat": 39.886,
   "lon": -105.762,
   "base_elev_ft": 9000,
-  "summit_elev_ft": 12060
+  "summit_elev_ft": 12060,
+  "summit_lat": 39.84429,
+  "summit_lon": -105.78189
  },
  {
   "name": "Steamboat",
@@ -636,7 +774,9 @@
   "lat": 40.457,
   "lon": -106.805,
   "base_elev_ft": 6900,
-  "summit_elev_ft": 10568
+  "summit_elev_ft": 10568,
+  "summit_lat": 40.44857,
+  "summit_lon": -106.74822
  },
  {
   "name": "Snowmass",
@@ -645,7 +785,9 @@
   "lat": 39.209,
   "lon": -106.95,
   "base_elev_ft": 8104,
-  "summit_elev_ft": 12510
+  "summit_elev_ft": 12510,
+  "summit_lat": 39.16995,
+  "summit_lon": -106.97082
  },
  {
   "name": "Aspen Mountain",
@@ -654,7 +796,9 @@
   "lat": 39.186,
   "lon": -106.818,
   "base_elev_ft": 7945,
-  "summit_elev_ft": 11212
+  "summit_elev_ft": 11212,
+  "summit_lat": 39.14884,
+  "summit_lon": -106.81781
  },
  {
   "name": "Telluride",
@@ -663,7 +807,9 @@
   "lat": 37.937,
   "lon": -107.812,
   "base_elev_ft": 8725,
-  "summit_elev_ft": 13150
+  "summit_elev_ft": 13150,
+  "summit_lat": 37.89914,
+  "summit_lon": -107.8226
  },
  {
   "name": "Crested Butte",
@@ -672,7 +818,9 @@
   "lat": 38.899,
   "lon": -106.965,
   "base_elev_ft": 9375,
-  "summit_elev_ft": 12162
+  "summit_elev_ft": 12162,
+  "summit_lat": 38.88325,
+  "summit_lon": -106.94004
  },
  {
   "name": "Loveland Ski Area",
@@ -681,7 +829,9 @@
   "lat": 39.68,
   "lon": -105.898,
   "base_elev_ft": 10800,
-  "summit_elev_ft": 13010
+  "summit_elev_ft": 13010,
+  "summit_lat": 39.67347,
+  "summit_lon": -105.9262
  },
  {
   "name": "Eldora Mountain",
@@ -690,7 +840,9 @@
   "lat": 39.937,
   "lon": -105.583,
   "base_elev_ft": 9200,
-  "summit_elev_ft": 10800
+  "summit_elev_ft": 10800,
+  "summit_lat": 39.94114,
+  "summit_lon": -105.6077
  },
  {
   "name": "Monarch Mountain",
@@ -699,7 +851,9 @@
   "lat": 38.512,
   "lon": -106.332,
   "base_elev_ft": 10790,
-  "summit_elev_ft": 11952
+  "summit_elev_ft": 11952,
+  "summit_lat": 38.4975,
+  "summit_lon": -106.32026
  },
  {
   "name": "Purgatory Resort",
@@ -708,7 +862,9 @@
   "lat": 37.63,
   "lon": -107.814,
   "base_elev_ft": 8793,
-  "summit_elev_ft": 10822
+  "summit_elev_ft": 10822,
+  "summit_lat": 37.61804,
+  "summit_lon": -107.85313
  },
  {
   "name": "Wolf Creek",
@@ -717,7 +873,9 @@
   "lat": 37.472,
   "lon": -106.793,
   "base_elev_ft": 10300,
-  "summit_elev_ft": 11904
+  "summit_elev_ft": 11904,
+  "summit_lat": 37.463,
+  "summit_lon": -106.80376
  },
  {
   "name": "Park City Mountain",
@@ -726,7 +884,9 @@
   "lat": 40.651,
   "lon": -111.508,
   "base_elev_ft": 6800,
-  "summit_elev_ft": 10026
+  "summit_elev_ft": 10026,
+  "summit_lat": 40.61239,
+  "summit_lon": -111.53399
  },
  {
   "name": "Deer Valley",
@@ -735,7 +895,9 @@
   "lat": 40.637,
   "lon": -111.478,
   "base_elev_ft": 6570,
-  "summit_elev_ft": 9570
+  "summit_elev_ft": 9570,
+  "summit_lat": 40.61238,
+  "summit_lon": -111.52753
  },
  {
   "name": "Alta",
@@ -753,7 +915,9 @@
   "lat": 40.581,
   "lon": -111.657,
   "base_elev_ft": 7760,
-  "summit_elev_ft": 11000
+  "summit_elev_ft": 11000,
+  "summit_lat": 40.56037,
+  "summit_lon": -111.64511
  },
  {
   "name": "Brighton",
@@ -762,7 +926,9 @@
   "lat": 40.598,
   "lon": -111.583,
   "base_elev_ft": 8755,
-  "summit_elev_ft": 10500
+  "summit_elev_ft": 10500,
+  "summit_lat": 40.57337,
+  "summit_lon": -111.60308
  },
  {
   "name": "Solitude",
@@ -771,7 +937,9 @@
   "lat": 40.62,
   "lon": -111.592,
   "base_elev_ft": 7988,
-  "summit_elev_ft": 10488
+  "summit_elev_ft": 10488,
+  "summit_lat": 40.59261,
+  "summit_lon": -111.56162
  },
  {
   "name": "Snowbasin",
@@ -780,7 +948,9 @@
   "lat": 41.216,
   "lon": -111.857,
   "base_elev_ft": 6400,
-  "summit_elev_ft": 9350
+  "summit_elev_ft": 9350,
+  "summit_lat": 41.20477,
+  "summit_lon": -111.88429
  },
  {
   "name": "Brian Head",
@@ -789,7 +959,9 @@
   "lat": 37.702,
   "lon": -112.85,
   "base_elev_ft": 9600,
-  "summit_elev_ft": 11307
+  "summit_elev_ft": 11307,
+  "summit_lat": 37.68358,
+  "summit_lon": -112.83566
  },
  {
   "name": "Sundance Mountain Resort",
@@ -798,7 +970,9 @@
   "lat": 40.393,
   "lon": -111.588,
   "base_elev_ft": 6100,
-  "summit_elev_ft": 8250
+  "summit_elev_ft": 8250,
+  "summit_lat": 40.36888,
+  "summit_lon": -111.59461
  },
  {
   "name": "Jackson Hole",
@@ -807,7 +981,9 @@
   "lat": 43.587,
   "lon": -110.828,
   "base_elev_ft": 6311,
-  "summit_elev_ft": 10450
+  "summit_elev_ft": 10450,
+  "summit_lat": 43.59718,
+  "summit_lon": -110.87037
  },
  {
   "name": "Grand Targhee",
@@ -816,7 +992,9 @@
   "lat": 43.789,
   "lon": -110.958,
   "base_elev_ft": 7851,
-  "summit_elev_ft": 10230
+  "summit_elev_ft": 10230,
+  "summit_lat": 43.78709,
+  "summit_lon": -110.93442
  },
  {
   "name": "Big Sky Resort",
@@ -825,7 +1003,9 @@
   "lat": 45.286,
   "lon": -111.401,
   "base_elev_ft": 7500,
-  "summit_elev_ft": 11166
+  "summit_elev_ft": 11166,
+  "summit_lat": 45.27828,
+  "summit_lon": -111.45056
  },
  {
   "name": "Whitefish Mountain",
@@ -834,7 +1014,9 @@
   "lat": 48.481,
   "lon": -114.353,
   "base_elev_ft": 4464,
-  "summit_elev_ft": 6817
+  "summit_elev_ft": 6817,
+  "summit_lat": 48.50293,
+  "summit_lon": -114.34115
  },
  {
   "name": "Bridger Bowl",
@@ -843,7 +1025,9 @@
   "lat": 45.817,
   "lon": -110.897,
   "base_elev_ft": 6100,
-  "summit_elev_ft": 8700
+  "summit_elev_ft": 8700,
+  "summit_lat": 45.80254,
+  "summit_lon": -110.93293
  },
  {
   "name": "Sun Valley",
@@ -852,7 +1036,9 @@
   "lat": 43.682,
   "lon": -114.375,
   "base_elev_ft": 5750,
-  "summit_elev_ft": 9150
+  "summit_elev_ft": 9150,
+  "summit_lat": 43.65456,
+  "summit_lon": -114.40943
  },
  {
   "name": "Schweitzer",
@@ -861,7 +1047,9 @@
   "lat": 48.368,
   "lon": -116.623,
   "base_elev_ft": 4700,
-  "summit_elev_ft": 6400
+  "summit_elev_ft": 6400,
+  "summit_lat": 48.37972,
+  "summit_lon": -116.63395
  },
  {
   "name": "Bogus Basin",
@@ -870,7 +1058,9 @@
   "lat": 43.765,
   "lon": -116.102,
   "base_elev_ft": 5800,
-  "summit_elev_ft": 7582
+  "summit_elev_ft": 7582,
+  "summit_lat": 43.77148,
+  "summit_lon": -116.08766
  },
  {
   "name": "Taos Ski Valley",
@@ -879,7 +1069,9 @@
   "lat": 36.596,
   "lon": -105.454,
   "base_elev_ft": 9207,
-  "summit_elev_ft": 12481
+  "summit_elev_ft": 12481,
+  "summit_lat": 36.56187,
+  "summit_lon": -105.44657
  },
  {
   "name": "Ski Santa Fe",
@@ -888,7 +1080,9 @@
   "lat": 35.796,
   "lon": -105.804,
   "base_elev_ft": 10350,
-  "summit_elev_ft": 12075
+  "summit_elev_ft": 12075,
+  "summit_lat": 35.79244,
+  "summit_lon": -105.77722
  },
  {
   "name": "Arizona Snowbowl",
@@ -897,7 +1091,9 @@
   "lat": 35.33,
   "lon": -111.711,
   "base_elev_ft": 9200,
-  "summit_elev_ft": 11500
+  "summit_elev_ft": 11500,
+  "summit_lat": 35.32613,
+  "summit_lon": -111.68563
  },
  {
   "name": "Mammoth Mountain",
@@ -906,7 +1102,9 @@
   "lat": 37.651,
   "lon": -119.037,
   "base_elev_ft": 7953,
-  "summit_elev_ft": 11053
+  "summit_elev_ft": 11053,
+  "summit_lat": 37.63065,
+  "summit_lon": -119.03323
  },
  {
   "name": "Palisades Tahoe",
@@ -915,7 +1113,9 @@
   "lat": 39.197,
   "lon": -120.235,
   "base_elev_ft": 6200,
-  "summit_elev_ft": 9050
+  "summit_elev_ft": 9050,
+  "summit_lat": 39.19242,
+  "summit_lon": -120.2761
  },
  {
   "name": "Northstar California",
@@ -924,7 +1124,9 @@
   "lat": 39.274,
   "lon": -120.121,
   "base_elev_ft": 6330,
-  "summit_elev_ft": 8610
+  "summit_elev_ft": 8610,
+  "summit_lat": 39.24142,
+  "summit_lon": -120.13957
  },
  {
   "name": "Heavenly",
@@ -933,7 +1135,9 @@
   "lat": 38.935,
   "lon": -119.94,
   "base_elev_ft": 6540,
-  "summit_elev_ft": 10067
+  "summit_elev_ft": 10067,
+  "summit_lat": 38.91738,
+  "summit_lon": -119.90242
  },
  {
   "name": "Kirkwood",
@@ -942,7 +1146,9 @@
   "lat": 38.685,
   "lon": -120.065,
   "base_elev_ft": 7800,
-  "summit_elev_ft": 9876
+  "summit_elev_ft": 9876,
+  "summit_lat": 38.66127,
+  "summit_lon": -120.05768
  },
  {
   "name": "Sugar Bowl",
@@ -951,7 +1157,9 @@
   "lat": 39.304,
   "lon": -120.335,
   "base_elev_ft": 6883,
-  "summit_elev_ft": 8383
+  "summit_elev_ft": 8383,
+  "summit_lat": 39.28822,
+  "summit_lon": -120.32661
  },
  {
   "name": "Sierra-at-Tahoe",
@@ -960,7 +1168,9 @@
   "lat": 38.8,
   "lon": -120.08,
   "base_elev_ft": 6640,
-  "summit_elev_ft": 8852
+  "summit_elev_ft": 8852,
+  "summit_lat": 38.79573,
+  "summit_lon": -120.06291
  },
  {
   "name": "Big Bear Mountain Resort",
@@ -969,7 +1179,9 @@
   "lat": 34.236,
   "lon": -116.889,
   "base_elev_ft": 7000,
-  "summit_elev_ft": 8200
+  "summit_elev_ft": 8200,
+  "summit_lat": 34.21174,
+  "summit_lon": -116.86056
  },
  {
   "name": "Mountain High",
@@ -978,7 +1190,9 @@
   "lat": 34.376,
   "lon": -117.691,
   "base_elev_ft": 6600,
-  "summit_elev_ft": 8200
+  "summit_elev_ft": 8200,
+  "summit_lat": 34.35725,
+  "summit_lon": -117.68266
  },
  {
   "name": "Mt. Rose",
@@ -987,7 +1201,9 @@
   "lat": 39.315,
   "lon": -119.882,
   "base_elev_ft": 7900,
-  "summit_elev_ft": 9700
+  "summit_elev_ft": 9700,
+  "summit_lat": 39.31396,
+  "summit_lon": -119.88303
  },
  {
   "name": "Mt. Bachelor",
@@ -996,7 +1212,9 @@
   "lat": 43.979,
   "lon": -121.688,
   "base_elev_ft": 5700,
-  "summit_elev_ft": 9065
+  "summit_elev_ft": 9065,
+  "summit_lat": 43.97757,
+  "summit_lon": -121.68587
  },
  {
   "name": "Mt. Hood Meadows",
@@ -1005,7 +1223,9 @@
   "lat": 45.331,
   "lon": -121.665,
   "base_elev_ft": 4523,
-  "summit_elev_ft": 7300
+  "summit_elev_ft": 7300,
+  "summit_lat": 45.34936,
+  "summit_lon": -121.68184
  },
  {
   "name": "Timberline Lodge",
@@ -1014,7 +1234,9 @@
   "lat": 45.331,
   "lon": -121.711,
   "base_elev_ft": 4850,
-  "summit_elev_ft": 8540
+  "summit_elev_ft": 8540,
+  "summit_lat": 45.35867,
+  "summit_lon": -121.70548
  },
  {
   "name": "Crystal Mountain",
@@ -1023,7 +1245,9 @@
   "lat": 46.935,
   "lon": -121.475,
   "base_elev_ft": 4400,
-  "summit_elev_ft": 7012
+  "summit_elev_ft": 7012,
+  "summit_lat": 46.92828,
+  "summit_lon": -121.50472
  },
  {
   "name": "Stevens Pass",
@@ -1032,7 +1256,9 @@
   "lat": 47.745,
   "lon": -121.089,
   "base_elev_ft": 4061,
-  "summit_elev_ft": 5845
+  "summit_elev_ft": 5845,
+  "summit_lat": 47.73914,
+  "summit_lon": -121.079
  },
  {
   "name": "Mt. Baker",
@@ -1041,7 +1267,9 @@
   "lat": 48.857,
   "lon": -121.665,
   "base_elev_ft": 3500,
-  "summit_elev_ft": 5089
+  "summit_elev_ft": 5089,
+  "summit_lat": 48.84828,
+  "summit_lon": -121.66521
  },
  {
   "name": "The Summit at Snoqualmie",
@@ -1050,7 +1278,9 @@
   "lat": 47.422,
   "lon": -121.414,
   "base_elev_ft": 3000,
-  "summit_elev_ft": 5400
+  "summit_elev_ft": 5400,
+  "summit_lat": 47.43883,
+  "summit_lon": -121.44277
  },
  {
   "name": "Mission Ridge",
@@ -1059,7 +1289,9 @@
   "lat": 47.293,
   "lon": -120.399,
   "base_elev_ft": 4570,
-  "summit_elev_ft": 6820
+  "summit_elev_ft": 6820,
+  "summit_lat": 47.27378,
+  "summit_lon": -120.4271
  },
  {
   "name": "Alyeska Resort",

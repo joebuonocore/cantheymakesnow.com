@@ -91,7 +91,7 @@ class SnowReport
             $query = ['lat' => round((float) $lat, 3), 'lon' => round((float) $lon, 3)];
         }
 
-        $result = $this->build((float) $lat, (float) $lon);
+        $result = $this->build((float) $lat, (float) $lon, (bool) $resort);
         if (isset($result['error'])) {
             return $result;
         }
@@ -106,7 +106,10 @@ class SnowReport
             ];
             $result['pinLat'] = (float) $resort->lat;
             $result['pinLon'] = (float) $resort->lon;
+            $result['zones'] = $this->resortZones($resort, $result, Carbon::now('UTC'));
         }
+        $result['answer'] = $this->weather->combineZones($result['zones'] ?? ['here' => $result]);
+        unset($result['series']);
 
         $result['query'] = $query;
         $result['shareUrl'] = rtrim(url('/'), '/') . '/?' . http_build_query($query);
@@ -140,12 +143,18 @@ class SnowReport
             && (float) $lon >= -180 && (float) $lon <= 180;
     }
     /**
-     * Fetch NOAA data for a point and assemble everything the result view needs.
-     * Returns the result array or ['error' => code].
+     * NOAA's hourly forecast for the grid cell containing a point. Returns
+     * ['error' => code] or the grid ids, properties, time zone and the
+     * 48-hour series.
      */
-    public function build(float $lat, float $lon): array
+    protected function gridForecast(float $lat, float $lon, Carbon $now, bool $precise = false): array
     {
-        $points = $this->noaa->points($this->weather->customRound($lat), $this->weather->customRound($lon));
+        // Resort points (a fixed, cached set) use 4 decimals: rounding to 2
+        // can shift a summit ~1 km into a lower grid cell. PHP prints these
+        // floats without trailing zeros, so NOAA doesn't redirect them.
+        $points = $precise
+            ? $this->noaa->points(round($lat, 4), round($lon, 4))
+            : $this->noaa->points($this->weather->customRound($lat), $this->weather->customRound($lon));
         if (!$points['ok']) {
             return ['error' => $points['error'] === 'not_found' ? 'outside_us' : 'weather_unavailable'];
         }
@@ -164,9 +173,6 @@ class SnowReport
         }
 
         $gridProps = $grid['data']['properties'] ?? [];
-        $timeZone = $props['timeZone'] ?? 'America/New_York';
-        $now = Carbon::now('UTC');
-
         $series = $this->weather->hourlySeries(
             $gridProps['temperature']['values'] ?? [],
             $gridProps['relativeHumidity']['values'] ?? [],
@@ -178,29 +184,32 @@ class SnowReport
             return ['error' => 'weather_unavailable'];
         }
 
+        $elevationM = $gridProps['elevation']['value'] ?? null;
+        return [
+            'props' => $props,
+            'gridId' => $gridId,
+            'gridX' => (int) $gridX,
+            'gridY' => (int) $gridY,
+            'grid' => "{$gridId}:{$gridX},{$gridY}",
+            'gridProps' => $gridProps,
+            'timeZone' => $props['timeZone'] ?? 'America/New_York',
+            'elevationFt' => $elevationM !== null ? (int) round($elevationM * 3.28084) : null,
+            'series' => $series,
+        ];
+    }
+
+    /**
+     * Snowmaking answer, windows and chart for one forecast series (a place,
+     * or a resort's base or summit).
+     */
+    protected function zoneFromSeries(array $series, string $timeZone, float $lat, float $lon, Carbon $now): array
+    {
         $current = $series[0];
         $tier = $this->weather->snowmakingTier($current['wetBulbC']);
         $seriesEnd = end($series)['time']->copy()->addHour();
         $windows = $this->weather->snowmakingWindows($series);
 
-        $city = $props['relativeLocation']['properties']['city'] ?? null;
-        $state = $props['relativeLocation']['properties']['state'] ?? null;
-        // GeoJSON order: [lon, lat]
-        $cityCoords = $props['relativeLocation']['geometry']['coordinates'] ?? null;
-        $hasCityCoords = is_array($cityCoords) && isset($cityCoords[0], $cityCoords[1]);
-
-        $elevationM = $gridProps['elevation']['value'] ?? null;
-        $updated = isset($gridProps['updateTime']) ? Carbon::parse($gridProps['updateTime']) : null;
-
         return [
-            'place' => $city && $state ? "{$city}, {$state}" : sprintf('%.2f, %.2f', $lat, $lon),
-            'city' => $city,
-            'state' => $state,
-            'timeZone' => $timeZone,
-            // Map pins use NOAA's coordinates for the city, never the visitor's own.
-            'pinLat' => $hasCityCoords ? round((float) $cityCoords[1], 6) : round($lat, 1),
-            'pinLon' => $hasCityCoords ? round((float) $cityCoords[0], 6) : round($lon, 1),
-            'hasCityCoords' => $hasCityCoords,
             'now' => $current + [
                 'tier' => $tier['tier'],
                 'label' => $tier['label'],
@@ -212,13 +221,86 @@ class SnowReport
             'hourly' => array_map(fn ($p) => $p + [
                 'label' => $p['time']->copy()->setTimezone($timeZone)->format('D g A'),
             ], $series),
-            'elevationFt' => $elevationM !== null ? (int) round($elevationM * 3.28084) : null,
+        ];
+    }
+
+    /**
+     * Base and summit zones for a resort. The summit uses NOAA's forecast for
+     * the summit's own grid cell when it has one; otherwise (no summit point,
+     * or it falls in the base's cell) it's estimated from the base forecast
+     * with standard lapse rates, and marked as estimated.
+     */
+    protected function resortZones(Resort $resort, array $result, Carbon $now): array
+    {
+        $baseZone = array_intersect_key($result, array_flip(['now', 'windows', 'windowList', 'chart', 'hourly']));
+        $zones = ['base' => $baseZone + [
+            'label' => 'Base',
+            'elevationFt' => $resort->base_elev_ft,
+            'gridElevationFt' => $result['elevationFt'],
+            'estimated' => false,
+        ]];
+
+        $summitFt = $resort->summit_elev_ft;
+        $summit = null;
+        if ($resort->summit_lat !== null && $resort->summit_lon !== null) {
+            $forecast = $this->gridForecast((float) $resort->summit_lat, (float) $resort->summit_lon, $now, true);
+            if (!isset($forecast['error']) && $forecast['grid'] !== $result['grid']) {
+                $summit = $this->zoneFromSeries($forecast['series'], $forecast['timeZone'], (float) $resort->summit_lat, (float) $resort->summit_lon, $now)
+                    + ['gridElevationFt' => $forecast['elevationFt'], 'estimated' => false];
+            }
+        }
+        if (!$summit && $summitFt && $result['elevationFt'] !== null && $summitFt - $result['elevationFt'] >= 300) {
+            $series = $this->weather->adjustForElevation($result['series'], ($summitFt - $result['elevationFt']) / 3.28084);
+            $summit = $this->zoneFromSeries($series, $result['timeZone'], (float) $resort->lat, (float) $resort->lon, $now)
+                + ['gridElevationFt' => null, 'estimated' => true];
+        }
+        if ($summit) {
+            $zones['summit'] = $summit + ['label' => 'Summit', 'elevationFt' => $summitFt];
+        }
+        return $zones;
+    }
+
+    /**
+     * Fetch NOAA data for a point and assemble everything the result view needs.
+     * Returns the result array or ['error' => code].
+     */
+    public function build(float $lat, float $lon, bool $precise = false): array
+    {
+        $now = Carbon::now('UTC');
+        $forecast = $this->gridForecast($lat, $lon, $now, $precise);
+        if (isset($forecast['error'])) {
+            return $forecast;
+        }
+        ['props' => $props, 'gridId' => $gridId, 'gridX' => $gridX, 'gridY' => $gridY, 'gridProps' => $gridProps, 'timeZone' => $timeZone, 'series' => $series] = $forecast;
+
+        $zone = $this->zoneFromSeries($series, $timeZone, $lat, $lon, $now);
+
+        $city = $props['relativeLocation']['properties']['city'] ?? null;
+        $state = $props['relativeLocation']['properties']['state'] ?? null;
+        // GeoJSON order: [lon, lat]
+        $cityCoords = $props['relativeLocation']['geometry']['coordinates'] ?? null;
+        $hasCityCoords = is_array($cityCoords) && isset($cityCoords[0], $cityCoords[1]);
+
+        $updated = isset($gridProps['updateTime']) ? Carbon::parse($gridProps['updateTime']) : null;
+
+        return [
+            'place' => $city && $state ? "{$city}, {$state}" : sprintf('%.2f, %.2f', $lat, $lon),
+            'city' => $city,
+            'state' => $state,
+            'timeZone' => $timeZone,
+            // Map pins use NOAA's coordinates for the city, never the visitor's own.
+            'pinLat' => $hasCityCoords ? round((float) $cityCoords[1], 6) : round($lat, 1),
+            'pinLon' => $hasCityCoords ? round((float) $cityCoords[0], 6) : round($lon, 1),
+            'hasCityCoords' => $hasCityCoords,
+            'grid' => $forecast['grid'],
+            'series' => $series,
+            'elevationFt' => $forecast['elevationFt'],
             'updatedLabel' => $updated ? $updated->setTimezone($timeZone)->format('g:i A') : null,
-            'observation' => $this->observation($gridId, (int) $gridX, (int) $gridY, $timeZone, $now),
+            'observation' => $this->observation($gridId, $gridX, $gridY, $timeZone, $now),
             'conditions' => $this->weather->conditionsAt($gridProps, $now) + ['night' => $this->isNight($now, $lat, $lon)],
             'snow' => $this->snowForecast($gridProps, $now, $timeZone, $lat, $lon),
-            'outlook' => $this->outlook($gridId, (int) $gridX, (int) $gridY),
-        ];
+            'outlook' => $this->outlook($gridId, $gridX, $gridY),
+        ] + $zone;
     }
 
     /**
@@ -293,14 +375,30 @@ class SnowReport
     }
     public function metaTitle(array $result): string
     {
-        $answer = $this->weather->snowmakingTier($result['now']['wetBulbC'])['snow'] ? 'YES' : 'NO';
+        $answer = $result['answer']['snow'] ? 'YES' : 'NO';
         return "{$answer}: can they make snow in {$result['place']}?";
     }
     public function metaDescription(array $result): string
     {
-        $f = round($this->weather->toFahrenheit($result['now']['wetBulbC']));
-        $c = round($result['now']['wetBulbC'], 1);
-        return "{$result['now']['label']} in {$result['place']}: {$f}°F ({$c}°C) wet-bulb. {$result['windows']['text']}";
+        $temp = fn (float $c) => round($this->weather->toFahrenheit($c)) . '°F (' . round($c, 1) . '°C)';
+        $zones = $result['zones'] ?? [];
+        if (count($zones) > 1) {
+            $answer = $result['answer'];
+            $where = self::whereText($answer['where']);
+            $lead = $answer['snow'] ? "Snowmaking possible {$where} of {$result['place']}" : "Too warm to make snow at {$result['place']}";
+            $parts = array_map(fn ($z) => strtolower($z['label']) . ' ' . $temp($z['now']['wetBulbC']), $zones);
+            return "{$lead}: " . implode(', ', $parts) . ' wet-bulb. ' . $zones[$answer['zone']]['windows']['text'];
+        }
+        return "{$result['now']['label']} in {$result['place']}: {$temp($result['now']['wetBulbC'])} wet-bulb. {$result['windows']['text']}";
+    }
+
+    /**
+     * "at the base", "at the summit", "at the base and summit" for zone keys.
+     */
+    public static function whereText(array $where): string
+    {
+        $names = array_map(fn ($k) => $k === 'base' ? 'base' : 'summit', $where);
+        return $names ? 'at the ' . implode(' and ', $names) : '';
     }
     /**
      * Geocode a free-text address via Google Maps.

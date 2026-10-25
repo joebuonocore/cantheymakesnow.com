@@ -64,12 +64,14 @@ class SendAlerts extends Command
             $resort = $resortSubscriptions->first()->resort;
             $stats['resorts']++;
 
-            $result = $report->build((float) $resort->lat, (float) $resort->lon);
-            if (isset($result['error'])) {
-                $this->warn("{$resort->slug}: {$result['error']}");
+            // The full resort lookup, so base and summit are both checked.
+            $lookup = $report->resolve(null, null, null, $resort->slug);
+            if (!$lookup || isset($lookup['error'])) {
+                $this->warn("{$resort->slug}: " . ($lookup['error'] ?? 'no result'));
                 $stats['errors']++;
                 continue;
             }
+            $result = $lookup['result'];
             $this->recordConditions($resort, $result, $now, $dryRun);
 
             $timeZone = $result['timeZone'];
@@ -122,16 +124,20 @@ class SendAlerts extends Command
         $hit = [];
 
         if ($sub->snowmaking) {
-            $window = $this->rules->snowmakingAlert(
-                $result['windowList'] ?? [],
-                $sub->snowmaking_min_tier,
-                $force ? null : $sub->last_snowmaking_start,
-                $force ? null : $sub->last_snowmaking_end,
-                $force ? null : $sub->last_snowmaking_sent_at,
-                $now
-            );
-            if ($window) {
-                $hit['snowmaking'] = $window;
+            // Base and summit each get a say; the earliest qualifying window wins.
+            $zones = $result['zones'] ?? ['here' => $result];
+            foreach ($zones as $key => $zone) {
+                $window = $this->rules->snowmakingAlert(
+                    $zone['windowList'] ?? [],
+                    $sub->snowmaking_min_tier,
+                    $force ? null : $sub->last_snowmaking_start,
+                    $force ? null : $sub->last_snowmaking_end,
+                    $force ? null : $sub->last_snowmaking_sent_at,
+                    $now
+                );
+                if ($window && (!isset($hit['snowmaking']) || $window['start']->timestamp < $hit['snowmaking']['start']->timestamp)) {
+                    $hit['snowmaking'] = $window + ['zone' => count($zones) > 1 ? strtolower($zone['label']) : null];
+                }
             }
         }
 
@@ -181,10 +187,11 @@ class SendAlerts extends Command
             if (isset($hit['snowmaking'])) {
                 $window = $hit['snowmaking'];
                 $coldest = Units::temp($window['coldestWetBulbC'], $u);
+                $at = $window['zone'] ? " at the {$window['zone']}" : '';
                 $lines[] = $window['start']->timestamp <= $now->timestamp
-                    ? "They can make snow now, until {$local($window['end'])} (coldest wet-bulb {$coldest})."
-                    : "Snowmaking window: {$local($window['start'])} – {$local($window['end'])} (coldest wet-bulb {$coldest}).";
-                $subjects[] = "Snowmaking " . ($window['start']->timestamp <= $now->timestamp ? 'now' : $local($window['start'])) . " at {$resort->name}";
+                    ? "They can make snow{$at} now, until {$local($window['end'])} (coldest wet-bulb {$coldest})."
+                    : "Snowmaking window{$at}: {$local($window['start'])} – {$local($window['end'])} (coldest wet-bulb {$coldest}).";
+                $subjects[] = "Snowmaking " . ($window['start']->timestamp <= $now->timestamp ? 'now' : $local($window['start'])) . " at {$resort->name}" . ($window['zone'] ? " ({$window['zone']})" : '');
             }
 
             $items[] = [
@@ -250,8 +257,8 @@ class SendAlerts extends Command
             return;
         }
         $resort->newQuery()->whereKey($resort->getKey())->update([
-            'last_wet_bulb' => round($result['now']['wetBulbC'], 2),
-            'last_tier' => $result['now']['tier'],
+            'last_wet_bulb' => round($result['answer']['wetBulbC'], 2),
+            'last_tier' => $result['answer']['tier'],
             'last_checked_at' => $now,
         ]);
     }
