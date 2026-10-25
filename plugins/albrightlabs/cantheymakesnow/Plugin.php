@@ -1,6 +1,10 @@
 <?php namespace AlbrightLabs\CanTheyMakeSnow;
 
 use Backend;
+use Cms\Classes\Content;
+use Cms\Classes\Layout;
+use Cms\Classes\Page;
+use Cms\Classes\Partial;
 use AlbrightLabs\CanTheyMakeSnow\Classes\ShareImage;
 use AlbrightLabs\CanTheyMakeSnow\Classes\Units;
 use System\Classes\PluginBase;
@@ -47,7 +51,17 @@ class Plugin extends PluginBase
      */
     public function boot()
     {
-        //
+        // Forge deploys each release into its own folder but shares storage/,
+        // and October keys compiled Twig templates by theme path alone. A copy
+        // compiled from the previous release just before the switch looks
+        // newer than the new release's files, so it kept being served. Keying
+        // by release folder too means every release compiles its own.
+        $release = substr(md5(base_path()), 0, 8);
+        foreach ([Page::class, Layout::class, Partial::class, Content::class] as $class) {
+            $class::extend(function ($object) use ($release) {
+                $object->bindEvent('cmsObject.getTwigCacheKey', fn ($key) => "{$key}@{$release}");
+            });
+        }
     }
 
     /**
