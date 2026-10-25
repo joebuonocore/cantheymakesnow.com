@@ -1,8 +1,9 @@
 <?php
 
+use AlbrightLabs\CanTheyMakeSnow\Classes\IndexNow;
 use AlbrightLabs\CanTheyMakeSnow\Classes\ShareImage;
+use AlbrightLabs\CanTheyMakeSnow\Classes\Sitemap;
 use AlbrightLabs\CanTheyMakeSnow\Classes\SnowReport;
-use AlbrightLabs\CanTheyMakeSnow\Models\Resort;
 use AlbrightLabs\CanTheyMakeSnow\Models\Subscriber;
 use AlbrightLabs\CanTheyMakeSnow\Models\Subscription;
 use Illuminate\Support\Facades\Cache;
@@ -91,18 +92,12 @@ Route::match(['get', 'post'], 'alerts/unsubscribe-now/{token}', function ($token
 // those two names itself and would 404 them before they reach the app.
 
 Route::get('sitemap.xml', function () {
-    $base = rtrim(url('/'), '/');
-    $urls = ["{$base}/", "{$base}/resorts", "{$base}/alerts", "{$base}/privacy"];
-    foreach (Resort::isEnabled()->orderBy('slug')->pluck('slug') as $slug) {
-        $urls[] = Resort::urlFor($slug);
-    }
+    return response(Sitemap::xml(), 200, ['Content-Type' => 'application/xml']);
+});
 
-    $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
-        . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
-    foreach ($urls as $url) {
-        $xml .= '  <url><loc>' . e($url) . '</loc><changefreq>hourly</changefreq></url>' . "\n";
-    }
-    $xml .= '</urlset>' . "\n";
-
-    return response($xml, 200, ['Content-Type' => 'application/xml']);
+/**
+ * IndexNow key file: search engines fetch it to confirm our submissions.
+ */
+Route::get(IndexNow::KEY . '.txt', function () {
+    return response(IndexNow::KEY, 200, ['Content-Type' => 'text/plain; charset=utf-8']);
 });
