@@ -101,8 +101,19 @@ class SnowReport
             $result['resort'] = [
                 'slug' => $resort->slug,
                 'name' => $resort->name,
+                'state' => $resort->state,
+                'stateName' => $resort->state_name,
+                'url' => $resort->url,
                 'baseFt' => $resort->base_elev_ft,
                 'summitFt' => $resort->summit_elev_ft,
+                // Other resorts in the same state, for internal links.
+                'nearby' => Resort::isEnabled()
+                    ->where('state', $resort->state)
+                    ->where('id', '!=', $resort->id)
+                    ->orderBy('name')
+                    ->get(['slug', 'name'])
+                    ->map(fn ($r) => ['name' => $r->name, 'url' => $r->url])
+                    ->all(),
             ];
             $result['pinLat'] = (float) $resort->lat;
             $result['pinLon'] = (float) $resort->lon;
@@ -112,7 +123,7 @@ class SnowReport
         unset($result['series']);
 
         $result['query'] = $query;
-        $result['shareUrl'] = rtrim(url('/'), '/') . '/?' . http_build_query($query);
+        $result['shareUrl'] = $resort ? $resort->url : rtrim(url('/'), '/') . '/?' . http_build_query($query);
 
         return ['result' => $result, 'resort' => $resort, 'query' => $query, 'address' => $address];
     }
@@ -373,10 +384,24 @@ class SnowReport
             'tier' => $this->weather->snowmakingTier($observation['wetBulbC'])['tier'],
         ];
     }
+    /**
+     * Search-result title for a resort page: stable, so it doesn't flip
+     * between YES and NO, and says what the page offers.
+     */
+    public function pageTitle(array $result): string
+    {
+        if (empty($result['resort'])) {
+            return $this->metaTitle($result);
+        }
+        $r = $result['resort'];
+        return "Can They Make Snow at {$r['name']}? {$r['stateName']} Snowmaking Forecast";
+    }
+
     public function metaTitle(array $result): string
     {
         $answer = $result['answer']['snow'] ? 'YES' : 'NO';
-        return "{$answer}: can they make snow in {$result['place']}?";
+        $preposition = empty($result['resort']) ? 'in' : 'at';
+        return "{$answer}: can they make snow {$preposition} {$result['place']}?";
     }
     public function metaDescription(array $result): string
     {

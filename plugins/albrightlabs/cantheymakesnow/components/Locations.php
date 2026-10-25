@@ -40,6 +40,29 @@ class Locations extends ComponentBase
         $this->page['resorts'] = $this->resorts;
 
         $this->page['mapPoints'] = $this->getMapPoints();
+        $this->page['popularResorts'] = $this->popularResorts();
+    }
+
+    /**
+     * Enabled resorts grouped by state name (A–Z), for the resort directory.
+     * Returns [['code' => 'VT', 'name' => 'Vermont', 'resorts' => Resort[]], ...].
+     */
+    public function resortsByState(): array
+    {
+        return Resort::isEnabled()->orderBy('name')->get()
+            ->groupBy('state')
+            ->map(fn ($resorts, $code) => ['code' => $code, 'name' => Resort::STATE_NAMES[$code] ?? $code, 'resorts' => $resorts])
+            ->sortBy('name')
+            ->values()
+            ->all();
+    }
+
+    /**
+     * The most-checked resorts, for links on the home page.
+     */
+    public function popularResorts(int $limit = 12)
+    {
+        return Resort::isEnabled()->orderByDesc('lookups')->orderBy('name')->limit($limit)->get();
     }
 
     /**

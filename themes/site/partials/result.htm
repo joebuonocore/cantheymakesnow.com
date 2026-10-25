@@ -14,6 +14,16 @@ description = "Lookup result: answer, gauge, 48-hour forecast. Re-rendered by We
 
     <div class="hero-answer" data-share-url="{{ result.shareUrl }}" data-place="{{ result.place }}"
         data-pin-lat="{{ result.pinLat }}" data-pin-lng="{{ result.pinLon }}" data-tier="{{ answer.tier }}">
+        {% set headingTag = resortPage ? 'h1' : 'h2' %}
+        {% if result.resort %}
+            <nav class="crumbs" aria-label="Breadcrumb">
+                <a href="{{ 'resorts'|page }}">Ski resorts</a> <span aria-hidden="true">›</span>
+                <a href="{{ 'resorts'|page }}#{{ result.resort.state|lower }}">{{ result.resort.stateName }}</a>
+            </nav>
+            <{{ headingTag }} class="hero-answer__question">Can they make snow at {{ result.resort.name }}?</{{ headingTag }}>
+        {% else %}
+            <{{ headingTag }} class="hero-answer__question">Can they make snow in {{ result.place }}?</{{ headingTag }}>
+        {% endif %}
         <div class="hero-answer__headline" data-answer="{{ snow ? 'yes' : 'no' }}">{{ snow ? 'YES' : 'NO' }}</div>
         {% if multi %}
             <p class="hero-answer__meta">
@@ -87,6 +97,27 @@ description = "Lookup result: answer, gauge, 48-hour forecast. Re-rendered by We
             {% if result.updatedLabel %}&middot; NOAA grid updated {{ result.updatedLabel }}{% endif %}
             {% if result.elevationFt and not multi %}&middot; grid elevation {{ result.elevationFt|number_format }} ft{% endif %}
         </p>
+        {% if result.resort %}
+            {% set r = result.resort %}
+            <section class="resort-about" aria-labelledby="resortAboutTitle">
+                <h2 class="section-title" id="resortAboutTitle">About this forecast</h2>
+                <p>
+                    {{ r.name }} is a ski resort in {{ r.stateName }}{% if r.baseFt and r.summitFt %} with a base at {{ r.baseFt|number_format }} ft and a summit at {{ r.summitFt|number_format }} ft, {{ (r.summitFt - r.baseFt)|number_format }} ft of vertical{% endif %}.
+                    This page checks NOAA's hourly forecast {% if multi %}at the base and the summit{% else %}for the mountain{% endif %} every time you load it and works out the wet-bulb temperature, which is what decides whether snow guns can run.
+                    Snowmakers can start below {{ (-2)|temp|raw }} wet-bulb, and make good snow below {{ (-4)|temp|raw }}.
+                </p>
+                {% if r.nearby %}
+                    <h2 class="section-title">Other ski resorts in {{ r.stateName }}</h2>
+                    <ul class="resort-links">
+                        {% for other in r.nearby %}
+                            <li><a href="{{ other.url }}">{{ other.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                <p class="resort-about__all"><a href="{{ 'resorts'|page }}">All ski resorts by state →</a></p>
+            </section>
+        {% endif %}
+
         {% if multi %}
             <p class="hero-answer__source">
                 Base: NOAA's forecast for the base area{% if zones.base.gridElevationFt %} (forecast grid elevation {{ zones.base.gridElevationFt|number_format }} ft){% endif %}.

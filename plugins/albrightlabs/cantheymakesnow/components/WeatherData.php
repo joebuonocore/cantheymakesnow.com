@@ -3,6 +3,7 @@
 use Carbon\Carbon;
 use Cms\Classes\ComponentBase;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use AlbrightLabs\CanTheyMakeSnow\Classes\ShareImage;
 use AlbrightLabs\CanTheyMakeSnow\Classes\SnowReport;
@@ -45,7 +46,20 @@ class WeatherData extends ComponentBase
 
     public function onRun()
     {
-        $this->runLookup(get('address'), get('lat'), get('lon'), get('resort'));
+        $slug = $this->param('slug');
+
+        // Old shared links (/?resort=slug) move permanently to the resort's own page.
+        if (!$slug && is_string(get('resort')) && ($resort = Resort::isEnabled()->where('slug', get('resort'))->first())) {
+            return Redirect::to($resort->url, 301);
+        }
+
+        $this->page['resortPage'] = (bool) $slug;
+        $result = $this->runLookup(get('address'), get('lat'), get('lon'), $slug ?: get('resort'));
+
+        if ($slug && !$result) {
+            $this->controller->setStatusCode(404);
+            return $this->controller->run('404');
+        }
     }
 
     /**
@@ -54,6 +68,7 @@ class WeatherData extends ComponentBase
      */
     public function onLookup()
     {
+        $this->page['resortPage'] = (bool) $this->param('slug');
         $result = $this->runLookup(post('address'), post('lat'), post('lon'), post('resort'));
 
         return [
@@ -86,13 +101,50 @@ class WeatherData extends ComponentBase
         $result = $report['result'];
         $this->page['result'] = $result;
         $this->page['query'] = $report['address'] ?: $result['place'];
-        $this->page->meta_title = $this->report->metaTitle($result);
+        // Search results get a stable title; link previews get the live YES/NO.
+        $this->page->meta_title = $this->report->pageTitle($result);
+        $this->page['ogTitle'] = $this->report->metaTitle($result);
         $this->page->meta_description = $this->report->metaDescription($result);
+        $this->page['jsonLd'] = $this->structuredData($result);
         $this->page['shareImage'] = ShareImage::available() ? url('share.png') . '?' . http_build_query($result['query']) : null;
 
         $report['resort'] ? $this->recordResortLookup($report['resort'], $result) : $this->recordLookup($result);
 
         return $result;
+    }
+
+    /**
+     * schema.org data for a resort page: the ski resort and its breadcrumb trail.
+     */
+    protected function structuredData(array $result): ?array
+    {
+        if (empty($result['resort'])) {
+            return null;
+        }
+        $r = $result['resort'];
+        $home = rtrim(url('/'), '/') . '/';
+
+        return [
+            '@context' => 'https://schema.org',
+            '@graph' => [
+                [
+                    '@type' => 'SkiResort',
+                    'name' => $r['name'],
+                    'url' => $r['url'],
+                    'address' => ['@type' => 'PostalAddress', 'addressRegion' => $r['state'], 'addressCountry' => 'US'],
+                    'geo' => ['@type' => 'GeoCoordinates', 'latitude' => $result['pinLat'], 'longitude' => $result['pinLon']],
+                ],
+                [
+                    '@type' => 'BreadcrumbList',
+                    'itemListElement' => [
+                        ['@type' => 'ListItem', 'position' => 1, 'name' => 'Can They Make Snow?', 'item' => $home],
+                        ['@type' => 'ListItem', 'position' => 2, 'name' => 'Ski resorts', 'item' => $home . 'resorts'],
+                        ['@type' => 'ListItem', 'position' => 3, 'name' => $r['stateName'], 'item' => $home . 'resorts#' . strtolower($r['state'])],
+                        ['@type' => 'ListItem', 'position' => 4, 'name' => $r['name'], 'item' => $r['url']],
+                    ],
+                ],
+            ],
+        ];
     }
 
     /**

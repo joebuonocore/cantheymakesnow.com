@@ -146,6 +146,7 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
     grid-area: content;
     padding: clamp(1.5rem, 3vw, 3rem);
     overflow-y: auto;
+    position: relative; /* keeps visually-hidden text inside the scroller */
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
@@ -206,8 +207,9 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
     }
 }
 
-.hero-brand h1 {
+.hero-brand__name {
     font-size: clamp(1.75rem, 3vw, 2.5rem);
+    line-height: 1.2;
     margin: 0;
     font-weight: 700;
 }
@@ -287,7 +289,7 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
     .screen__content { overflow: visible; gap: 0.9rem; padding: 1.25rem 1rem 1.5rem; }
     .screen__map { height: 60svh; min-height: 320px; max-height: 560px; border-top: 1px solid var(--chart-grid); }
     .hero-answer__headline { font-size: clamp(3.5rem, 16vw, 5.5rem); }
-    .hero-brand h1 { font-size: 1.5rem; }
+    .hero-brand__name { font-size: 1.5rem; }
     .hero-tagline { font-size: 0.9rem; }
 }
 
@@ -557,6 +559,22 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
 .alerts-manage legend { float: none; width: auto; font-size: 1rem; font-weight: 600; padding: 0 0.3rem; margin: 0; }
 .alerts-manage__remove { padding: 0; color: var(--text-muted); }
 .alerts-page__stop { margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-muted); }
+
+/* --- Resort pages, home guide and resort directory --- */
+.crumbs { text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-bottom: -0.5rem; }
+.crumbs a { color: inherit; }
+.hero-answer__question { text-align: center; font-size: 1.15rem; font-weight: 600; margin: 0; }
+.resort-about, .home-guide { width: 100%; padding-top: 1rem; border-top: 1px solid var(--chart-grid); font-size: 0.9rem; }
+.resort-about p, .home-guide p { margin: 0 0 0.75rem; }
+.home-guide .section-title { margin-top: 1.1rem; }
+.home-guide .section-title:first-child { margin-top: 0; }
+.resort-links { display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: 0.3rem 1rem; list-style: none; padding: 0; margin: 0 0 0.75rem; }
+.resort-links span { color: var(--text-muted); font-size: 0.8rem; margin-left: 0.2rem; white-space: nowrap; }
+.directory { padding: 1rem 0 2rem; }
+.directory__title { font-size: 1.6rem; font-weight: 700; margin: 0 0 0.75rem; }
+.directory__states { display: flex; flex-wrap: wrap; gap: 0.25rem 0.75rem; margin: 0 0 1.25rem; font-size: 0.85rem; }
+.directory__state { padding-top: 0.75rem; border-top: 1px solid var(--chart-grid); margin-bottom: 0.75rem; scroll-margin-top: 1rem; }
+.directory .resort-links { grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
 
 /* --- Search suggestions --- */
 .suggest {

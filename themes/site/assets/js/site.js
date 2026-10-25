@@ -218,7 +218,7 @@
 
         history.replaceState({ ctms: true }, '', window.location.href);
         window.addEventListener('popstate', function () {
-            lookup(paramsFromSearch(window.location.search), { fromHistory: true });
+            lookup(paramsFromSearch(searchOf(window.location.href)), { fromHistory: true });
         });
     }
 
@@ -607,9 +607,14 @@
     var MAX_FAVORITES = 12;
 
     /** Saved places are {label, search} where search is the share URL's query string. */
+    // The lookup a URL stands for, as a query string: resort pages
+    // (/resorts/slug) map to ?resort=slug so saved places and history
+    // work the same for both URL styles.
     function searchOf(shareUrl) {
         try {
-            return new URL(shareUrl, window.location.href).search;
+            var url = new URL(shareUrl, window.location.href);
+            var resort = url.pathname.match(/^\/resorts\/([a-z0-9-]+)\/?$/);
+            return resort ? '?resort=' + resort[1] : url.search;
         } catch (e) {
             return '';
         }

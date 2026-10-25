@@ -92,9 +92,9 @@ Route::match(['get', 'post'], 'alerts/unsubscribe-now/{token}', function ($token
 
 Route::get('sitemap.xml', function () {
     $base = rtrim(url('/'), '/');
-    $urls = ["{$base}/", "{$base}/alerts", "{$base}/privacy"];
+    $urls = ["{$base}/", "{$base}/resorts", "{$base}/alerts", "{$base}/privacy"];
     foreach (Resort::isEnabled()->orderBy('slug')->pluck('slug') as $slug) {
-        $urls[] = "{$base}/?" . http_build_query(['resort' => $slug]);
+        $urls[] = Resort::urlFor($slug);
     }
 
     $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
