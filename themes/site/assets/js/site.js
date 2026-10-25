@@ -160,6 +160,14 @@
             history.pushState({ ctms: true }, '', data.shareUrl);
         }
 
+        // On phones the map sits below the results; bring the answer into view.
+        if (options.fromMap && window.matchMedia('(max-width: 991.98px)').matches) {
+            var result = document.getElementById('result');
+            if (result) {
+                result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
         initForecast();
         document.dispatchEvent(new CustomEvent('ctms:result', { detail: data }));
     }
@@ -377,15 +385,7 @@
         var places = null;
         var placesFailed = false;
         var sessionToken = null;
-        var screen = document.querySelector('.screen');
-
-        // On phones the CSS hides the map while typing, so the suggestions
-        // aren't squeezed behind it once the on-screen keyboard is open.
-        function setSearching(on) {
-            if (screen) {
-                screen.classList.toggle('is-searching', on);
-            }
-        }
+        var pressing = false; // A finger or mouse is down on the suggestion list.
 
         function ensurePlaces() {
             if (places || placesFailed) {
@@ -511,7 +511,7 @@
         function choose(item) {
             close();
             sessionToken = null;
-            input.blur(); // Dismiss the keyboard and bring the map back.
+            input.blur(); // Dismiss the on-screen keyboard.
             if (item.type === 'resort') {
                 input.value = item.label + ', ' + item.sub;
                 lookup({ resort: item.slug });
@@ -525,10 +525,7 @@
             clearTimeout(timer);
             timer = setTimeout(update, 150);
         });
-        input.addEventListener('focus', function () {
-            setSearching(true);
-            ensurePlaces();
-        });
+        input.addEventListener('focus', ensurePlaces);
         input.addEventListener('keydown', function (event) {
             if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
                 if (!items.length) {
@@ -552,14 +549,50 @@
             }
         });
         input.addEventListener('blur', function () {
+            // Leave the list up while a tap on it is still in progress, so
+            // a slow tap still lands on the suggestion.
             setTimeout(function () {
-                close();
-                setSearching(false);
+                if (!pressing) {
+                    close();
+                }
             }, 120);
+        });
+        // Choose on pointerup rather than click: iPhone WebKit drops the
+        // click when the field loses focus mid-tap, so a slow tap would do
+        // nothing. A press that moves (a scroll) doesn't choose.
+        var press = null;
+        function release() {
+            setTimeout(function () {
+                pressing = false;
+                if (document.activeElement !== input) {
+                    close();
+                }
+            }, 300);
+        }
+        list.addEventListener('pointerdown', function (event) {
+            var li = event.target.closest('[data-index]');
+            pressing = true;
+            press = li ? { index: li.dataset.index, x: event.clientX, y: event.clientY } : null;
+        });
+        list.addEventListener('pointerup', function (event) {
+            var li = event.target.closest('[data-index]');
+            var start = press;
+            press = null;
+            var still = start && Math.abs(event.clientX - start.x) < 10 && Math.abs(event.clientY - start.y) < 10;
+            if (still && li && li.dataset.index === start.index && items[start.index]) {
+                choose(items[start.index]);
+            }
+            release();
+        });
+        list.addEventListener('pointercancel', function () {
+            press = null;
+            release();
         });
         list.addEventListener('mousedown', function (event) {
             event.preventDefault(); // Keep focus in the input.
         });
+        // Fallback for clicks without pointer events (e.g. assistive tech);
+        // after a pointerup choice the list is already empty.
         list.addEventListener('click', function (event) {
             var li = event.target.closest('[data-index]');
             if (li && items[li.dataset.index]) {
@@ -772,9 +805,9 @@
             });
             marker.addEventListener('gmp-click', function () {
                 if (point.type === 'resort') {
-                    lookup({ resort: point.slug });
+                    lookup({ resort: point.slug }, { fromMap: true });
                 } else {
-                    lookup({ lat: point.lat, lon: point.lng });
+                    lookup({ lat: point.lat, lon: point.lng }, { fromMap: true });
                 }
             });
             markers.push({ marker: marker, point: point });
@@ -830,7 +863,7 @@
 
             map.addListener('click', function (event) {
                 if (event.latLng) {
-                    lookup({ lat: round3(event.latLng.lat()), lon: round3(event.latLng.lng()) });
+                    lookup({ lat: round3(event.latLng.lat()), lon: round3(event.latLng.lng()) }, { fromMap: true });
                 }
             });
 
