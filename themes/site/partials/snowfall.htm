@@ -7,7 +7,7 @@ description = "Snow forecast: 24/48/72-hour totals and the 72-hour snowfall char
         {% for hours, total in snow.totals %}
             <div class="snowfall__total{{ total and total >= 1 ? ' is-snowy' : '' }}">
                 <dt>Next {{ hours }} h</dt>
-                <dd>{{ total is null ? '—' : total|snow|raw }}</dd>
+                <dd>{{ total is null ? 'n/a' : total|snow|raw }}</dd>
             </div>
         {% endfor %}
     </dl>

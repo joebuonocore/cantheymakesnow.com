@@ -792,7 +792,7 @@
 
         function title(point) {
             var fresh = point.checkedAt && Date.now() - Date.parse(point.checkedAt) <= STALE_MS;
-            return point.label + (point.tier ? ' — ' + TIER_NAMES[point.tier] + (fresh ? '' : ' when last checked') : '');
+            return point.label + (point.tier ? ' · ' + TIER_NAMES[point.tier] + (fresh ? '' : ' when last checked') : '');
         }
 
         function addPoint(point) {

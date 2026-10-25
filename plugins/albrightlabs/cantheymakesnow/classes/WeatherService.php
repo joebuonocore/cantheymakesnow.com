@@ -36,10 +36,10 @@ class WeatherService
             return ['snow' => true, 'tier' => 'great', 'label' => 'Great snowmaking conditions'];
         }
         if ($wetBulbC < self::SNOWMAKING_THRESHOLD_C) {
-            return ['snow' => true, 'tier' => 'marginal', 'label' => 'Marginal — snowmakers can just barely run'];
+            return ['snow' => true, 'tier' => 'marginal', 'label' => 'Marginal: snowmakers can just barely run'];
         }
         if ($wetBulbC < 0.0) {
-            return ['snow' => false, 'tier' => 'too_warm', 'label' => 'Too warm — below freezing but droplets won\'t freeze in flight'];
+            return ['snow' => false, 'tier' => 'too_warm', 'label' => 'Too warm: below freezing, but droplets won\'t freeze in flight'];
         }
         return ['snow' => false, 'tier' => 'no_chance', 'label' => 'Too warm for snowmaking'];
     }
