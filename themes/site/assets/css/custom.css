@@ -443,15 +443,17 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
     flex-direction: column;
     align-items: flex-start;
     gap: 0.1rem;
-    padding: 0.55rem 0.75rem 0.6rem;
+    padding: 0.55rem 0.75rem 0.6rem calc(0.75rem + 4px);
     background: transparent;
     color: inherit;
     text-align: left;
+    /* One even 1px border; the tier colour is an inset bar, so there are no
+       mitred corners between borders of different widths to blur. */
     border: 1px solid var(--chart-grid);
-    border-left: 4px solid var(--tier);
+    box-shadow: inset 4px 0 0 var(--tier);
     cursor: pointer;
 }
-.zone[aria-selected="true"] { background: var(--chart-night); border-color: var(--chart-line); border-left-color: var(--tier); }
+.zone[aria-selected="true"] { background: var(--chart-night); border-color: var(--chart-line); }
 .zone:focus-visible { outline: 2px solid var(--answer-yes); outline-offset: 2px; }
 .zone__name { font-size: 0.8rem; color: var(--text-muted); }
 .zone__name span { white-space: nowrap; }
