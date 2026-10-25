@@ -436,6 +436,32 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
 .forecast__table-scroll { max-height: 240px; overflow-y: auto; margin-top: 0.4rem; }
 .forecast__table table { font-variant-numeric: tabular-nums; margin: 0; }
 
+/* --- Base / summit cards (tabs) --- */
+.zones { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; width: 100%; max-width: 520px; margin: 0 auto; }
+.zone {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.1rem;
+    padding: 0.55rem 0.75rem 0.6rem;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    border: 1px solid var(--chart-grid);
+    border-left: 4px solid var(--tier);
+    cursor: pointer;
+}
+.zone[aria-selected="true"] { background: var(--chart-night); border-color: var(--chart-line); border-left-color: var(--tier); }
+.zone:focus-visible { outline: 2px solid var(--answer-yes); outline-offset: 2px; }
+.zone__name { font-size: 0.8rem; color: var(--text-muted); }
+.zone__name span { white-space: nowrap; }
+.zone__answer { font-size: 1.35rem; font-weight: 800; line-height: 1.1; color: var(--answer-no); }
+.zone__answer[data-answer="yes"] { color: var(--answer-yes); }
+.zone__wb { font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.zone__wb span { color: var(--text-muted); }
+.zone-panel { width: 100%; display: flex; flex-direction: column; gap: 0.9rem; }
+.zone-panel[hidden] { display: none; }
+
 /* --- Weather sections: Right now, Snow forecast, 7-day outlook --- */
 .section-title { font-weight: 600; font-size: 0.9rem; margin: 0 0 0.5rem; }
 .section-title span { font-weight: 400; color: var(--text-muted); }

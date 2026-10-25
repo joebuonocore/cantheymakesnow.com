@@ -3,7 +3,7 @@ description = "Right now: weather summary, temperature, feels-like, wind, humidi
 {% set c = result.conditions %}
 {% set icon = c.night and c.icon in ['sun', 'partly'] ? 'moon' : c.icon %}
 <section class="wx-now" aria-labelledby="wxNowTitle">
-    <h2 class="section-title" id="wxNowTitle">Right now</h2>
+    <h2 class="section-title" id="wxNowTitle">Right now{% if atBase %} <span>at the base</span>{% endif %}</h2>
     <div class="wx-now__main">
         <svg class="wx-icon wx-icon--lg" aria-hidden="true"><use href="#wx-{{ icon }}"></use></svg>
         <div>

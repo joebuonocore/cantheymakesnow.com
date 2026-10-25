@@ -48,21 +48,34 @@ class ShareImage
         }
 
         [$img, $c, $font] = $this->canvas();
-        $snow = in_array($result['now']['tier'], ['ideal', 'great', 'marginal'], true);
+        $answer = $result['answer'];
+        $snow = $answer['snow'];
+        $zones = $result['zones'] ?? [];
+        // The zone that's closest to snowmaking drives the window text and bars.
+        $zone = count($zones) > 1 ? $zones[$answer['zone']] : $result;
         $contentWidth = self::WIDTH - self::PAD * 2;
 
         imagettftext($img, 128, 0, self::PAD - 5, 250, $snow ? $c['yes'] : $c['muted'], $font, $snow ? 'YES' : 'NO');
 
         $this->fitText($img, 46, self::PAD, 330, $contentWidth, $c['text'], $font, $result['place']);
 
-        $wetBulb = $result['now']['wetBulbC'];
-        $line = sprintf('%s°F (%s°C) wet-bulb · %s',
-            $this->number($wetBulb * 9 / 5 + 32), $this->number($wetBulb), $result['now']['label']);
+        $temps = fn (float $wb) => sprintf('%s°F (%s°C)', $this->number($wb * 9 / 5 + 32), $this->number($wb));
+        if (count($zones) > 1) {
+            $parts = [];
+            foreach ($zones as $z) {
+                $ok = in_array($z['now']['tier'], ['ideal', 'great', 'marginal'], true);
+                $parts[] = $z['label'] . ' ' . ($ok ? 'YES' : 'NO') . ' ' . $temps($z['now']['wetBulbC']);
+            }
+            $line = implode(' · ', $parts) . ' wet-bulb';
+        } else {
+            $line = $temps($answer['wetBulbC']) . ' wet-bulb · ' . $answer['label'];
+        }
         $this->fitText($img, 26, self::PAD, 384, $contentWidth, $c['line'], $font, $line);
-        $this->fitText($img, 26, self::PAD, 432, $contentWidth, $c['text'], $font, $result['windows']['text']);
+        $this->fitText($img, 26, self::PAD, 432, $contentWidth, $c['text'], $font, $zone['windows']['text']);
 
-        $this->bars($img, $c, $result['hourly'] ?? [], 470, 590);
-        imagettftext($img, 16, 0, self::PAD, 616, $c['muted'], $font, 'Next 48 hours · NOAA forecast');
+        $this->bars($img, $c, $zone['hourly'] ?? [], 470, 590);
+        $chartLabel = count($zones) > 1 ? 'Next 48 hours at the ' . strtolower($zone['label']) . ' · NOAA forecast' : 'Next 48 hours · NOAA forecast';
+        imagettftext($img, 16, 0, self::PAD, 616, $c['muted'], $font, $chartLabel);
 
         return $this->png($img);
     }

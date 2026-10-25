@@ -60,7 +60,7 @@ class WeatherData extends ComponentBase
             'ok' => (bool) $result,
             'shareUrl' => $result['shareUrl'] ?? null,
             'pageTitle' => $result ? $this->report->metaTitle($result) : null,
-            'pin' => $result ? ['lat' => $result['pinLat'], 'lng' => $result['pinLon'], 'tier' => $result['now']['tier']] : null,
+            'pin' => $result ? ['lat' => $result['pinLat'], 'lng' => $result['pinLon'], 'tier' => $result['answer']['tier']] : null,
         ];
     }
 
@@ -168,8 +168,10 @@ class WeatherData extends ComponentBase
     protected function conditions(array $result): array
     {
         return [
-            'last_wet_bulb' => round($result['now']['wetBulbC'], 2),
-            'last_tier' => $result['now']['tier'],
+            // For resorts, the colder of base and summit, so map pins show
+            // snowmaking when it's possible anywhere on the mountain.
+            'last_wet_bulb' => round($result['answer']['wetBulbC'], 2),
+            'last_tier' => $result['answer']['tier'],
         ];
     }
 

@@ -927,6 +927,44 @@
 
     // ---- Boot ---------------------------------------------------------------
 
+    // ---- Base / summit tabs ------------------------------------------------------
+    // Delegated, because the result is re-rendered by lookups.
+
+    function initZones() {
+        function select(tab, focus) {
+            var tabs = tab.parentNode.querySelectorAll('[role="tab"]');
+            tabs.forEach(function (t) {
+                var on = t === tab;
+                t.setAttribute('aria-selected', on ? 'true' : 'false');
+                t.setAttribute('tabindex', on ? '0' : '-1');
+                var panel = document.getElementById(t.getAttribute('aria-controls'));
+                if (panel) {
+                    panel.hidden = !on;
+                }
+            });
+            if (focus) {
+                tab.focus();
+            }
+        }
+
+        document.addEventListener('click', function (event) {
+            var tab = event.target.closest && event.target.closest('.zones [role="tab"]');
+            if (tab) {
+                select(tab, false);
+            }
+        });
+        document.addEventListener('keydown', function (event) {
+            var tab = event.target.closest && event.target.closest('.zones [role="tab"]');
+            if (!tab || (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')) {
+                return;
+            }
+            event.preventDefault();
+            var tabs = Array.prototype.slice.call(tab.parentNode.querySelectorAll('[role="tab"]'));
+            var next = tabs[(tabs.indexOf(tab) + (event.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+            select(next, true);
+        });
+    }
+
     // ---- Email alerts signup ---------------------------------------------------
     // Delegated, because the result (and its form) is re-rendered by lookups.
 
@@ -1010,6 +1048,7 @@
         initSearch();
         initForecast();
         initSaved();
+        initZones();
         initAlerts();
         initMap();
     }

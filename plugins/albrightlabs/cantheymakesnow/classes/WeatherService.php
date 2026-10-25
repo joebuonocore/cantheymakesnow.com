@@ -17,6 +17,9 @@ class WeatherService
 
     const MM_PER_INCH = 25.4;
 
+    const TEMP_LAPSE_C_PER_KM = 6.5;
+    const DEWPOINT_LAPSE_C_PER_KM = 1.8;
+
     /**
      * Classify a wet-bulb temperature into a snowmaking quality tier.
      * Returns ['snow' => bool, 'tier' => string, 'label' => string].
@@ -646,6 +649,63 @@ class WeatherService
             'text' => ($p['textDescription'] ?? '') ?: null,
             'windMph' => $speed('windSpeed'),
             'gustMph' => $speed('windGust'),
+        ];
+    }
+
+    /**
+     * Inverse of relativeHumidityFromDewpoint(): dewpoint (°C) from air temperature and RH (%).
+     */
+    public function dewpointFromRh(float $tempC, float $rh): float
+    {
+        $gamma = log(max(0.01, min(100.0, $rh)) / 100) + (17.625 * $tempC) / (243.04 + $tempC);
+        return 243.04 * $gamma / (17.625 - $gamma);
+    }
+
+    /**
+     * Estimate an hourlySeries() at a different elevation with standard lapse
+     * rates: air cools ~6.5 °C/km and dewpoint ~1.8 °C/km going up. Only a
+     * fallback when NOAA has no separate forecast for that elevation: it
+     * can't know about cold-air inversions. Each point gains 'estimated'.
+     */
+    public function adjustForElevation(array $series, float $deltaM): array
+    {
+        $km = $deltaM / 1000;
+        return array_map(function (array $point) use ($km) {
+            $tempC = $point['tempC'] - self::TEMP_LAPSE_C_PER_KM * $km;
+            $dewC = min($tempC, $this->dewpointFromRh($point['tempC'], $point['rh']) - self::DEWPOINT_LAPSE_C_PER_KM * $km);
+            $rh = $this->relativeHumidityFromDewpoint($tempC, $dewC);
+            $wetBulb = $this->calculateWetBulb($tempC, $rh);
+            $tier = $this->snowmakingTier($wetBulb);
+            return ['tempC' => $tempC, 'rh' => $rh, 'wetBulbC' => $wetBulb, 'snow' => $tier['snow'], 'tier' => $tier['tier'], 'estimated' => true] + $point;
+        }, $series);
+    }
+
+    /**
+     * The overall answer across zones (e.g. base and summit): YES when any
+     * zone can make snow; tier and wet-bulb of the coldest zone; and which
+     * zones can. Each zone needs ['now' => ['wetBulbC' => float]].
+     */
+    public function combineZones(array $zones): array
+    {
+        $coldest = null;
+        $where = [];
+        foreach ($zones as $key => $zone) {
+            $wetBulb = $zone['now']['wetBulbC'];
+            if ($this->snowmakingTier($wetBulb)['snow']) {
+                $where[] = $key;
+            }
+            if ($coldest === null || $wetBulb < $zones[$coldest]['now']['wetBulbC']) {
+                $coldest = $key;
+            }
+        }
+        $tier = $this->snowmakingTier($zones[$coldest]['now']['wetBulbC']);
+        return [
+            'snow' => (bool) $where,
+            'where' => $where,
+            'zone' => $coldest,
+            'wetBulbC' => $zones[$coldest]['now']['wetBulbC'],
+            'tier' => $tier['tier'],
+            'label' => $tier['label'],
         ];
     }
 

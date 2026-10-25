@@ -1,12 +1,13 @@
-description = "48-hour wet-bulb column chart (ForecastChart geometry) with tooltip, legend and table view. Expects chart, hourly."
+description = "48-hour wet-bulb column chart (ForecastChart geometry) with tooltip, legend and table view. Expects chart, hourly, windows; optional key for unique ids."
 ==
 {% set tierNames = { ideal: 'Ideal', great: 'Great', marginal: 'Marginal', too_warm: 'Too warm', no_chance: 'Too warm' } %}
+{% set helpId = 'forecastHelp' ~ (key is defined and key ? '-' ~ key : '') %}
 {% if chart.bars|length %}
 <figure class="forecast">
     <figcaption class="forecast__title">Next 48 hours <span>wet-bulb by hour; columns below the line are snowmaking hours</span></figcaption>
 
-    <div class="forecast__chart" tabindex="0" aria-describedby="forecastHelp">
-        <svg viewBox="0 0 {{ chart.width }} {{ chart.height }}" class="forecast__svg" role="img" aria-label="Hourly wet-bulb forecast for the next 48 hours. {{ result.windows.text }}">
+    <div class="forecast__chart" tabindex="0" aria-describedby="{{ helpId }}">
+        <svg viewBox="0 0 {{ chart.width }} {{ chart.height }}" class="forecast__svg" role="img" aria-label="Hourly wet-bulb forecast for the next 48 hours. {{ windows.text }}">
             {% for night in chart.nights %}
                 <rect class="forecast__night" x="{{ night.x }}" y="{{ chart.plotTop }}" width="{{ night.width }}" height="{{ chart.plotBottom - chart.plotTop }}"></rect>
             {% endfor %}
@@ -35,7 +36,7 @@ description = "48-hour wet-bulb column chart (ForecastChart geometry) with toolt
         </svg>
         <div class="forecast__tooltip" role="status" hidden></div>
     </div>
-    <p id="forecastHelp" class="visually-hidden">Use the left and right arrow keys to step through hours.</p>
+    <p id="{{ helpId }}" class="visually-hidden">Use the left and right arrow keys to step through hours.</p>
 
     <ul class="forecast__legend">
         <li><span class="forecast__swatch" data-tier="ideal"></span>Ideal</li>

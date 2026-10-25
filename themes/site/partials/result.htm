@@ -4,18 +4,45 @@ description = "Lookup result: answer, gauge, 48-hour forecast. Re-rendered by We
     <p class="hero-answer__error" role="alert" data-error="{{ lookupError.code }}">{{ lookupError.message }}</p>
 {% elseif result %}
     {% set now = result.now %}
-    {% set snow = now.tier in ['ideal', 'great', 'marginal'] %}
+    {% set answer = result.answer %}
+    {% set snow = answer.snow %}
+    {% set zones = result.zones ?? {} %}
+    {% set multi = zones|length > 1 %}
+    {# Open the zone that can make snow (base first if both); otherwise the base. #}
+    {% set activeZone = answer.where|first ?: 'base' %}
     {% if snow %}{% partial 'snow' %}{% endif %}
 
     <div class="hero-answer" data-share-url="{{ result.shareUrl }}" data-place="{{ result.place }}"
-        data-pin-lat="{{ result.pinLat }}" data-pin-lng="{{ result.pinLon }}" data-tier="{{ now.tier }}">
+        data-pin-lat="{{ result.pinLat }}" data-pin-lng="{{ result.pinLon }}" data-tier="{{ answer.tier }}">
         <div class="hero-answer__headline" data-answer="{{ snow ? 'yes' : 'no' }}">{{ snow ? 'YES' : 'NO' }}</div>
-        <p class="hero-answer__meta">
-            {{ now.wetBulbC|temp|raw }} wet-bulb in <strong>{{ result.place }}</strong>
-        </p>
-        <p class="hero-answer__inputs">
-            {{ now.tempC|temp|raw }} air &middot; {{ now.rh|round }}% humidity
-        </p>
+        {% if multi %}
+            <p class="hero-answer__meta">
+                {% if snow %}
+                    Snowmaking possible at the {{ answer.where|map(w => w == 'base' ? 'base' : 'summit')|join(' and ') }} of
+                {% else %}
+                    Too warm to make snow at
+                {% endif %}
+                <strong>{{ result.place }}</strong>
+            </p>
+            <div class="zones" role="tablist" aria-label="Base and summit">
+                {% for key, zone in zones %}
+                    {% set zoneSnow = zone.now.tier in ['ideal', 'great', 'marginal'] %}
+                    <button type="button" class="zone" role="tab" id="zoneTab-{{ key }}" data-zone="{{ key }}" data-tier="{{ zone.now.tier }}"
+                        aria-selected="{{ key == activeZone ? 'true' : 'false' }}" aria-controls="zonePanel-{{ key }}" tabindex="{{ key == activeZone ? '0' : '-1' }}">
+                        <span class="zone__name">{{ zone.label }}{% if zone.elevationFt %} <span>{{ zone.elevationFt|number_format }} ft</span>{% endif %}</span>
+                        <span class="zone__answer" data-answer="{{ zoneSnow ? 'yes' : 'no' }}">{{ zoneSnow ? 'YES' : 'NO' }}</span>
+                        <span class="zone__wb">{{ zone.now.wetBulbC|temp|raw }} wet-bulb{% if zone.estimated %} <span title="Estimated from the base forecast">(est.)</span>{% endif %}</span>
+                    </button>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="hero-answer__meta">
+                {{ now.wetBulbC|temp|raw }} wet-bulb in <strong>{{ result.place }}</strong>
+            </p>
+            <p class="hero-answer__inputs">
+                {{ now.tempC|temp|raw }} air &middot; {{ now.rh|round }}% humidity
+            </p>
+        {% endif %}
         {% set storm = result.snow.powder ?? null %}
         {% if storm and storm.totalIn|round >= 6 %}
             <p class="hero-answer__powder" data-level="powder">❄︎ Powder alert: {{ storm.totalIn|snow|raw }} of new snow expected by {{ storm.byLabel }}</p>
@@ -32,22 +59,44 @@ description = "Lookup result: answer, gauge, 48-hour forecast. Re-rendered by We
         </div>
         {% if result.resort %}{% partial 'alerts-form' %}{% endif %}
 
-        {% partial 'gauge' value=now.wetBulbC tier=now.tier label=now.label %}
+        {% if multi %}
+            {% for key, zone in zones %}
+                <div class="zone-panel" role="tabpanel" id="zonePanel-{{ key }}" aria-labelledby="zoneTab-{{ key }}" {{ key != activeZone ? 'hidden' }}>
+                    <p class="hero-answer__inputs">
+                        {{ zone.label }}: {{ zone.now.tempC|temp|raw }} air &middot; {{ zone.now.rh|round }}% humidity{% if zone.estimated %} (estimated){% endif %}
+                    </p>
+                    {% partial 'gauge' value=zone.now.wetBulbC tier=zone.now.tier label=zone.now.label %}
+                    <p class="hero-answer__window" data-state="{{ zone.windows.state }}">{{ zone.windows.text }}</p>
+                    {% partial 'forecast' chart=zone.chart hourly=zone.hourly windows=zone.windows key=key %}
+                </div>
+            {% endfor %}
+        {% else %}
+            {% partial 'gauge' value=now.wetBulbC tier=now.tier label=now.label %}
 
-        <p class="hero-answer__window" data-state="{{ result.windows.state }}">{{ result.windows.text }}</p>
+            <p class="hero-answer__window" data-state="{{ result.windows.state }}">{{ result.windows.text }}</p>
 
-        {% partial 'forecast' chart=result.chart hourly=result.hourly %}
+            {% partial 'forecast' chart=result.chart hourly=result.hourly windows=result.windows %}
+        {% endif %}
 
-        {% if result.conditions %}{% partial 'conditions' %}{% endif %}
-        {% if result.snow %}{% partial 'snowfall' snow=result.snow %}{% endif %}
+        {% if result.conditions %}{% partial 'conditions' atBase=multi %}{% endif %}
+        {% if result.snow %}{% partial 'snowfall' snow=result.snow atBase=multi %}{% endif %}
         {% if result.outlook %}{% partial 'outlook' outlook=result.outlook %}{% endif %}
 
         <p class="hero-answer__source">
             Forecast for {{ now.timeLabel }}
             {% if result.updatedLabel %}&middot; NOAA grid updated {{ result.updatedLabel }}{% endif %}
-            {% if result.elevationFt %}&middot; grid elevation {{ result.elevationFt|number_format }} ft{% endif %}
+            {% if result.elevationFt and not multi %}&middot; grid elevation {{ result.elevationFt|number_format }} ft{% endif %}
         </p>
-        {% if result.resort and result.resort.baseFt %}
+        {% if multi %}
+            <p class="hero-answer__source">
+                Base: NOAA's forecast for the base area{% if zones.base.gridElevationFt %} (forecast grid elevation {{ zones.base.gridElevationFt|number_format }} ft){% endif %}.
+                {% if zones.summit.estimated %}
+                    Summit: estimated from the base forecast with typical cooling by elevation; on calm, clear nights cold air can pool at the base instead.
+                {% else %}
+                    Summit: NOAA's forecast for the top of the mountain{% if zones.summit.gridElevationFt %} (forecast grid elevation {{ zones.summit.gridElevationFt|number_format }} ft){% endif %}.
+                {% endif %}
+            </p>
+        {% elseif result.resort and result.resort.baseFt %}
             <p class="hero-answer__source">
                 Checked at the base area ({{ result.resort.baseFt|number_format }} ft){% if result.resort.summitFt %}; the summit ({{ result.resort.summitFt|number_format }} ft) is usually colder{% endif %}.
             </p>

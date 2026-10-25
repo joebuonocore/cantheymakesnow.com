@@ -1,7 +1,7 @@
 description = "Snow forecast: 24/48/72-hour totals and the 72-hour snowfall chart (SnowChart geometry) with tooltip and table. Expects snow."
 ==
 <section class="snowfall" aria-labelledby="snowfallTitle">
-    <h2 class="section-title" id="snowfallTitle">Snow forecast <span>new snow, NOAA forecast</span></h2>
+    <h2 class="section-title" id="snowfallTitle">Snow forecast <span>new snow{% if atBase %} at the base{% endif %}, NOAA forecast</span></h2>
 
     <dl class="snowfall__totals">
         {% for hours, total in snow.totals %}

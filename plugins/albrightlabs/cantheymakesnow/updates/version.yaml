@@ -22,3 +22,7 @@ v1.2.0:
     - Add email alert subscribers and per-resort subscriptions
     - create_subscribers_table.php
     - create_subscriptions_table.php
+v1.3.0:
+    - Add summit coordinates to resorts for base and summit snowmaking checks
+    - add_summit_coords_to_resorts_table.php
+    - seed_resort_summits.php
