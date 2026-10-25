@@ -178,6 +178,7 @@
             event.preventDefault();
             var address = input.value.trim();
             if (address) {
+                input.blur();
                 lookup({ address: address });
             }
         });
@@ -376,6 +377,15 @@
         var places = null;
         var placesFailed = false;
         var sessionToken = null;
+        var screen = document.querySelector('.screen');
+
+        // On phones the CSS hides the map while typing, so the suggestions
+        // aren't squeezed behind it once the on-screen keyboard is open.
+        function setSearching(on) {
+            if (screen) {
+                screen.classList.toggle('is-searching', on);
+            }
+        }
 
         function ensurePlaces() {
             if (places || placesFailed) {
@@ -501,6 +511,7 @@
         function choose(item) {
             close();
             sessionToken = null;
+            input.blur(); // Dismiss the keyboard and bring the map back.
             if (item.type === 'resort') {
                 input.value = item.label + ', ' + item.sub;
                 lookup({ resort: item.slug });
@@ -514,7 +525,10 @@
             clearTimeout(timer);
             timer = setTimeout(update, 150);
         });
-        input.addEventListener('focus', ensurePlaces);
+        input.addEventListener('focus', function () {
+            setSearching(true);
+            ensurePlaces();
+        });
         input.addEventListener('keydown', function (event) {
             if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
                 if (!items.length) {
@@ -538,7 +552,10 @@
             }
         });
         input.addEventListener('blur', function () {
-            setTimeout(close, 120);
+            setTimeout(function () {
+                close();
+                setSearching(false);
+            }, 120);
         });
         list.addEventListener('mousedown', function (event) {
             event.preventDefault(); // Keep focus in the input.
