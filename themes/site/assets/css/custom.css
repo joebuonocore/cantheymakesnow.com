@@ -212,7 +212,11 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
     line-height: 1.2;
     margin: 0;
     font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.35em;
 }
+.hero-brand__mark { width: 1.1em; height: 1.1em; flex: 0 0 auto; }
 .hero-tagline {
     opacity: 0.75;
     font-size: 1rem;
@@ -291,6 +295,16 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
     .hero-answer__headline { font-size: clamp(3.5rem, 16vw, 5.5rem); }
     .hero-brand__name { font-size: 1.5rem; }
     .hero-tagline { font-size: 0.9rem; }
+}
+/* Size the title to the header's own width so the mark, the title and the
+   units toggle (about 6rem with its gap) share one line. The title plus the
+   mark runs about 11.5em wide; it still wraps on very narrow screens. */
+@supports (container-type: inline-size) {
+    .hero-brand { container-type: inline-size; }
+    .hero-brand__name { font-size: clamp(1.25rem, (100cqi - 6rem) / 12, 2.5rem); }
+    @media (max-width: 991.98px) {
+        .hero-brand__name { font-size: clamp(1.25rem, (100cqi - 6rem) / 12, 1.5rem); }
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
