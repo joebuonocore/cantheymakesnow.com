@@ -280,6 +280,11 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
     }
     .hero-answer__headline { font-size: clamp(3.5rem, 16vw, 5.5rem); }
     .screen__content { gap: 0.9rem; padding: 1.25rem 1rem; }
+    /* While the search box has focus the keyboard takes half the screen;
+       give the column all of what's left so suggestions aren't hidden. */
+    .screen.is-searching { grid-template-rows: 1fr; grid-template-areas: "content"; }
+    .screen.is-searching .screen__map,
+    .screen.is-searching .screen__footer { display: none; }
     .hero-brand h1 { font-size: 1.5rem; }
     .hero-tagline { font-size: 0.9rem; }
 }
