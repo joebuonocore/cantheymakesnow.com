@@ -2,8 +2,10 @@ description = "App Header"
 ==
 <div class="hero-brand">
     <div class="hero-brand__row">
+        {# Pages with their own main heading (resort pages, directory, alerts, privacy) don't make the brand an h1. #}
+        {% set brandTag = pageHasHeading ? 'p' : 'h1' %}
         <a href="{{ 'home'|page }}" class="text-body-emphasis text-decoration-none">
-            <h1>Can they make snow?</h1>
+            <{{ brandTag }} class="hero-brand__name">Can they make snow?</{{ brandTag }}>
         </a>
         <div class="units-toggle" role="group" aria-label="Temperature units">
             <button type="button" data-units="f" aria-pressed="true">°F</button>

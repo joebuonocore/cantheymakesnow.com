@@ -197,7 +197,7 @@ class SendAlerts extends Command
             $items[] = [
                 'resort' => $resort->label,
                 'lines' => $lines,
-                'url' => rtrim(url('/'), '/') . '/?' . http_build_query(['resort' => $resort->slug]),
+                'url' => $resort->url,
             ];
         }
 

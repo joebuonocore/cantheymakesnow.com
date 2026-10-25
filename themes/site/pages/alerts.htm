@@ -9,7 +9,7 @@ meta_description = "Get an email when your ski resort can make snow, or when a p
 ==
 <main class="screen screen--simple">
     <section class="screen__content">
-        {% partial 'header' %}
+        {% partial 'header' pageHasHeading=true %}
         <div class="alerts-page">
             {% if alertsAction == 'invalid' %}
                 <h1 class="alerts-page__title">That link isn't valid</h1>

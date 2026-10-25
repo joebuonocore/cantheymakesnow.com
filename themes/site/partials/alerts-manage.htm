@@ -17,7 +17,7 @@ description = "Manage form for one subscriber's alerts (re-rendered by Alerts ha
             {% for sub in subscriptions %}
                 <fieldset class="alerts-manage__resort">
                     <legend>
-                        <a href="{{ 'home'|page }}?resort={{ sub.resort.slug }}">{{ sub.resort.label }}</a>
+                        <a href="{{ sub.resort.url }}">{{ sub.resort.label }}</a>
                     </legend>
                     <label class="alerts-option">
                         <input type="checkbox" name="subs[{{ sub.id }}][snowmaking]" value="1" {{ sub.snowmaking ? 'checked' }}>

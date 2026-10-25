@@ -51,4 +51,33 @@ class Resort extends Model
     {
         return "{$this->name}, {$this->state}";
     }
+
+    public function getStateNameAttribute(): string
+    {
+        return self::STATE_NAMES[$this->state] ?? $this->state;
+    }
+
+    /**
+     * The resort's own page, e.g. /resorts/killington-resort.
+     */
+    public function getUrlAttribute(): string
+    {
+        return self::urlFor($this->slug);
+    }
+
+    public static function urlFor(string $slug): string
+    {
+        return rtrim(url('/'), '/') . '/resorts/' . $slug;
+    }
+
+    const STATE_NAMES = [
+        'AK' => 'Alaska', 'AZ' => 'Arizona', 'CA' => 'California', 'CO' => 'Colorado', 'CT' => 'Connecticut',
+        'ID' => 'Idaho', 'IL' => 'Illinois', 'IN' => 'Indiana', 'IA' => 'Iowa', 'MA' => 'Massachusetts',
+        'MD' => 'Maryland', 'ME' => 'Maine', 'MI' => 'Michigan', 'MN' => 'Minnesota', 'MO' => 'Missouri',
+        'MT' => 'Montana', 'NC' => 'North Carolina', 'ND' => 'North Dakota', 'NH' => 'New Hampshire',
+        'NJ' => 'New Jersey', 'NM' => 'New Mexico', 'NV' => 'Nevada', 'NY' => 'New York', 'OH' => 'Ohio',
+        'OR' => 'Oregon', 'PA' => 'Pennsylvania', 'SD' => 'South Dakota', 'TN' => 'Tennessee', 'UT' => 'Utah',
+        'VA' => 'Virginia', 'VT' => 'Vermont', 'WA' => 'Washington', 'WI' => 'Wisconsin', 'WV' => 'West Virginia',
+        'WY' => 'Wyoming',
+    ];
 }

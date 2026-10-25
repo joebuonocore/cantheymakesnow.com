@@ -1,0 +1,35 @@
+description = "Home page guide: popular resorts (crawlable links) and plain-language snowmaking explainer. Expects popularResorts."
+==
+<section class="home-guide" aria-labelledby="guideResortsTitle">
+    <h2 class="section-title" id="guideResortsTitle">Snowmaking forecasts for US ski resorts</h2>
+    <p>Pick a resort for its live answer at the base and the summit, the next snowmaking window, new snow and the 7-day outlook.</p>
+    <ul class="resort-links">
+        {% for r in popularResorts %}
+            <li><a href="{{ r.url }}">{{ r.name }}</a> <span>{{ r.state }}</span></li>
+        {% endfor %}
+    </ul>
+    <p><a href="{{ 'resorts'|page }}">See all ski resorts by state →</a></p>
+
+    <h2 class="section-title">When can ski resorts make snow?</h2>
+    <p>
+        Snow guns spray fine water droplets into the air, and the snow they make depends on those droplets freezing before they land.
+        That depends on the <strong>wet-bulb temperature</strong>: the temperature air cools to as water evaporates into it, so it
+        combines how cold the air is with how dry it is. Snowmakers can start at a wet-bulb around {{ (-2)|temp|raw }}, and the snow
+        is good quality below about {{ (-4)|temp|raw }}. Dry air helps a lot: at {{ 0|temp|raw }} with low humidity they can often make
+        snow, while at the same temperature in damp air they can't.
+    </p>
+
+    <h2 class="section-title">Why the base and summit can differ</h2>
+    <p>
+        Air usually gets colder with height, so the summit can often make snow before the base. On calm, clear nights it can flip:
+        cold air drains into the valleys and the base ends up colder than the top. That's why resorts are checked at both, each
+        with NOAA's forecast for its own elevation.
+    </p>
+
+    <h2 class="section-title">Where the numbers come from</h2>
+    <p>
+        Forecasts come from the National Weather Service (NOAA) hourly grid forecast, updated through the day. The wet-bulb
+        temperature is calculated for every hour of the next two days, and the 7-day outlook and snowfall totals come from the
+        same forecast. You can also <a href="{{ 'alerts'|page }}">get an email</a> when a resort can make snow or a powder day is coming.
+    </p>
+</section>

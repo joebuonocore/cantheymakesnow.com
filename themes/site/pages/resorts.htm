@@ -1,0 +1,57 @@
+url = "/resorts"
+layout = "default"
+title = "Ski resorts"
+description = "Directory of every resort with a snowmaking forecast, grouped by state."
+meta_title = "Snowmaking Forecasts for US Ski Resorts by State | Can They Make Snow?"
+meta_description = "Every US ski resort we check, grouped by state: live answers to whether they can make snow at the base and summit, the next snowmaking window, new snow and powder."
+
+[Locations]
+==
+{% set groups = Locations.resortsByState() %}
+{% put head %}
+<script type="application/ld+json">{{ {
+    '@context': 'https://schema.org',
+    '@graph': [
+        { '@type': 'CollectionPage', 'name': 'Snowmaking forecasts for US ski resorts', 'url': 'https://cantheymakesnow.com/resorts' },
+        { '@type': 'BreadcrumbList', 'itemListElement': [
+            { '@type': 'ListItem', 'position': 1, 'name': 'Can They Make Snow?', 'item': 'https://cantheymakesnow.com/' },
+            { '@type': 'ListItem', 'position': 2, 'name': 'Ski resorts', 'item': 'https://cantheymakesnow.com/resorts' }
+        ] }
+    ]
+}|json_encode|raw }}</script>
+{% endput %}
+<main class="screen screen--simple">
+    <section class="screen__content">
+        {% partial 'header' pageHasHeading=true %}
+        <div class="directory">
+            <h1 class="directory__title">Can they make snow? Ski resorts by state</h1>
+            <p>Each resort has its own page with a live answer at the base and the summit, the next snowmaking window, new snow and the 7-day outlook, all from NOAA's hourly forecast.</p>
+
+            <nav class="directory__states" aria-label="States">
+                {% for group in groups %}
+                    <a href="#{{ group.code|lower }}">{{ group.name }}</a>
+                {% endfor %}
+            </nav>
+
+            {% for group in groups %}
+                <section class="directory__state" id="{{ group.code|lower }}" aria-labelledby="state-{{ group.code|lower }}">
+                    <h2 class="section-title" id="state-{{ group.code|lower }}">{{ group.name }}</h2>
+                    <ul class="resort-links">
+                        {% for r in group.resorts %}
+                            <li>
+                                <a href="{{ r.url }}">{{ r.name }}</a>
+                                {% if r.base_elev_ft and r.summit_elev_ft %}<span>{{ r.base_elev_ft|number_format }}–{{ r.summit_elev_ft|number_format }} ft</span>{% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </section>
+            {% endfor %}
+
+            <p>Don't see yours? <a href="{{ 'home'|page }}">Search any US town or ski area</a> and we'll check its forecast.</p>
+        </div>
+    </section>
+
+    <footer class="screen__footer">
+        {% partial 'footer' %}
+    </footer>
+</main>

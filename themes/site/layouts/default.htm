@@ -41,14 +41,26 @@ description = "Default layout"
         <meta name="ctms-maps-key" content="{{ env('GOOGLE_MAPS_BROWSER_KEY') ?: env('GOOGLE_MAPS_API_KEY') }}" />
         <meta name="ctms-map-id" content="{{ env('GOOGLE_MAPS_MAP_ID') ?: 'DEMO_MAP_ID' }}" />
 
-        {# Resort results are worth indexing on their own; other lookups fold into the home page. #}
-        <link rel="canonical" href="https://cantheymakesnow.com{{ result.resort is defined ? '/?resort=' ~ result.resort.slug : this.page.url }}" />
+        {#
+            Canonical: a resort's own page; pages with route parameters only at their base
+            (alerts); other lookups (?address=, ?lat=) fold into the page they're on.
+            Private token links (alert management) are never indexed.
+        #}
+        {% if result.resort.slug is defined %}
+            {% set canonical = 'https://cantheymakesnow.com/resorts/' ~ result.resort.slug %}
+        {% elseif ':' in this.page.url %}
+            {% set canonical = 'https://cantheymakesnow.com' ~ this.page.url|split('/:')|first %}
+        {% else %}
+            {% set canonical = 'https://cantheymakesnow.com' ~ this.page.url %}
+        {% endif %}
+        <link rel="canonical" href="{{ canonical }}" />
+        {% if alertsAction %}<meta name="robots" content="noindex" />{% endif %}
 
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Can They Make Snow?" />
-        <meta property="og:title" content="{{ this.page.meta_title }}" />
+        <meta property="og:title" content="{{ ogTitle ?: this.page.meta_title }}" />
         <meta property="og:description" content="{{ this.page.meta_description }}" />
-        <meta property="og:url" content="{{ result.shareUrl ?? ('https://cantheymakesnow.com' ~ this.page.url) }}" />
+        <meta property="og:url" content="{{ result.shareUrl ?? canonical }}" />
         {% set ogImage = shareImage ?: defaultShareImage() %}
         {% if ogImage %}
         <meta property="og:image" content="{{ ogImage }}" />
@@ -59,7 +71,7 @@ description = "Default layout"
         {% else %}
         <meta name="twitter:card" content="summary" />
         {% endif %}
-        <meta name="twitter:title" content="{{ this.page.meta_title }}" />
+        <meta name="twitter:title" content="{{ ogTitle ?: this.page.meta_title }}" />
         <meta name="twitter:description" content="{{ this.page.meta_description }}" />
 
         <link rel="stylesheet" href="{{ ['assets/css/custom.css']|theme }}" />
@@ -71,6 +83,9 @@ description = "Default layout"
         <link rel="apple-touch-icon" href="{{ 'assets/images/icons/apple-touch-icon.png'|theme }}" />
         <link rel="manifest" href="{{ 'assets/manifest.json'|theme }}" />
         <meta name="theme-color" content="#1c5cab" />
+
+        {% if jsonLd %}<script type="application/ld+json">{{ jsonLd|json_encode|raw }}</script>{% endif %}
+        {% placeholder head %}
 
         {% styles %}
     </head>
