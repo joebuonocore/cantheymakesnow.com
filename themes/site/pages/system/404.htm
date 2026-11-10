@@ -5,13 +5,12 @@ description = "We're sorry, but the page you requested cannot be found."
 meta_title = "Page not found"
 meta_description = "We're sorry, but the page you requested cannot be found."
 ==
-<main class="screen screen--simple">
-    <section class="screen__content">
-        {% partial 'header' %}
+<main class="screen screen--page">
+    <section class="screen__content page-width">
         <div class="result">
             <div class="hero-answer">
+                <h1 class="hero-answer__question">Page not found</h1>
                 <div class="hero-answer__headline" data-answer="no">404</div>
-                <p class="hero-answer__meta"><strong>Page not found</strong></p>
                 <p class="hero-answer__inputs">We couldn't find that page. You can still check whether they can make snow anywhere in the US.</p>
                 <div class="hero-answer__actions">
                     <a href="{{ 'home'|page }}" class="btn btn-primary rounded-0">Check a location</a>
@@ -20,7 +19,5 @@ meta_description = "We're sorry, but the page you requested cannot be found."
         </div>
     </section>
 
-    <footer class="screen__footer">
-        {% partial 'footer' %}
-    </footer>
+    {% partial 'footer' %}
 </main>

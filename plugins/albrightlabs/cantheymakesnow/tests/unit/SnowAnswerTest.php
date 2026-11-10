@@ -53,6 +53,15 @@ class SnowAnswerTest extends TestCase
         $this->assertSame('tonight', $answer['day']);
     }
 
+    public function testHolidaysKeepTheirCapitals()
+    {
+        $answer = $this->service->snowAnswer(null, [['name' => 'Veterans Day', 'short' => 'Slight Chance Snow Showers', 'snow' => null]]);
+        $this->assertSame('Veterans Day', $answer['day']);
+
+        $answer = $this->service->snowAnswer(null, [['name' => 'This Afternoon', 'short' => 'Chance Snow', 'snow' => null]]);
+        $this->assertSame('this afternoon', $answer['day']);
+    }
+
     public function testNoSnowAnywhere()
     {
         $answer = $this->service->snowAnswer(['totals' => [24 => 0.0, 48 => 0.0, 72 => 0.0], 'storms' => []], [

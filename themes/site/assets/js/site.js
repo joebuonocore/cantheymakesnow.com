@@ -1242,6 +1242,39 @@
         });
     }
 
+    // ---- Header menu (phones and tablets) ----------------------------------------
+    // Below 992px the main pages fold behind a Menu button; it closes on a
+    // second tap, Escape, a tap outside the header or choosing a page.
+
+    function initMenu() {
+        var header = document.querySelector('.site-header');
+        var button = header && header.querySelector('.site-header__menu');
+        if (!button) {
+            return;
+        }
+        function set(open) {
+            header.classList.toggle('is-open', open);
+            button.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+        button.addEventListener('click', function () {
+            set(!header.classList.contains('is-open'));
+        });
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && header.classList.contains('is-open')) {
+                set(false);
+                button.focus();
+            }
+        });
+        document.addEventListener('click', function (event) {
+            if (header.classList.contains('is-open') && !header.contains(event.target)) {
+                set(false);
+            }
+        });
+        header.querySelectorAll('.site-header__nav a').forEach(function (link) {
+            link.addEventListener('click', function () { set(false); });
+        });
+    }
+
     // ---- Widget builder (/embed) ---------------------------------------------------
 
     function initEmbedBuilder() {
@@ -1316,6 +1349,7 @@
         initSaved();
         initZones();
         initAlerts();
+        initMenu();
         initSnowBoard();
         initEmbedBuilder();
         initMap();
