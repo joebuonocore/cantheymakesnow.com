@@ -338,11 +338,21 @@ class SnowReport
             $powder['startLabel'] = $this->weather->relativeTime($powder['start']->copy()->setTimezone($timeZone), $local);
         }
 
+        // Inches per hour over the same span, keyed by the hour's timestamp (for the hourly log).
+        $first = $now->copy()->startOfHour()->timestamp;
+        $hourly = [];
+        foreach ($this->weather->snowfallHourly($gridProps['snowfallAmount']['values'] ?? [], $gridProps['snowfallAmount']['uom'] ?? null) as $t => $mm) {
+            if ($t >= $first && $t < $first + self::SNOW_HOURS * 3600) {
+                $hourly[$t] = $mm / WeatherService::MM_PER_INCH;
+            }
+        }
+
         return [
             'totals' => $this->weather->snowTotals($buckets),
             'storms' => $storms,
             'powder' => $powder,
             'chart' => (new SnowChart())->build($buckets, $timeZone, $lat, $lon),
+            'hourly' => $hourly,
         ];
     }
 

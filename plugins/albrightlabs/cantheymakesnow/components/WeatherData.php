@@ -9,6 +9,7 @@ use AlbrightLabs\CanTheyMakeSnow\Classes\ShareImage;
 use AlbrightLabs\CanTheyMakeSnow\Classes\SnowReport;
 use AlbrightLabs\CanTheyMakeSnow\Models\Location;
 use AlbrightLabs\CanTheyMakeSnow\Models\Resort;
+use AlbrightLabs\CanTheyMakeSnow\Models\ResortHour;
 
 /**
  * WeatherData Component
@@ -195,7 +196,7 @@ class WeatherData extends ComponentBase
 
     /**
      * Count a resort lookup (once per session per LOOKUP_DEDUPE_SECONDS)
-     * and remember its latest conditions for the map.
+     * and remember its latest conditions (for the map and boards) and hours (for the log).
      */
     protected function recordResortLookup(Resort $resort, array $result)
     {
@@ -213,6 +214,7 @@ class WeatherData extends ComponentBase
             $query->increment('lookups', 1, $conditions);
             $recent[$resort->slug] = time();
         }
+        ResortHour::logFrom($resort->id, $result);
 
         Session::put($sessionKey, $recent);
     }

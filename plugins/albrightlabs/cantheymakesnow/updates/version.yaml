@@ -29,3 +29,9 @@ v1.3.0:
 v1.4.0:
     - Store forecast snowfall and time zone on resorts for the snow forecast page
     - add_snow_to_resorts_table.php
+v1.5.0:
+    - Log each resort's hourly forecast as the hour arrives, for season history
+    - create_resort_hours_table.php
+v1.5.1:
+    - Add area powder alerts (any resort within a distance of a place)
+    - add_area_to_subscriptions_table.php
