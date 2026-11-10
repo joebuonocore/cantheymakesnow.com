@@ -7,7 +7,8 @@ use AlbrightLabs\CanTheyMakeSnow\Classes\Sitemap;
 
 /**
  * Daily: tell IndexNow search engines (Bing and others) to recrawl the home
- * page and the resort pages, whose forecasts change all the time. The other
+ * page, the snow forecast and the resort pages, whose forecasts change all
+ * the time. The other
  * pages rarely change, so they're only sent with --all.
  */
 class SubmitIndexNow extends Command
@@ -22,7 +23,7 @@ class SubmitIndexNow extends Command
     {
         $urls = $this->option('all')
             ? Sitemap::urls()
-            : array_merge([rtrim(url('/'), '/') . '/'], Sitemap::resortUrls());
+            : array_merge([rtrim(url('/'), '/') . '/', rtrim(url('/'), '/') . '/snow-forecast'], Sitemap::resortUrls());
 
         if ($this->option('dry-run')) {
             foreach ($urls as $url) {

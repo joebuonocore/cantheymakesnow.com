@@ -36,15 +36,18 @@ class Plugin extends PluginBase
     {
         $this->registerConsoleCommand('ctms.send-alerts', \AlbrightLabs\CanTheyMakeSnow\Console\SendAlerts::class);
         $this->registerConsoleCommand('ctms.indexnow', \AlbrightLabs\CanTheyMakeSnow\Console\SubmitIndexNow::class);
+        $this->registerConsoleCommand('ctms.refresh-resorts', \AlbrightLabs\CanTheyMakeSnow\Console\RefreshResorts::class);
     }
 
     /**
-     * registerSchedule: check alerts hourly and ping IndexNow daily (the
-     * host already runs `php artisan schedule:run` every minute).
+     * registerSchedule: check alerts hourly, refresh resort forecasts at
+     * half past (clear of the alerts run) and ping IndexNow daily (the host
+     * already runs `php artisan schedule:run` every minute).
      */
     public function registerSchedule($schedule)
     {
         $schedule->command('ctms:send-alerts')->hourly()->withoutOverlapping(30);
+        $schedule->command('ctms:refresh-resorts')->hourlyAt(30)->withoutOverlapping(50);
         $schedule->command('ctms:indexnow')->dailyAt('11:00');
     }
 

@@ -26,3 +26,6 @@ v1.3.0:
     - Add summit coordinates to resorts for base and summit snowmaking checks
     - add_summit_coords_to_resorts_table.php
     - seed_resort_summits.php
+v1.4.0:
+    - Store forecast snowfall and time zone on resorts for the snow forecast page
+    - add_snow_to_resorts_table.php

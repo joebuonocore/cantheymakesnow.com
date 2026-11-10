@@ -757,6 +757,15 @@
     };
     var STALE_MS = 3 * 3600 * 1000;
 
+    // Snow mode shades resorts by new snow in the next 48 hours, in steps
+    // that match the powder alert thresholds (3, 6 and 12 inches).
+    function snowLevel(inches) {
+        if (!(inches >= 0.1)) {
+            return 0;
+        }
+        return inches < 3 ? 1 : inches < 6 ? 2 : inches < 12 ? 3 : 4;
+    }
+
     function initMap() {
         var el = document.getElementById('map');
         if (!el) {
@@ -770,9 +779,16 @@
         var markers = [];
         var current = null;
         var pendingPin = null;
+        // The snow forecast page always opens in snow mode; elsewhere the
+        // visitor's last choice is kept.
+        var mode = el.getAttribute('data-mode') === 'snow' || store.get('ctms.mapMode', 'tiers') === 'snow' ? 'snow' : 'tiers';
 
         function round3(n) {
             return Math.round(n * 1000) / 1000;
+        }
+
+        function isStale(point) {
+            return !point.checkedAt || Date.now() - Date.parse(point.checkedAt) > STALE_MS;
         }
 
         function pinElement(point, isCurrent) {
@@ -789,15 +805,78 @@
             } else {
                 pin.classList.add('map-pin--unknown');
             }
-            if (!isCurrent && (!point.checkedAt || Date.now() - Date.parse(point.checkedAt) > STALE_MS)) {
+            if (!isCurrent && isStale(point)) {
+                pin.classList.add('map-pin--stale');
+            }
+            return pin;
+        }
+
+        /** A resort in snow mode: a chip with the amount (both units; CSS shows one), or a small dot for none. */
+        function snowElement(point) {
+            var snow = point.snow48;
+            var level = snow ? snowLevel(snow.in) : 0;
+            var pin = document.createElement('div');
+            if (level) {
+                pin.className = 'map-chip';
+                pin.setAttribute('data-snow', level);
+                ['f', 'c'].forEach(function (u) {
+                    var span = document.createElement('span');
+                    span.className = 'u-' + u;
+                    span.textContent = snow[u];
+                    pin.appendChild(span);
+                });
+            } else {
+                pin.className = 'map-pin map-pin--resort map-pin--dry';
+            }
+            if (isStale(point)) {
                 pin.classList.add('map-pin--stale');
             }
             return pin;
         }
 
         function title(point) {
-            var fresh = point.checkedAt && Date.now() - Date.parse(point.checkedAt) <= STALE_MS;
+            var fresh = !isStale(point);
+            if (mode === 'snow' && point.type === 'resort') {
+                var snow = point.snow48;
+                return point.label + ' · ' + (snow && snowLevel(snow.in) ? snow[units()] + ' new snow' : 'No new snow') + ' in the next 48 h' + (fresh ? '' : ' when last checked');
+            }
             return point.label + (point.tier ? ' · ' + TIER_NAMES[point.tier] + (fresh ? '' : ' when last checked') : '');
+        }
+
+        /**
+         * Draw one marker for the current mode. In snow mode cities are
+         * hidden, and where chips overlap the bigger total wins; the others
+         * reappear as you zoom in.
+         */
+        function render(m) {
+            var snow = mode === 'snow';
+            if (m.point.type !== 'resort') {
+                m.marker.map = snow ? null : map;
+                return;
+            }
+            var behavior = (libs.marker.CollisionBehavior || {});
+            m.marker.content = snow ? snowElement(m.point) : pinElement(m.point, false);
+            m.marker.title = title(m.point);
+            m.marker.zIndex = snow && m.point.snow48 ? Math.round(m.point.snow48.in * 10) : null;
+            m.marker.collisionBehavior = snow
+                ? behavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY || 'OPTIONAL_AND_HIDES_LOWER_PRIORITY'
+                : behavior.REQUIRED || 'REQUIRED';
+        }
+
+        function setMode(next, remember) {
+            mode = next === 'snow' ? 'snow' : 'tiers';
+            if (remember) {
+                store.set('ctms.mapMode', mode);
+            }
+            document.querySelectorAll('[data-map-mode]').forEach(function (button) {
+                button.setAttribute('aria-pressed', button.getAttribute('data-map-mode') === mode ? 'true' : 'false');
+            });
+            document.querySelectorAll('[data-legend]').forEach(function (legend) {
+                legend.hidden = legend.getAttribute('data-legend') !== mode;
+            });
+            if (map) {
+                markers.forEach(render);
+            }
         }
 
         function addPoint(point) {
@@ -815,7 +894,11 @@
                     lookup({ lat: point.lat, lon: point.lng }, { fromMap: true });
                 }
             });
-            markers.push({ marker: marker, point: point });
+            var m = { marker: marker, point: point };
+            markers.push(m);
+            if (mode === 'snow') {
+                render(m);
+            }
         }
 
         /** Highlight the place just checked and refresh any matching pin's tier. */
@@ -839,8 +922,7 @@
                 if (Math.abs(m.point.lat - pin.lat) < 0.01 && Math.abs(m.point.lng - pin.lng) < 0.01) {
                     m.point.tier = pin.tier;
                     m.point.checkedAt = new Date().toISOString();
-                    m.marker.content = pinElement(m.point, false);
-                    m.marker.title = title(m.point);
+                    render(m);
                 }
             });
 
@@ -926,6 +1008,17 @@
         document.addEventListener('ctms:result', function (event) {
             if (event.detail && event.detail.pin) {
                 showResult(event.detail.pin);
+            }
+        });
+
+        document.querySelectorAll('[data-map-mode]').forEach(function (button) {
+            button.addEventListener('click', function () { setMode(button.getAttribute('data-map-mode'), true); });
+        });
+        setMode(mode, false);
+        // Snow-mode titles name the amount in the visitor's units.
+        document.addEventListener('ctms:units', function () {
+            if (map && mode === 'snow') {
+                markers.forEach(function (m) { m.marker.title = title(m.point); });
             }
         });
     }
@@ -1044,6 +1137,48 @@
         });
     }
 
+    // ---- Snow forecast page: 24/48/72-hour switch ------------------------------
+    // Every resort with snow in any window is in the list; this re-sorts it by
+    // the chosen window and hides the ones with only a trace there.
+
+    function initSnowBoard() {
+        var board = document.querySelector('.snow-board');
+        if (!board) {
+            return;
+        }
+        var list = board.querySelector('.snow-board__list');
+        var empty = board.querySelector('.snow-board__empty');
+        var rows = Array.prototype.slice.call(list.children);
+
+        function amount(row, hours) {
+            return parseFloat(row.getAttribute('data-in-' + hours)) || 0;
+        }
+
+        function show(hours) {
+            rows.sort(function (a, b) {
+                return amount(b, hours) - amount(a, hours) || a.getAttribute('data-name').localeCompare(b.getAttribute('data-name'));
+            });
+            var visible = 0;
+            rows.forEach(function (row) {
+                row.hidden = amount(row, hours) < 0.1;
+                visible += row.hidden ? 0 : 1;
+                row.querySelectorAll('[data-window]').forEach(function (value) {
+                    value.hidden = value.getAttribute('data-window') !== String(hours);
+                });
+                list.appendChild(row);
+            });
+            empty.hidden = visible > 0;
+            board.querySelectorAll('[data-hours-label]').forEach(function (label) { label.textContent = hours; });
+            board.querySelectorAll('[data-hours]').forEach(function (button) {
+                button.setAttribute('aria-pressed', button.getAttribute('data-hours') === String(hours) ? 'true' : 'false');
+            });
+        }
+
+        board.querySelectorAll('button[data-hours]').forEach(function (button) {
+            button.addEventListener('click', function () { show(parseInt(button.getAttribute('data-hours'), 10)); });
+        });
+    }
+
     function boot() {
         syncUnitButtons();
         document.querySelectorAll('.units-toggle [data-units]').forEach(function (button) {
@@ -1055,6 +1190,7 @@
         initSaved();
         initZones();
         initAlerts();
+        initSnowBoard();
         initMap();
     }
 

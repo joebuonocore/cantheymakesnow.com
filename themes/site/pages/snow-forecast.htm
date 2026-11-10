@@ -1,0 +1,26 @@
+url = "/snow-forecast"
+layout = "default"
+title = "Snow forecast"
+description = "Where's it snowing? Resorts ranked by new snow in the next 24/48/72 hours, inside the app (search, map in snow mode)."
+meta_title = "Where's It Snowing? Ski Resort Snow Forecast | Can They Make Snow?"
+meta_description = "Which US ski resorts will get the most new snow in the next 24, 48 and 72 hours? A live ranking of 119 resorts from NOAA's forecast, updated every couple of hours."
+
+[WeatherData]
+
+[Locations]
+
+[Alerts]
+==
+{% put head %}
+<script type="application/ld+json">{{ {
+    '@context': 'https://schema.org',
+    '@graph': [
+        { '@type': 'CollectionPage', 'name': "Where's it snowing? Ski resort snow forecast", 'url': 'https://cantheymakesnow.com/snow-forecast' },
+        { '@type': 'BreadcrumbList', 'itemListElement': [
+            { '@type': 'ListItem', 'position': 1, 'name': 'Can They Make Snow?', 'item': 'https://cantheymakesnow.com/' },
+            { '@type': 'ListItem', 'position': 2, 'name': 'Snow forecast', 'item': 'https://cantheymakesnow.com/snow-forecast' }
+        ] }
+    ]
+}|json_encode|raw }}</script>
+{% endput %}
+{% partial 'app' board=true %}

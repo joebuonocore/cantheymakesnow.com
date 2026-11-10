@@ -9,6 +9,7 @@ use AlbrightLabs\CanTheyMakeSnow\Classes\AlertRules;
 use AlbrightLabs\CanTheyMakeSnow\Classes\SnowReport;
 use AlbrightLabs\CanTheyMakeSnow\Classes\Units;
 use AlbrightLabs\CanTheyMakeSnow\Classes\WeatherService;
+use AlbrightLabs\CanTheyMakeSnow\Models\Resort;
 use AlbrightLabs\CanTheyMakeSnow\Models\Subscriber;
 use AlbrightLabs\CanTheyMakeSnow\Models\Subscription;
 
@@ -256,10 +257,6 @@ class SendAlerts extends Command
         if ($dryRun) {
             return;
         }
-        $resort->newQuery()->whereKey($resort->getKey())->update([
-            'last_wet_bulb' => round($result['answer']['wetBulbC'], 2),
-            'last_tier' => $result['answer']['tier'],
-            'last_checked_at' => $now,
-        ]);
+        $resort->newQuery()->whereKey($resort->getKey())->update(Resort::conditionsFrom($result) + ['last_checked_at' => $now]);
     }
 }

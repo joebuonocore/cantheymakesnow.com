@@ -1,12 +1,27 @@
-description = "Interactive map: resorts and looked-up cities coloured by last known snowmaking tier. Driven by site.js."
+description = "Interactive map: resorts and looked-up cities coloured by last known snowmaking tier, or resorts labelled with new snow in the next 48 hours. Pass mapMode='snow' to start in snow mode. Driven by site.js."
 ==
-<div id="map" class="screen__map-canvas" aria-label="Map of resorts and recently checked places. Click anywhere to check that spot."></div>
+{% set mode = mapMode == 'snow' ? 'snow' : 'tiers' %}
+<div id="map" class="screen__map-canvas" data-mode="{{ mode }}" aria-label="Map of resorts and recently checked places. Click anywhere to check that spot."></div>
 <script type="application/json" id="mapData">{{ mapPoints|json_encode|raw }}</script>
 
-<div class="map-legend" aria-hidden="true">
-    <span><i class="map-pin" data-tier="great"></i>Snowmaking</span>
-    <span><i class="map-pin" data-tier="too_warm"></i>Too warm</span>
-    <span><i class="map-pin map-pin--resort"></i>Resort</span>
-    <span><i class="map-pin map-pin--stale" data-tier="great"></i>Not checked in 3h</span>
+<div class="map-panel">
+    <div class="seg-toggle map-mode" role="group" aria-label="Map shows">
+        <button type="button" data-map-mode="tiers" aria-pressed="{{ mode == 'tiers' ? 'true' : 'false' }}">Snowmaking</button>
+        <button type="button" data-map-mode="snow" aria-pressed="{{ mode == 'snow' ? 'true' : 'false' }}">New snow</button>
+    </div>
+    <div class="map-legend" data-legend="tiers" aria-hidden="true"{{ mode == 'snow' ? ' hidden' }}>
+        <span><i class="map-pin" data-tier="great"></i>Snowmaking</span>
+        <span><i class="map-pin" data-tier="too_warm"></i>Too warm</span>
+        <span><i class="map-pin map-pin--resort"></i>Resort</span>
+        <span><i class="map-pin map-pin--stale" data-tier="great"></i>Not checked in 3h</span>
+    </div>
+    <div class="map-legend" data-legend="snow" aria-hidden="true"{{ mode == 'tiers' ? ' hidden' }}>
+        <span class="map-legend__title">New snow, next 48 h</span>
+        <span><i class="map-chip" data-snow="1"></i><span class="u-f">Under 3″</span><span class="u-c">Under 8 cm</span></span>
+        <span><i class="map-chip" data-snow="2"></i><span class="u-f">3–5″</span><span class="u-c">8–15 cm</span></span>
+        <span><i class="map-chip" data-snow="3"></i><span class="u-f">6–11″</span><span class="u-c">15–30 cm</span></span>
+        <span><i class="map-chip" data-snow="4"></i><span class="u-f">12″ or more</span><span class="u-c">30 cm or more</span></span>
+        <span><i class="map-pin map-pin--resort map-pin--dry"></i>No new snow</span>
+    </div>
 </div>
 <p class="map-hint">Click a pin or anywhere on the map to check it.</p>

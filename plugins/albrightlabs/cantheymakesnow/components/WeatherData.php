@@ -205,7 +205,7 @@ class WeatherData extends ComponentBase
             fn ($at) => $at > time() - self::LOOKUP_DEDUPE_SECONDS
         );
 
-        $conditions = $this->conditions($result) + ['last_checked_at' => Carbon::now()];
+        $conditions = Resort::conditionsFrom($result) + ['last_checked_at' => Carbon::now()];
         $query = Resort::whereKey($resort->getKey());
         if (isset($recent[$resort->slug])) {
             $query->update($conditions);
@@ -220,8 +220,6 @@ class WeatherData extends ComponentBase
     protected function conditions(array $result): array
     {
         return [
-            // For resorts, the colder of base and summit, so map pins show
-            // snowmaking when it's possible anywhere on the mountain.
             'last_wet_bulb' => round($result['answer']['wetBulbC'], 2),
             'last_tier' => $result['answer']['tier'],
         ];
