@@ -1,7 +1,9 @@
-description = "Lookup result: answer, gauge, 48-hour forecast. Re-rendered by WeatherData::onLookup."
+description = "Lookup result: answer, gauge, 48-hour forecast. Re-rendered by WeatherData::onLookup. On the Will it snow? page (snowFirst) it renders result-snow instead."
 ==
 {% if lookupError %}
     <p class="hero-answer__error" role="alert" data-error="{{ lookupError.code }}">{{ lookupError.message }}</p>
+{% elseif result and snowFirst %}
+    {% partial 'result-snow' %}
 {% elseif result %}
     {% set now = result.now %}
     {% set answer = result.answer %}
@@ -115,6 +117,7 @@ description = "Lookup result: answer, gauge, 48-hour forecast. Re-rendered by We
                     </ul>
                 {% endif %}
                 <p class="resort-about__all"><a href="{{ r.stateUrl }}">{{ r.stateName }} ski resorts: snow and snowmaking forecast →</a></p>
+                <p class="resort-about__all"><a href="{{ 'embed'|page }}?resort={{ r.slug }}">Put this forecast on your website →</a></p>
             </section>
         {% endif %}
 

@@ -1,0 +1,12 @@
+description = "Will it snow? page intro under the search: heading, what the answer means and a few towns to try."
+==
+<section class="snow-board" aria-labelledby="willItSnowTitle">
+    <h1 class="snow-board__title" id="willItSnowTitle">Will it snow in your town?</h1>
+    <p class="snow-board__intro">Type any US town above, or tap 📍. You'll get a straight answer from NOAA's forecast: <strong>YES</strong> when at least a tenth of an inch is forecast in the next 3 days (with how much and when), <strong>MAYBE</strong> when only the 7-day outlook mentions snow, and <strong>NO</strong> otherwise.</p>
+    <p class="snow-board__intro">Try:
+        {% for town in ['Denver, CO', 'Salt Lake City, UT', 'Minneapolis, MN', 'Buffalo, NY', 'Boston, MA', 'Seattle, WA'] %}
+            <a href="{{ 'will-it-snow'|page }}?{{ {address: town}|url_encode }}">{{ town }}</a>{{ not loop.last ? ' ·' }}
+        {% endfor %}
+    </p>
+    <p class="snow-board__meta">Skiing? See <a href="{{ 'snow-forecast'|page }}">where it's snowing</a> and <a href="{{ 'snowmaking-forecast'|page }}">where they can make snow</a> at US ski resorts.</p>
+</section>

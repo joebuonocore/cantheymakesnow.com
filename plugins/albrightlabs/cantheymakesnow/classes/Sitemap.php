@@ -8,14 +8,15 @@ use AlbrightLabs\CanTheyMakeSnow\Models\Resort;
 class Sitemap
 {
     /**
-     * Every public page: home, the forecast boards, the resort directory,
-     * alerts, privacy, each state with resorts and each enabled resort.
+     * Every public page: home, the forecast boards, Will it snow?, the
+     * resort directory, alerts, the widget, privacy, each state with resorts
+     * and each enabled resort.
      */
     public static function urls(): array
     {
         $base = rtrim(url('/'), '/');
         return array_merge(
-            ["{$base}/", "{$base}/snow-forecast", "{$base}/snowmaking-forecast", "{$base}/resorts", "{$base}/alerts", "{$base}/privacy"],
+            ["{$base}/", "{$base}/snow-forecast", "{$base}/snowmaking-forecast", "{$base}/will-it-snow", "{$base}/resorts", "{$base}/alerts", "{$base}/embed", "{$base}/privacy"],
             self::stateUrls(),
             self::resortUrls()
         );

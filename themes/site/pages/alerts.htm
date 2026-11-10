@@ -7,16 +7,18 @@ meta_description = "Get an email when your ski resort can make snow, or when a p
 
 [Alerts]
 ==
-<main class="screen screen--simple">
+<main class="screen screen--wide">
     <section class="screen__content">
         {% partial 'header' pageHasHeading=true %}
-        <div class="alerts-page">
+        <div class="wide-page alerts-page">
             {% if alertsAction == 'invalid' %}
-                <h1 class="alerts-page__title">That link isn't valid</h1>
-                <p>It may be mistyped or very old. Every alert email has a working link at the bottom to manage or stop alerts.</p>
-                <p><a href="{{ 'home'|page }}" class="btn btn-primary rounded-0">Back to the snow check</a></p>
+                <div class="prose">
+                    <h1 class="alerts-page__title">That link isn't valid</h1>
+                    <p>It may be mistyped or very old. Every alert email has a working link at the bottom to manage or stop alerts.</p>
+                    <p><a href="{{ 'home'|page }}" class="btn btn-primary rounded-0">Back to the snow check</a></p>
+                </div>
             {% elseif alertsAction == 'unsubscribe' %}
-                <div id="alertsManage">
+                <div id="alertsManage" class="prose">
                     {% if subscriber.unsubscribed_at %}
                         {% partial 'alerts-manage' %}
                     {% else %}
@@ -29,25 +31,42 @@ meta_description = "Get an email when your ski resort can make snow, or when a p
                     {% endif %}
                 </div>
             {% elseif alertsAction == 'manage' %}
-                {% if confirmedLabel %}
-                    <p class="alerts-page__notice" role="status">✓ You're subscribed to alerts for <strong>{{ confirmedLabel }}</strong>.</p>
-                {% endif %}
-                <div id="alertsManage">{% partial 'alerts-manage' %}</div>
+                <div class="page-cols">
+                    <div>
+                        {% if confirmedLabel %}
+                            <p class="alerts-page__notice" role="status">✓ You're subscribed to alerts for <strong>{{ confirmedLabel }}</strong>.</p>
+                        {% endif %}
+                        <div id="alertsManage">{% partial 'alerts-manage' %}</div>
+                    </div>
+                    {% if not subscriber.unsubscribed_at %}
+                        <aside class="page-cols__aside">
+                            <h2 class="section-title">Add powder alerts near a town</h2>
+                            {% partial 'alerts-area-form' email=subscriber.email %}
+                            <p class="alerts-page__more">For a single resort's snowmaking and powder alerts, look it up and tap <strong>🔔 Get alerts</strong>.</p>
+                        </aside>
+                    {% endif %}
+                </div>
             {% else %}
-                <h1 class="alerts-page__title">Snowmaking &amp; powder alerts</h1>
-                {% if linkExpired %}
-                    <p class="alerts-page__notice" role="status">That confirmation link has expired. Sign up again from the resort's page and we'll send a fresh one.</p>
-                {% endif %}
-                <p>Get an email when a ski resort you care about can make snow, or when a powder day is on the way. Alerts are free and come from NOAA's forecast, checked every hour.</p>
-                <ul>
-                    <li><strong>Snowmaking windows</strong>: when the forecast shows hours cold and dry enough to make snow (wet-bulb below 28°F / −2°C), or only great ones (below 25°F / −4°C).</li>
-                    <li><strong>Powder</strong>: when 3″, 6″ or 12″ of new snow is forecast in the next 48 hours.</li>
-                    <li><strong>Powder near you</strong>: when any resort within 100, 200 or 300 miles of a town is forecast for 3″, 6″ or 12″, in one email that lists them all.</li>
-                </ul>
-                <p>At most one email per resort (or area) per alert type per day, never between 10 PM and 6 AM resort time. To sign up for a resort, look it up and tap <strong>🔔 Get alerts</strong>.</p>
-                <p><a href="{{ 'home'|page }}" class="btn btn-primary rounded-0">Find a resort</a></p>
-                <h2 class="section-title">Powder near you</h2>
-                {% partial 'alerts-area-form' %}
+                <div class="page-cols">
+                    <div>
+                        <h1 class="alerts-page__title">Snowmaking &amp; powder alerts</h1>
+                        {% if linkExpired %}
+                            <p class="alerts-page__notice" role="status">That confirmation link has expired. Sign up again from the resort's page and we'll send a fresh one.</p>
+                        {% endif %}
+                        <p>Get an email when a ski resort you care about can make snow, or when a powder day is on the way. Alerts are free and come from NOAA's forecast, checked every hour.</p>
+                        <ul>
+                            <li><strong>Snowmaking windows</strong>: when the forecast shows hours cold and dry enough to make snow (wet-bulb below 28°F / −2°C), or only great ones (below 25°F / −4°C).</li>
+                            <li><strong>Powder</strong>: when 3″, 6″ or 12″ of new snow is forecast in the next 48 hours.</li>
+                            <li><strong>Powder near you</strong>: when any resort within 100, 200 or 300 miles of a town is forecast for 3″, 6″ or 12″, in one email that lists them all.</li>
+                        </ul>
+                        <p>At most one email per resort (or area) per alert type per day, never between 10 PM and 6 AM resort time. To sign up for a resort, look it up and tap <strong>🔔 Get alerts</strong>.</p>
+                        <p><a href="{{ 'home'|page }}" class="btn btn-primary rounded-0">Find a resort</a></p>
+                    </div>
+                    <aside class="page-cols__aside">
+                        <h2 class="section-title">Powder near you</h2>
+                        {% partial 'alerts-area-form' %}
+                    </aside>
+                </div>
             {% endif %}
         </div>
     </section>

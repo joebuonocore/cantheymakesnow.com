@@ -1,0 +1,15 @@
+url = "/will-it-snow"
+layout = "default"
+title = "Will it snow?"
+description = "Will it snow in my town? Any US town lookup, answered snow-first (WeatherData mode = snow); snowmaking follows below."
+meta_title = "Will It Snow in My Town? Snow Forecast for Any US Town | Can They Make Snow?"
+meta_description = "Will it snow where you are? Type any US town for a straight YES, MAYBE or NO from NOAA's forecast, with how much snow, when it falls and the 7-day outlook."
+
+[WeatherData]
+mode = "snow"
+
+[Locations]
+
+[Alerts]
+==
+{% partial 'app' board='willsnow' %}

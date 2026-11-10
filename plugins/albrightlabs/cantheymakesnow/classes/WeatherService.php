@@ -212,6 +212,48 @@ class WeatherService
     }
 
     /**
+     * "Will it snow?" for a place: 'yes' when NOAA's grid forecast has at
+     * least 0.1" in the next 72 hours (with the biggest storm), 'maybe' when
+     * only the 7-day outlook mentions snow (with the first such day), else 'no'.
+     * Returns ['answer', 'totalIn' => ?float, 'storm' => ?array, 'day' => ?string].
+     */
+    public function snowAnswer(?array $snow, array $outlook): array
+    {
+        $total = $snow['totals'][72] ?? $snow['totals'][48] ?? $snow['totals'][24] ?? null;
+        if ($total !== null && $total >= 0.1) {
+            $storm = null;
+            foreach ($snow['storms'] ?? [] as $candidate) {
+                if (!$storm || $candidate['totalIn'] > $storm['totalIn']) {
+                    $storm = $candidate;
+                }
+            }
+            return ['answer' => 'yes', 'totalIn' => (float) $total, 'storm' => $storm, 'day' => null];
+        }
+
+        foreach ($outlook as $day) {
+            $mentions = preg_match('/snow|flurr|sleet|wintry|blizzard/i', $day['short'] ?? '');
+            if (($day['snow']['hi'] ?? 0) > 0 || $mentions) {
+                return ['answer' => 'maybe', 'totalIn' => null, 'storm' => null, 'day' => $this->longDayName($day['name'] ?? '')];
+            }
+        }
+
+        return ['answer' => 'no', 'totalIn' => null, 'storm' => null, 'day' => null];
+    }
+
+    /**
+     * "Sat" → "Saturday"; "Tonight" → "tonight", so it reads after "Snow possible".
+     */
+    protected function longDayName(string $name): string
+    {
+        foreach (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day) {
+            if ($name === substr($day, 0, 3) || $name === $day) {
+                return $day;
+            }
+        }
+        return strtolower($name);
+    }
+
+    /**
      * Snowmaking over a set of zones' hourly series (a resort's base and
      * summit, or one place): hours when either zone can make snow, hours when
      * either is great or better, the coldest wet-bulb and when the first

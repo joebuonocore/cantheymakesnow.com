@@ -1,4 +1,4 @@
-description = "Area powder alert signup: any resort within a distance of a town, resort or the visitor's location. Submitted by site.js to Alerts::onSubscribeArea."
+description = "Area powder alert signup: any resort within a distance of a town, resort or the visitor's location. Submitted by site.js to Alerts::onSubscribeArea. Pass email to prefill it (the manage page)."
 ==
 <form class="alerts-form alerts-area-form" novalidate>
     <p class="alerts-form__title">🔔 Email me when a resort near me is forecast for</p>
@@ -22,7 +22,7 @@ description = "Area powder alert signup: any resort within a distance of a town,
     </div>
     <input type="hidden" name="lat"><input type="hidden" name="lon">
     <div class="alerts-form__row">
-        <input type="email" name="email" class="form-control rounded-0" placeholder="you@example.com" autocomplete="email" aria-label="Email address" required>
+        <input type="email" name="email" class="form-control rounded-0" placeholder="you@example.com" autocomplete="email" aria-label="Email address" value="{{ email }}" required>
         <button type="submit" class="btn btn-primary rounded-0">Get alerts</button>
     </div>
     <p class="alerts-form__message" role="status" hidden></p>

@@ -81,6 +81,58 @@ class ShareImage
     }
 
     /**
+     * "Will it snow?" card: YES / MAYBE / NO, how much and when, and new snow
+     * per 6 hours for the next 72. Returns PNG bytes, or null.
+     */
+    public function renderSnow(array $result): ?string
+    {
+        if (!self::available()) {
+            return null;
+        }
+
+        [$img, $c, $font] = $this->canvas();
+        $snow = $result['snowAnswer'];
+        $contentWidth = self::WIDTH - self::PAD * 2;
+
+        $color = $snow['answer'] === 'no' ? $c['muted'] : $c['yes'];
+        imagettftext($img, 128, 0, self::PAD - 5, 250, $color, $font, strtoupper($snow['answer']));
+        $this->fitText($img, 46, self::PAD, 330, $contentWidth, $c['text'], $font, 'Will it snow ' . (empty($result['resort']) ? 'in ' : 'at ') . $result['place'] . '?');
+
+        if ($snow['answer'] === 'yes') {
+            $lead = sprintf('%s (%s) of new snow in the next 72 hours', Units::snow($snow['totalIn'], 'f'), Units::snow($snow['totalIn'], 'c'));
+        } elseif ($snow['answer'] === 'maybe') {
+            $lead = "No measurable snow in 3 days; snow possible {$snow['day']}";
+        } else {
+            $lead = "No snow in NOAA's 7-day forecast";
+        }
+        $this->fitText($img, 28, self::PAD, 384, $contentWidth, $c['line'], $font, $lead);
+        if ($snow['when']) {
+            $this->fitText($img, 26, self::PAD, 432, $contentWidth, $c['text'], $font, 'Heaviest: ' . $snow['when']);
+        }
+
+        // New snow per 6 hours, scaled to at least an inch so a dusting stays small.
+        $bars = $result['snow']['chart']['bars'] ?? [];
+        if ($bars) {
+            $top = 470;
+            $bottom = 590;
+            $max = max(1.0, max(array_column($bars, 'in')));
+            $slot = $contentWidth / count($bars);
+            foreach ($bars as $i => $bar) {
+                $height = (int) round($bar['in'] / $max * ($bottom - $top));
+                $x1 = (int) round(self::PAD + $i * $slot + 4);
+                $x2 = (int) round(self::PAD + ($i + 1) * $slot - 4);
+                if ($height > 0) {
+                    imagefilledrectangle($img, $x1, $bottom - $height, $x2, $bottom, $c['great']);
+                }
+            }
+            imageline($img, self::PAD, $bottom, self::WIDTH - self::PAD, $bottom, $c['line']);
+        }
+        imagettftext($img, 16, 0, self::PAD, 616, $c['muted'], $font, 'New snow per 6 hours, next 72 hours · NOAA forecast');
+
+        return $this->png($img);
+    }
+
+    /**
      * Site-wide card for links to the home page and other pages without a result.
      */
     public function renderDefault(): ?string

@@ -1,0 +1,77 @@
+url = "/embed"
+layout = "default"
+title = "Widget"
+description = "Widget builder: pick a resort, theme and units, preview the card and copy the snippet (embed.js + /embed/{slug}.json)."
+meta_title = "Free Snowmaking Widget for Your Website | Can They Make Snow?"
+meta_description = "Add a live card to your website, blog or ski club page showing whether a US ski resort can make snow, its snowmaking hours and new snow in the next 48 hours. Free, no sign-up, no tracking."
+
+[Locations]
+==
+{% set groups = Locations.resortsByState() %}
+<main class="screen screen--wide">
+    <section class="screen__content">
+        {% partial 'header' pageHasHeading=true %}
+        <div class="wide-page embed-page">
+            <h1 class="wide-page__title">Add a snowmaking widget to your site</h1>
+            <p class="prose">Show a live card for any resort on your website, blog or ski club page: can they make snow right now, how many of the next 48 hours they can, and how much new snow is coming. It follows NOAA's forecast, refreshed every couple of hours. Free, with no sign-up, no cookies and no tracking.</p>
+
+            <div class="embed-layout">
+                <form class="embed-builder embed-layout__settings" id="embedBuilder">
+                    <label>Resort
+                        <select name="resort" class="form-select rounded-0">
+                            {% for group in groups %}
+                                <optgroup label="{{ group.name }}">
+                                    {% for r in group.resorts %}
+                                        <option value="{{ r.slug }}" data-name="{{ r.name }}"{{ r.slug == 'killington-resort' ? ' selected' }}>{{ r.name }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>Colors
+                        <select name="theme" class="form-select rounded-0">
+                            <option value="auto">Automatic (light or dark)</option>
+                            <option value="light">Always light</option>
+                            <option value="dark">Always dark</option>
+                        </select>
+                    </label>
+                    <label>Units
+                        <select name="units" class="form-select rounded-0">
+                            <option value="f">°F and inches</option>
+                            <option value="c">°C and cm</option>
+                        </select>
+                    </label>
+                </form>
+
+                <aside class="embed-layout__preview">
+                    <h2 class="section-title">Preview</h2>
+                    <div id="embedPreview" class="embed-preview" aria-live="polite"></div>
+                </aside>
+
+                <div class="embed-layout__code">
+                    <h2 class="section-title">Copy this into your page</h2>
+                    <label class="visually-hidden" for="embedCode">Widget code</label>
+                    <textarea id="embedCode" class="form-control rounded-0 embed-code" rows="4" readonly></textarea>
+                    <p class="embed-copy">
+                        <button type="button" id="embedCopy" class="btn btn-primary rounded-0">Copy code</button>
+                        <span id="embedCopied" role="status"></span>
+                    </p>
+                </div>
+
+                <div class="embed-layout__notes">
+                    <h2 class="section-title">Good to know</h2>
+                    <ul>
+                        <li>The link in the code is part of the widget. Until the card loads, or where scripts are blocked, it's an ordinary link to the resort's forecast.</li>
+                        <li>To show several resorts, paste one link per resort. A single script tag covers them all.</li>
+                        <li>Some site builders remove script tags. If the card doesn't appear, the link still works; look for an "HTML" or "embed code" block instead.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="screen__footer">
+        {% partial 'footer' %}
+    </footer>
+</main>
+<script src="{{ url('embed.js') }}"></script>
