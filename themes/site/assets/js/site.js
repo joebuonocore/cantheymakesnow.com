@@ -1242,6 +1242,69 @@
         });
     }
 
+    // ---- Widget builder (/embed) ---------------------------------------------------
+
+    function initEmbedBuilder() {
+        var form = document.getElementById('embedBuilder');
+        if (!form) {
+            return;
+        }
+        var preview = document.getElementById('embedPreview');
+        var code = document.getElementById('embedCode');
+        var copied = document.getElementById('embedCopied');
+        var escape = function (text) {
+            return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        };
+
+        // /embed?resort=slug (linked from resort pages) preselects that resort.
+        var wanted = new URLSearchParams(window.location.search).get('resort');
+        if (wanted && /^[a-z0-9-]+$/.test(wanted) && form.elements.resort.querySelector('option[value="' + wanted + '"]')) {
+            form.elements.resort.value = wanted;
+        }
+
+        function update() {
+            var option = form.elements.resort.selectedOptions[0];
+            var slug = option.value;
+            var label = 'Can they make snow at ' + option.getAttribute('data-name') + '?';
+            var theme = form.elements.theme.value;
+            var unit = form.elements.units.value;
+            var attrs = (theme !== 'auto' ? ' data-theme="' + theme + '"' : '') + (unit === 'c' ? ' data-units="c"' : '');
+
+            code.value = '<a class="ctms-widget" href="https://cantheymakesnow.com/resorts/' + slug + '"' + attrs + '>' + escape(label) + '</a>\n'
+                + '<script async src="https://cantheymakesnow.com/embed.js"></' + 'script>';
+
+            var link = document.createElement('a');
+            link.className = 'ctms-widget';
+            link.href = window.location.origin + '/resorts/' + slug;
+            if (theme !== 'auto') {
+                link.setAttribute('data-theme', theme);
+            }
+            if (unit === 'c') {
+                link.setAttribute('data-units', 'c');
+            }
+            link.textContent = label;
+            preview.textContent = '';
+            preview.appendChild(link);
+            if (window.ctmsWidget) {
+                window.ctmsWidget.refresh();
+            }
+            copied.textContent = '';
+        }
+
+        form.addEventListener('change', update);
+        document.getElementById('embedCopy').addEventListener('click', function () {
+            var done = function () { copied.textContent = 'Copied.'; };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(code.value).then(done, function () { code.select(); });
+            } else {
+                code.select();
+                document.execCommand('copy');
+                done();
+            }
+        });
+        update();
+    }
+
     function boot() {
         syncUnitButtons();
         document.querySelectorAll('.units-toggle [data-units]').forEach(function (button) {
@@ -1254,6 +1317,7 @@
         initZones();
         initAlerts();
         initSnowBoard();
+        initEmbedBuilder();
         initMap();
     }
 

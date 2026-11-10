@@ -1,0 +1,48 @@
+description = "Will it snow? result (WeatherData mode = snow): YES / MAYBE / NO from NOAA's snowfall and 7-day outlook, then new snow, the outlook and conditions, with snowmaking below. Expects result (with snowAnswer)."
+==
+{% set sa = result.snowAnswer %}
+{% set answer = result.answer %}
+{% set now = result.now %}
+{% set zones = result.zones ?? {} %}
+{% set multi = zones|length > 1 %}
+{% if sa.answer == 'yes' %}{% partial 'snow' %}{% endif %}
+
+<div class="hero-answer" data-share-url="{{ result.shareUrl }}" data-place="{{ result.place }}"
+    data-pin-lat="{{ result.pinLat }}" data-pin-lng="{{ result.pinLon }}" data-tier="{{ answer.tier }}">
+    <h2 class="hero-answer__question">Will it snow {{ result.resort ? 'at' : 'in' }} {{ result.place }}?</h2>
+    <div class="hero-answer__headline" data-answer="{{ sa.answer == 'no' ? 'no' : 'yes' }}">{{ sa.answer|upper }}</div>
+    <p class="hero-answer__meta">
+        {% if sa.answer == 'yes' %}
+            {{ sa.totalIn|snow|raw }} of new snow in the next 72 hours{% if sa.when %}. Heaviest: {{ sa.when }}{% endif %}.
+        {% elseif sa.answer == 'maybe' %}
+            No measurable snow in the next 3 days, but snow is possible {{ sa.day }}.
+        {% else %}
+            No snow in NOAA's 7-day forecast for <strong>{{ result.place }}</strong>.
+        {% endif %}
+    </p>
+
+    <div class="hero-answer__actions">
+        <button type="button" class="btn btn-sm btn-outline-secondary rounded-0" data-action="favorite" aria-pressed="false">☆ Save</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary rounded-0" data-action="share">Share</button>
+        {% if result.resort %}
+            <button type="button" class="btn btn-sm btn-outline-secondary rounded-0" data-action="alerts" aria-expanded="false" aria-controls="alertsForm">🔔 Get alerts</button>
+        {% endif %}
+    </div>
+    {% if result.resort %}{% partial 'alerts-form' %}{% endif %}
+
+    {% if result.snow %}{% partial 'snowfall' snow=result.snow atBase=multi %}{% endif %}
+    {% if result.outlook %}{% partial 'outlook' outlook=result.outlook %}{% endif %}
+    {% if result.conditions %}{% partial 'conditions' atBase=multi %}{% endif %}
+
+    <section class="snowmaking-more" aria-labelledby="snowmakingMoreTitle">
+        <h2 class="section-title" id="snowmakingMoreTitle">Can they make snow {{ result.resort ? 'at' : 'in' }} {{ result.place }}? <span>{{ answer.snow ? 'Yes' : 'No' }}, {{ answer.wetBulbC|temp|raw }} wet-bulb</span></h2>
+        <p class="hero-answer__window">{{ multi ? zones[answer.zone].windows.text : result.windows.text }}</p>
+        <p><a href="{{ result.resort ? result.resort.url : ('home'|page) ~ '?' ~ {address: result.place}|url_encode }}">See the full snowmaking forecast →</a></p>
+    </section>
+
+    <p class="hero-answer__source">
+        Forecast for {{ now.timeLabel }}
+        {% if result.updatedLabel %}&middot; NOAA grid updated {{ result.updatedLabel }}{% endif %}
+        &middot; new snow from NOAA's grid forecast{% if multi %} at the base{% endif %}, later days from its 7-day outlook
+    </p>
+</div>

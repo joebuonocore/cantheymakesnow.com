@@ -1,4 +1,4 @@
-description = "The app: search, saved places, result, an optional section below the result, map and footer. Shared by the home, resort, state and forecast pages. Pass guide=true for the home page guide, or board='snow' (new snow list; map opens in snow mode), 'snowmaking' (snowmaking list) or 'state' (a state page; expects statePage)."
+description = "The app: search, saved places, result, an optional section below the result, map and footer. Shared by the home, resort, state and forecast pages. Pass guide=true for the home page guide, or board='snow' (new snow list; map opens in snow mode), 'snowmaking' (snowmaking list) or 'state' (a state page; expects statePage), or 'willsnow' (the Will it snow? page intro), or 'directory' (the /resorts list)."
 ==
 <script type="application/json" id="resortData">{{ resorts|json_encode|raw }}</script>
 {% partial 'wx-icons' %}
@@ -8,7 +8,7 @@ description = "The app: search, saved places, result, an optional section below 
     <section class="screen__content">
         {% partial 'header' pageHasHeading=(resortPage or board) %}
 
-        <form id="lookupForm" action="{{ 'home'|page }}" method="get" class="hero-form" autocomplete="off">
+        <form id="lookupForm" action="{{ board == 'willsnow' ? 'will-it-snow'|page : 'home'|page }}" method="get" class="hero-form" autocomplete="off">
             <label class="visually-hidden" for="address">City, state or ski resort</label>
             <div class="search">
                 <div class="input-group">
@@ -42,6 +42,8 @@ description = "The app: search, saved places, result, an optional section below 
         {% if board == 'snow' %}{% partial 'snow-board' %}{% endif %}
         {% if board == 'snowmaking' %}{% partial 'snowmaking-board' %}{% endif %}
         {% if board == 'state' %}{% partial 'state-board' %}{% endif %}
+        {% if board == 'willsnow' %}{% partial 'will-it-snow-intro' %}{% endif %}
+        {% if board == 'directory' %}{% partial 'directory' %}{% endif %}
     </section>
 
     <section class="screen__map">

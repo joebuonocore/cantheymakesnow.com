@@ -42,7 +42,20 @@ class WeatherData extends ComponentBase
 
     public function defineProperties()
     {
-        return [];
+        return [
+            'mode' => [
+                'title' => 'Mode',
+                'description' => "'snow' leads results with whether it will snow (the Will it snow? page); otherwise with snowmaking.",
+                'type' => 'dropdown',
+                'default' => 'snowmaking',
+                'options' => ['snowmaking' => 'Snowmaking', 'snow' => 'Will it snow?'],
+            ],
+        ];
+    }
+
+    protected function snowFirst(): bool
+    {
+        return $this->property('mode') === 'snow';
     }
 
     public function onRun()
@@ -60,6 +73,7 @@ class WeatherData extends ComponentBase
         }
 
         $this->page['resortPage'] = (bool) $slug;
+        $this->page['snowFirst'] = $this->snowFirst();
         $result = $this->runLookup(get('address'), get('lat'), get('lon'), $slug ?: get('resort'));
 
         if ($slug && !$result) {
@@ -76,12 +90,13 @@ class WeatherData extends ComponentBase
     {
         $slug = $this->param('slug');
         $this->page['resortPage'] = $slug && !Resort::stateCodeForSlug($slug);
+        $this->page['snowFirst'] = $this->snowFirst();
         $result = $this->runLookup(post('address'), post('lat'), post('lon'), post('resort'));
 
         return [
             'ok' => (bool) $result,
             'shareUrl' => $result['shareUrl'] ?? null,
-            'pageTitle' => $result ? $this->report->metaTitle($result) : null,
+            'pageTitle' => $result ? ($this->snowFirst() ? $this->report->snowMetaTitle($result) : $this->report->metaTitle($result)) : null,
             'pin' => $result ? ['lat' => $result['pinLat'], 'lng' => $result['pinLon'], 'tier' => $result['answer']['tier']] : null,
         ];
     }
@@ -106,6 +121,11 @@ class WeatherData extends ComponentBase
         }
 
         $result = $report['result'];
+        if ($this->snowFirst()) {
+            // Results stay on this page (resorts too) and fold into its canonical.
+            $query = $report['resort'] ? ['address' => $report['resort']->label] : $result['query'];
+            $result['shareUrl'] = url('will-it-snow') . '?' . http_build_query($query);
+        }
         $this->page['result'] = $result;
         $this->page['query'] = $report['address'] ?: $result['place'];
         // Search results get a stable title; link previews get the live YES/NO.
@@ -114,6 +134,14 @@ class WeatherData extends ComponentBase
         $this->page->meta_description = $this->report->metaDescription($result);
         $this->page['jsonLd'] = $this->structuredData($result);
         $this->page['shareImage'] = ShareImage::available() ? url('share.png') . '?' . http_build_query($result['query']) : null;
+        if ($this->snowFirst()) {
+            $this->page->meta_title = $this->report->snowPageTitle($result);
+            $this->page['ogTitle'] = $this->report->snowMetaTitle($result);
+            $this->page->meta_description = $this->report->snowMetaDescription($result);
+            $this->page['jsonLd'] = null;
+            $this->page['canonicalUrl'] = 'https://cantheymakesnow.com/will-it-snow';
+            $this->page['shareImage'] = ShareImage::available() ? url('share.png') . '?' . http_build_query($result['query'] + ['mode' => 'snow']) : null;
+        }
 
         $report['resort'] ? $this->recordResortLookup($report['resort'], $result) : $this->recordLookup($result);
 

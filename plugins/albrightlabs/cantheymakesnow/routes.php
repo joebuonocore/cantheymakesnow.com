@@ -1,16 +1,19 @@
 <?php
 
+use AlbrightLabs\CanTheyMakeSnow\Classes\Embed;
 use AlbrightLabs\CanTheyMakeSnow\Classes\IndexNow;
 use AlbrightLabs\CanTheyMakeSnow\Classes\ShareImage;
 use AlbrightLabs\CanTheyMakeSnow\Classes\Sitemap;
 use AlbrightLabs\CanTheyMakeSnow\Classes\SnowReport;
+use AlbrightLabs\CanTheyMakeSnow\Models\Resort;
 use AlbrightLabs\CanTheyMakeSnow\Models\Subscriber;
 use AlbrightLabs\CanTheyMakeSnow\Models\Subscription;
 use Illuminate\Support\Facades\Cache;
 
 /**
  * Social share card for a lookup: /share.png?resort=… | ?address=… | ?lat=…&lon=…
- * With no query it draws the site-wide card used by the home page.
+ * (add &mode=snow for the "Will it snow?" card). With no query it draws the
+ * site-wide card used by the home page.
  * Cached per query for 30 minutes (NOAA's grid is refreshed about hourly).
  */
 Route::get('share.png', function () {
@@ -19,7 +22,9 @@ Route::get('share.png', function () {
     }
 
     $input = array_filter(request()->only(['address', 'lat', 'lon', 'resort']), 'is_string');
-    $cacheKey = 'share-png:' . md5(json_encode($input));
+    // mode=snow draws the "Will it snow?" card for that page's results.
+    $snowMode = request('mode') === 'snow' && $input;
+    $cacheKey = 'share-png:' . md5(json_encode($input) . ($snowMode ? ':snow' : ''));
 
     $png = Cache::get($cacheKey);
     if (!$png) {
@@ -33,7 +38,7 @@ Route::get('share.png', function () {
             if (!$report || isset($report['error'])) {
                 abort(404);
             }
-            $png = (new ShareImage())->render($report['result']);
+            $png = $snowMode ? (new ShareImage())->renderSnow($report['result']) : (new ShareImage())->render($report['result']);
         }
         if (!$png) {
             abort(404);
@@ -102,3 +107,37 @@ Route::get('sitemap.xml', function () {
 Route::get(IndexNow::KEY . '.txt', function () {
     return response(IndexNow::KEY, 200, ['Content-Type' => 'text/plain; charset=utf-8']);
 });
+
+/**
+ * The embeddable widget: embed.js upgrades <a class="ctms-widget"> links on
+ * other sites into a forecast card, using /embed/{slug}.json. Both are open
+ * to any origin and read only what's stored on the resort.
+ */
+Route::get('embed.js', function () {
+    $path = themes_path('site/assets/js/embed.js');
+    return response(file_get_contents($path), 200, [
+        'Content-Type' => 'application/javascript; charset=utf-8',
+        'Cache-Control' => 'public, max-age=86400',
+        'Access-Control-Allow-Origin' => '*',
+    ]);
+});
+
+Route::get('embed/{slug}.json', function ($slug) {
+    $headers = ['Access-Control-Allow-Origin' => '*', 'Cache-Control' => 'public, max-age=900'];
+    $resort = Resort::isEnabled()->where('slug', $slug)->first();
+    if (!$resort) {
+        return response()->json(['error' => 'not_found'], 404, $headers);
+    }
+    return response()->json(Embed::data([
+        'name' => $resort->name,
+        'state' => $resort->state,
+        'url' => $resort->url,
+        'tier' => $resort->last_tier,
+        'wetBulbC' => $resort->last_wet_bulb,
+        'snow48In' => $resort->last_snow_48h_in,
+        'smHours' => $resort->last_sm_hours_48,
+        'smNextStart' => $resort->last_sm_next_start,
+        'timeZone' => $resort->time_zone,
+        'checkedAt' => $resort->last_checked_at,
+    ], now()), 200, $headers);
+})->where('slug', '[a-z0-9-]+');

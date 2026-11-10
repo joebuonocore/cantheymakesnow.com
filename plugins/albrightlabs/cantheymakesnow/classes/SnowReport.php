@@ -121,6 +121,7 @@ class SnowReport
             $result['zones'] = $this->resortZones($resort, $result, Carbon::now('UTC'));
         }
         $result['answer'] = $this->weather->combineZones($result['zones'] ?? ['here' => $result]);
+        $result['snowAnswer'] = $this->snowAnswerFor($result);
         unset($result['series']);
 
         $result['query'] = $query;
@@ -399,6 +400,45 @@ class SnowReport
      * Search-result title for a resort page: stable, so it doesn't flip
      * between YES and NO, and says what the page offers.
      */
+    /**
+     * WeatherService::snowAnswer() plus when its storm falls, in local time.
+     */
+    protected function snowAnswerFor(array $result): array
+    {
+        $answer = $this->weather->snowAnswer($result['snow'] ?? null, $result['outlook'] ?? []);
+        $storm = $answer['storm'];
+        $answer['when'] = $storm ? SnowBoard::when($storm['start'], $storm['end'], $result['timeZone'], Carbon::now('UTC')) : null;
+        return $answer;
+    }
+
+    /**
+     * Titles and description for the "Will it snow?" page's results.
+     */
+    public function snowPageTitle(array $result): string
+    {
+        $preposition = empty($result['resort']) ? 'in' : 'at';
+        return "Will It Snow {$preposition} {$result['place']}? Snow Forecast | Can They Make Snow?";
+    }
+
+    public function snowMetaTitle(array $result): string
+    {
+        $preposition = empty($result['resort']) ? 'in' : 'at';
+        return strtoupper($result['snowAnswer']['answer']) . ": will it snow {$preposition} {$result['place']}?";
+    }
+
+    public function snowMetaDescription(array $result): string
+    {
+        $snow = $result['snowAnswer'];
+        if ($snow['answer'] === 'yes') {
+            $amount = Units::snow($snow['totalIn'], 'f') . ' (' . Units::snow($snow['totalIn'], 'c') . ')';
+            return "{$result['place']}: {$amount} of new snow in NOAA's forecast for the next 72 hours." . ($snow['when'] ? " Heaviest: {$snow['when']}." : '');
+        }
+        if ($snow['answer'] === 'maybe') {
+            return "{$result['place']}: no measurable snow in the next 3 days, but snow is possible {$snow['day']} in NOAA's 7-day forecast.";
+        }
+        return "{$result['place']}: no snow in NOAA's 7-day forecast.";
+    }
+
     public function pageTitle(array $result): string
     {
         if (empty($result['resort'])) {

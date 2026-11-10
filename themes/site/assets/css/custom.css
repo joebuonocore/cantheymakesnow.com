@@ -581,6 +581,8 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
 .alerts-page__email { color: var(--text-muted); margin-top: -0.4rem; }
 .alerts-page__notice { padding: 0.5rem 0.75rem; border-left: 3px solid var(--answer-yes); background: var(--chart-night); }
 .alerts-page .section-title { margin-top: 1.25rem; font-size: 1rem; }
+.page-cols__aside > .section-title:first-child { margin-top: 0.35rem; }
+.alerts-page__more { margin: 0.75rem 0 0; font-size: 0.85rem; color: var(--text-muted); }
 .alerts-manage__resort, .alerts-manage__units { border: 1px solid var(--chart-grid); padding: 0.6rem 0.9rem 0.4rem; margin: 0 0 0.75rem; }
 .alerts-manage legend { float: none; width: auto; font-size: 1rem; font-weight: 600; padding: 0 0.3rem; margin: 0; }
 .alerts-manage__remove { padding: 0; color: var(--text-muted); }
@@ -611,6 +613,30 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
 .state-table__answer[data-answer="yes"] { color: var(--answer-yes); }
 .state-table__answer[data-answer="no"] { color: var(--answer-no); }
 .state-table__stale { color: var(--text-muted); font-style: italic; }
+.embed-builder { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0.6rem 1rem; margin: 0 0 1rem; font-size: 0.85rem; }
+.embed-builder label { display: flex; flex-direction: column; gap: 0.25rem; }
+/* Settings, code and notes on the left with the preview beside them; on phones the preview follows the settings. */
+.embed-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: "settings preview" "code preview" "notes preview";
+    grid-template-rows: auto auto 1fr;
+    gap: 0 3rem;
+    align-items: start;
+}
+.embed-layout__settings { grid-area: settings; }
+.embed-layout__preview { grid-area: preview; position: sticky; top: 0; }
+.embed-layout__code { grid-area: code; }
+.embed-layout__notes { grid-area: notes; }
+@media (max-width: 991.98px) {
+    .embed-layout { grid-template-columns: minmax(0, 1fr); grid-template-areas: "settings" "preview" "code" "notes"; grid-template-rows: none; }
+    .embed-layout__preview { position: static; }
+}
+.embed-preview { margin: 0 0 1rem; min-height: 9rem; padding: 1.25rem; background: var(--chart-night); border: 1px solid var(--chart-grid); }
+/* Bootstrap's .form-control loads after this file, so this needs the extra class to win. */
+.embed-page .embed-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.7rem; line-height: 1.45; color: var(--text-muted); resize: vertical; }
+.embed-copy { margin: 0.5rem 0 1rem; }
+.embed-copy span { margin-left: 0.5rem; font-size: 0.85rem; color: var(--text-muted); }
 .state-table__note { margin: -0.3rem 0 0.3rem; font-size: 0.8rem; color: var(--text-muted); }
 .top-list { list-style: none; padding: 0; margin: 0 0 0.6rem; counter-reset: rank; }
 .top-list li { display: flex; justify-content: space-between; align-items: baseline; gap: 0.75rem; padding: 0.3rem 0; border-bottom: 1px solid var(--chart-grid); counter-increment: rank; }
@@ -619,7 +645,7 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
 .top-list strong { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .resort-links { display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: 0.3rem 1rem; list-style: none; padding: 0; margin: 0 0 0.75rem; }
 .resort-links span { color: var(--text-muted); font-size: 0.8rem; margin-left: 0.2rem; white-space: nowrap; }
-.directory { padding: 1rem 0 2rem; }
+.directory { width: 100%; padding: 1rem 0 2rem; border-top: 1px solid var(--chart-grid); }
 
 /* --- Snow forecast page --- */
 .snow-board { width: 100%; padding-top: 1rem; border-top: 1px solid var(--chart-grid); font-size: 0.9rem; }
@@ -644,6 +670,8 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
 .snow-board__amount { font-size: 1.05rem; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
 .snow-board__empty, .snow-board__meta { margin: 0 0 0.6rem; color: var(--text-muted); font-size: 0.85rem; }
 .snowfall__more { margin: 0.6rem 0 0; font-size: 0.85rem; }
+.snowmaking-more { width: 100%; padding-top: 0.75rem; border-top: 1px solid var(--chart-grid); font-size: 0.9rem; }
+.snowmaking-more p { margin: 0 0 0.5rem; }
 .directory__title { font-size: 1.6rem; font-weight: 700; margin: 0 0 0.75rem; }
 .directory__states { display: flex; flex-wrap: wrap; gap: 0.25rem 0.75rem; margin: 0 0 1.25rem; font-size: 0.85rem; }
 .directory__state { padding-top: 0.75rem; border-top: 1px solid var(--chart-grid); margin-bottom: 0.75rem; scroll-margin-top: 1rem; }
@@ -791,3 +819,22 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
     grid-template-areas: "content" "footer";
 }
 .screen--simple .screen__content { width: 100%; max-width: 720px; margin: 0 auto; }
+
+/* --- Full-width pages without a map (alerts, widget, privacy) ---
+ * The header spans the page; content sits in two columns on desktop
+ * (stacked on phones), and running text keeps a readable line length. */
+.screen--wide {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 1fr auto;
+    grid-template-areas: "content" "footer";
+}
+.screen--wide .screen__content { width: 100%; max-width: 1200px; margin: 0 auto; }
+.page-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem 3rem; align-items: start; }
+.page-cols__aside { position: sticky; top: 0; }
+.prose { max-width: 70ch; }
+.wide-page { width: 100%; padding: 1rem 0 2rem; }
+.wide-page__title { font-size: 1.6rem; font-weight: 700; margin: 0 0 0.75rem; }
+@media (max-width: 991.98px) {
+    .page-cols { grid-template-columns: minmax(0, 1fr); }
+    .page-cols__aside { position: static; }
+}
