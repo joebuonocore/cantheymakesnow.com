@@ -1,0 +1,26 @@
+url = "/snowmaking-forecast"
+layout = "default"
+title = "Snowmaking forecast"
+description = "Where can they make snow? Resorts ranked by hours they can make snow (base or summit) in the next 48 hours, inside the app."
+meta_title = "Where Can They Make Snow? Snowmaking Forecast for US Ski Resorts"
+meta_description = "Which US ski resorts can make snow in the next 48 hours, and for how long? A live ranking of 119 resorts by snowmaking hours at the base or summit, from NOAA's hourly forecast and the wet-bulb temperature."
+
+[WeatherData]
+
+[Locations]
+
+[Alerts]
+==
+{% put head %}
+<script type="application/ld+json">{{ {
+    '@context': 'https://schema.org',
+    '@graph': [
+        { '@type': 'CollectionPage', 'name': 'Where can they make snow? Snowmaking forecast for US ski resorts', 'url': 'https://cantheymakesnow.com/snowmaking-forecast' },
+        { '@type': 'BreadcrumbList', 'itemListElement': [
+            { '@type': 'ListItem', 'position': 1, 'name': 'Can They Make Snow?', 'item': 'https://cantheymakesnow.com/' },
+            { '@type': 'ListItem', 'position': 2, 'name': 'Snowmaking forecast', 'item': 'https://cantheymakesnow.com/snowmaking-forecast' }
+        ] }
+    ]
+}|json_encode|raw }}</script>
+{% endput %}
+{% partial 'app' board='snowmaking' %}

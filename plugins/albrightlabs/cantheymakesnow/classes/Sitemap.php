@@ -8,13 +8,37 @@ use AlbrightLabs\CanTheyMakeSnow\Models\Resort;
 class Sitemap
 {
     /**
-     * Every public page: home, the snow forecast, the resort directory,
-     * alerts, privacy and each enabled resort.
+     * Every public page: home, the forecast boards, the resort directory,
+     * alerts, privacy, each state with resorts and each enabled resort.
      */
     public static function urls(): array
     {
         $base = rtrim(url('/'), '/');
-        return array_merge(["{$base}/", "{$base}/snow-forecast", "{$base}/resorts", "{$base}/alerts", "{$base}/privacy"], self::resortUrls());
+        return array_merge(
+            ["{$base}/", "{$base}/snow-forecast", "{$base}/snowmaking-forecast", "{$base}/resorts", "{$base}/alerts", "{$base}/privacy"],
+            self::stateUrls(),
+            self::resortUrls()
+        );
+    }
+
+    /**
+     * The pages that change with the forecast, for the daily IndexNow ping:
+     * home, the forecast boards, state pages and resort pages.
+     */
+    public static function forecastUrls(): array
+    {
+        $base = rtrim(url('/'), '/');
+        return array_merge(["{$base}/", "{$base}/snow-forecast", "{$base}/snowmaking-forecast"], self::stateUrls(), self::resortUrls());
+    }
+
+    /**
+     * State pages, for states with at least one enabled resort.
+     */
+    public static function stateUrls(): array
+    {
+        return Resort::isEnabled()->distinct()->orderBy('state')->pluck('state')
+            ->map(fn ($code) => Resort::stateUrl($code))
+            ->all();
     }
 
     /**

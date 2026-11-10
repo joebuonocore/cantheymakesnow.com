@@ -1,7 +1,7 @@
 url = "/resorts/:slug"
 layout = "default"
 title = "Resort"
-description = "A ski resort's own page: base and summit snowmaking forecast. WeatherData reads :slug; unknown slugs return 404."
+description = "A ski resort's own page (base and summit snowmaking forecast), or a state's page when :slug is a state name (/resorts/vermont). WeatherData reads :slug; unknown slugs return 404."
 meta_title = "Can They Make Snow?"
 meta_description = "Live snowmaking forecast for a US ski resort."
 
@@ -11,4 +11,4 @@ meta_description = "Live snowmaking forecast for a US ski resort."
 
 [Alerts]
 ==
-{% partial 'app' %}
+{% partial 'app' board=(statePage ? 'state' : null) %}

@@ -1,0 +1,31 @@
+description = "Snowmaking forecast page: resorts ranked by hours they can make snow (base or summit) in the next 48 hours (SnowBoard::snowmaking)."
+==
+{% set board = Locations.snowmakingBoard() %}
+<section class="snow-board" aria-labelledby="snowmakingBoardTitle">
+    {% partial 'board-switch' current='snowmaking' %}
+    <div class="snow-board__head">
+        <h1 class="snow-board__title" id="snowmakingBoardTitle">Where can they make snow?</h1>
+    </div>
+    <p class="snow-board__intro">US ski resorts ranked by how many of the next 48 hours are cold and dry enough to make snow (wet-bulb below {{ (-2)|temp|raw }}) at the base or the summit, from NOAA's hourly forecast. "Great" hours are below {{ (-4)|temp|raw }}.</p>
+
+    {% if board.rows|length %}
+        <ol class="snow-board__list">
+            {% for row in board.rows %}
+                {% set sm = row.snowmaking %}
+                <li class="snow-board__row">
+                    <div class="snow-board__place">
+                        <a href="{{ row.url }}">{{ row.name }}</a> <span class="snow-board__state">{{ row.state }}</span>
+                        <span class="snow-board__detail">
+                            {% if sm.starts == 'now' %}Can make snow now · {% elseif sm.starts %}Starts {{ sm.starts }} · {% endif %}{% if sm.greatHours %}{{ sm.greatHours }} h great · {% endif %}coldest {{ sm.coldestWetBulbC|temp|raw }} wet-bulb
+                        </span>
+                    </div>
+                    <span class="snow-board__amount">{{ sm.hours }} h</span>
+                </li>
+            {% endfor %}
+        </ol>
+    {% else %}
+        <p class="snow-board__empty">No resort is forecast to be cold enough to make snow in the next 48 hours. <a href="{{ 'snow-forecast'|page }}">See where it's snowing</a>.</p>
+    {% endif %}
+
+    {% if board.updatedLabel %}<p class="snow-board__meta">From NOAA forecasts for {{ board.checked }} resorts, updated {{ board.updatedLabel }}. Look up a resort and tap 🔔 Get alerts to hear when its next window opens.</p>{% endif %}
+</section>

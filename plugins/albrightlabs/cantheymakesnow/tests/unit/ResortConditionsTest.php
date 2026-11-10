@@ -8,6 +8,7 @@ use AlbrightLabs\CanTheyMakeSnow\Models\Resort;
 if (!class_exists('Model')) {
     class_alias(\October\Rain\Database\Model::class, 'Model');
 }
+require_once __DIR__ . '/../../classes/WeatherService.php';
 require_once __DIR__ . '/../../models/Resort.php';
 
 class ResortConditionsTest extends TestCase

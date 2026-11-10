@@ -46,7 +46,9 @@ description = "Default layout"
             (alerts); other lookups (?address=, ?lat=) fold into the page they're on.
             Private token links (alert management) are never indexed.
         #}
-        {% if result.resort.slug is defined %}
+        {% if canonicalUrl %}
+            {% set canonical = canonicalUrl %}
+        {% elseif result.resort.slug is defined %}
             {% set canonical = 'https://cantheymakesnow.com/resorts/' ~ result.resort.slug %}
         {% elseif ':' in this.page.url %}
             {% set canonical = 'https://cantheymakesnow.com' ~ this.page.url|split('/:')|first %}
