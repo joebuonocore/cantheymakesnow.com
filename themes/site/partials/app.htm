@@ -1,57 +1,57 @@
-description = "The app: search, saved places, result, an optional section below the result, map and footer. Shared by the home, resort, state and forecast pages. Pass guide=true for the home page guide, or board='snow' (new snow list; map opens in snow mode), 'snowmaking' (snowmaking list) or 'state' (a state page; expects statePage), or 'willsnow' (the Will it snow? page intro), or 'directory' (the /resorts list)."
+description = "The app: search, saved places, result, an optional section below the result, then the footer, beside the map (content, map, footer on phones). The home page (guide=true) opens with the hero heading. Shared by the home, resort, state and forecast pages. Pass guide=true for the home page guide, or board='snow' (new snow list; map opens in snow mode), 'snowmaking' (snowmaking list) or 'state' (a state page; expects statePage), or 'willsnow' (the Will it snow? page intro), or 'directory' (the /resorts list)."
 ==
 <script type="application/json" id="resortData">{{ resorts|json_encode|raw }}</script>
 {% partial 'wx-icons' %}
 
 <main class="screen">
+    <div class="screen__panel">
 
-    <section class="screen__content">
-        {% partial 'header' pageHasHeading=(resortPage or board) %}
+        <section class="screen__content">
+            {% if guide %}{% partial 'header' %}{% endif %}
 
-        <form id="lookupForm" action="{{ board == 'willsnow' ? 'will-it-snow'|page : 'home'|page }}" method="get" class="hero-form" autocomplete="off">
-            <label class="visually-hidden" for="address">City, state or ski resort</label>
-            <div class="search">
-                <div class="input-group">
-                    <button type="button" id="useMyLocation" class="btn btn-outline-secondary rounded-0" title="Use my current location" aria-label="Use my current location">📍</button>
-                    <input type="text" name="address" id="address" placeholder="City, state or ski resort" class="form-control rounded-0" value="{{ query }}"
-                        role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggestions" spellcheck="false">
-                    <button type="submit" id="lookupSubmit" class="btn btn-primary rounded-0">Check</button>
+            <form id="lookupForm" action="{{ board == 'willsnow' ? 'will-it-snow'|page : 'home'|page }}" method="get" class="hero-form" autocomplete="off">
+                <label class="visually-hidden" for="address">City, state or ski resort</label>
+                <div class="search">
+                    <div class="input-group">
+                        <button type="button" id="useMyLocation" class="btn btn-outline-secondary rounded-0" title="Use my current location" aria-label="Use my current location">📍</button>
+                        <input type="text" name="address" id="address" placeholder="City, state or ski resort" class="form-control rounded-0" value="{{ query }}"
+                            role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggestions" spellcheck="false">
+                        <button type="submit" id="lookupSubmit" class="btn btn-primary rounded-0">Check</button>
+                    </div>
+                    <div class="suggest" hidden>
+                        <ul id="suggestions" class="suggest__list" role="listbox" aria-label="Suggestions"></ul>
+                        <p class="suggest__attribution" hidden>Place suggestions by Google</p>
+                    </div>
                 </div>
-                <div class="suggest" hidden>
-                    <ul id="suggestions" class="suggest__list" role="listbox" aria-label="Suggestions"></ul>
-                    <p class="suggest__attribution" hidden>Place suggestions by Google</p>
-                </div>
+                <details class="hero-howto">
+                    <summary>How this works</summary>
+                    <div class="how-it-works-body">
+                        We pull NOAA's hourly forecast for your location and calculate the wet-bulb temperature for each hour. Snowmakers rely on wet-bulb because it accounts for both cold and dry air, the two conditions that let water droplets freeze in flight. Below {{ (-2)|temp|raw }} they can run; below {{ (-4)|temp|raw }} the snow is good quality.
+                    </div>
+                </details>
+            </form>
+
+            <p id="formNotice" class="hero-alert" role="alert" hidden></p>
+
+            <div id="savedPlaces" class="saved" aria-label="Saved and recent places" hidden></div>
+
+            <div id="result" class="result" aria-live="polite">
+                {% partial 'result' %}
             </div>
-            <details class="hero-howto">
-                <summary>How this works</summary>
-                <div class="how-it-works-body">
-                    We pull NOAA's hourly forecast for your location and calculate the wet-bulb temperature for each hour. Snowmakers rely on wet-bulb because it accounts for both cold and dry air, the two conditions that let water droplets freeze in flight. Below {{ (-2)|temp|raw }} they can run; below {{ (-4)|temp|raw }} the snow is good quality.
-                </div>
-            </details>
-        </form>
 
-        <p id="formNotice" class="hero-alert" role="alert" hidden></p>
+            {% if guide %}{% partial 'home-guide' %}{% endif %}
+            {% if board == 'snow' %}{% partial 'snow-board' %}{% endif %}
+            {% if board == 'snowmaking' %}{% partial 'snowmaking-board' %}{% endif %}
+            {% if board == 'state' %}{% partial 'state-board' %}{% endif %}
+            {% if board == 'willsnow' %}{% partial 'will-it-snow-intro' %}{% endif %}
+            {% if board == 'directory' %}{% partial 'directory' %}{% endif %}
+        </section>
 
-        <div id="savedPlaces" class="saved" aria-label="Saved and recent places" hidden></div>
-
-        <div id="result" class="result" aria-live="polite">
-            {% partial 'result' %}
-        </div>
-
-        {% if guide %}{% partial 'home-guide' %}{% endif %}
-        {% if board == 'snow' %}{% partial 'snow-board' %}{% endif %}
-        {% if board == 'snowmaking' %}{% partial 'snowmaking-board' %}{% endif %}
-        {% if board == 'state' %}{% partial 'state-board' %}{% endif %}
-        {% if board == 'willsnow' %}{% partial 'will-it-snow-intro' %}{% endif %}
-        {% if board == 'directory' %}{% partial 'directory' %}{% endif %}
-    </section>
+        {% partial 'footer' %}
+    </div>
 
     <section class="screen__map">
         {% partial 'map' mapMode=(board == 'snow' ? 'snow' : 'tiers') fitState=(board == 'state' ? statePage.code : null) %}
     </section>
-
-    <footer class="screen__footer">
-        {% partial 'footer' %}
-    </footer>
 
 </main>

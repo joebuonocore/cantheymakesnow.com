@@ -8,9 +8,8 @@ meta_description = "Add a live card to your website, blog or ski club page showi
 [Locations]
 ==
 {% set groups = Locations.resortsByState() %}
-<main class="screen screen--wide">
-    <section class="screen__content">
-        {% partial 'header' pageHasHeading=true %}
+<main class="screen screen--page">
+    <section class="screen__content page-width">
         <div class="wide-page embed-page">
             <h1 class="wide-page__title">Add a snowmaking widget to your site</h1>
             <p class="prose">Show a live card for any resort on your website, blog or ski club page: can they make snow right now, how many of the next 48 hours they can, and how much new snow is coming. It follows NOAA's forecast, refreshed every couple of hours. Free, with no sign-up, no cookies and no tracking.</p>
@@ -70,8 +69,6 @@ meta_description = "Add a live card to your website, blog or ski club page showi
         </div>
     </section>
 
-    <footer class="screen__footer">
-        {% partial 'footer' %}
-    </footer>
+    {% partial 'footer' %}
 </main>
 <script src="{{ url('embed.js') }}"></script>

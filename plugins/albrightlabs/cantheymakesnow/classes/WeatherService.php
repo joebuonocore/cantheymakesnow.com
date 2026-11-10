@@ -241,7 +241,9 @@ class WeatherService
     }
 
     /**
-     * "Sat" → "Saturday"; "Tonight" → "tonight", so it reads after "Snow possible".
+     * "Sat" → "Saturday"; "Tonight" → "tonight" and "This Afternoon" → "this
+     * afternoon", so they read after "Snow possible". Holidays ("Veterans
+     * Day") keep their capitals.
      */
     protected function longDayName(string $name): string
     {
@@ -250,7 +252,7 @@ class WeatherService
                 return $day;
             }
         }
-        return strtolower($name);
+        return preg_match('/^(Today|Tonight|This |Overnight|Rest of)/', $name) ? strtolower($name) : $name;
     }
 
     /**

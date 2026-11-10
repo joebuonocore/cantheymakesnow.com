@@ -1,0 +1,32 @@
+description = "Site header bar on every page: the name (home link), main pages and the °F/°C toggle. Below 992px the pages fold behind a Menu button (site.js initMenu)."
+==
+{% set current = this.page.baseFileName in ['resort', 'resorts'] ? 'resorts' : this.page.baseFileName %}
+{% set links = [
+    { page: 'snow-forecast', label: 'Snow forecast' },
+    { page: 'snowmaking-forecast', label: 'Snowmaking' },
+    { page: 'will-it-snow', label: 'Will it snow?' },
+    { page: 'resorts', label: 'Ski resorts' },
+    { page: 'alerts', label: 'Alerts' },
+] %}
+<header class="site-header">
+    <div class="site-header__inner page-width">
+        <a class="site-header__brand" href="{{ 'home'|page }}"{% if current == 'home' %} aria-current="page"{% endif %}>
+            {# Same mark as favicon.svg; decorative, the name follows. #}
+            <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><rect width="100" height="100" rx="22" fill="#1c5cab"/><g stroke="#fff" stroke-width="7.5" stroke-linecap="round" fill="none"><g id="site-mark-arm"><path d="M50 50V16M50 30.3l-8.7-8.7M50 30.3l8.7-8.7"/></g><use href="#site-mark-arm" transform="rotate(60 50 50)"/><use href="#site-mark-arm" transform="rotate(120 50 50)"/><use href="#site-mark-arm" transform="rotate(180 50 50)"/><use href="#site-mark-arm" transform="rotate(240 50 50)"/><use href="#site-mark-arm" transform="rotate(300 50 50)"/></g></svg>
+            <span>Can they make snow?</span>
+        </a>
+        <nav class="site-header__nav" id="siteNav" aria-label="Main">
+            {% for link in links %}
+                <a href="{{ link.page|page }}"{% if current == link.page %} aria-current="page"{% endif %}>{{ link.label }}</a>
+            {% endfor %}
+            <a class="site-header__nav-extra" href="{{ 'embed'|page }}"{% if current == 'embed' %} aria-current="page"{% endif %}>Widget for your site</a>
+        </nav>
+        <div class="site-header__tools">
+            <div class="units-toggle" role="group" aria-label="Temperature units">
+                <button type="button" data-units="f" aria-pressed="true">°F</button>
+                <button type="button" data-units="c" aria-pressed="false">°C</button>
+            </div>
+            <button type="button" class="site-header__menu" aria-expanded="false" aria-controls="siteNav">Menu</button>
+        </div>
+    </div>
+</header>

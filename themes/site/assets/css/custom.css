@@ -124,33 +124,44 @@ body {
 .saved__clear:focus-visible,
 .hero-howto summary:focus-visible,
 .forecast__table summary:focus-visible,
-.screen__footer a:focus-visible {
+.site-header a:focus-visible,
+.site-header button:focus-visible,
+.site-footer a:focus-visible {
     outline: 2px solid var(--answer-yes);
     outline-offset: 2px;
 }
 
-/* --- Single-viewport layout --- */
+/* --- Frame: the header bar, then the page filling the rest of the screen ---
+ * Every page shares the same side gutter. Pages without a map, the header's
+ * contents and the footer sit in one centred column up to --page-max; map
+ * pages run the map edge to edge. */
+:root { --gutter: clamp(1.5rem, 3vw, 3rem); --page-max: 1440px; --header-h: 56px; }
 html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
+body.screen-root { display: flex; flex-direction: column; }
+.page-width { width: 100%; max-width: calc(var(--page-max) + 2 * var(--gutter)); margin-inline: auto; padding-inline: var(--gutter); }
 
+/* Map pages: the left panel (content, then the footer) scrolls beside the map. */
 .screen {
+    flex: 1 1 auto;
+    min-height: 0;
     display: grid;
     grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-    grid-template-rows: 1fr auto;
-    grid-template-areas:
-        "content map"
-        "footer  footer";
-    height: 100svh;
-    height: 100dvh;
+    grid-template-areas: "panel map";
 }
-.screen__content {
-    grid-area: content;
-    padding: clamp(1.5rem, 3vw, 3rem);
+.screen__panel {
+    grid-area: panel;
     overflow-y: auto;
     position: relative; /* keeps visually-hidden text inside the scroller */
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
     min-height: 0;
+}
+.screen__content {
+    padding: var(--gutter);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    flex: 1 0 auto;
 }
 .screen__map {
     grid-area: map;
@@ -158,16 +169,47 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
     min-height: 0;
     background: rgba(128, 128, 128, 0.08);
 }
-.screen__footer {
-    grid-area: footer;
-    padding: 1rem 1rem 1.25rem;
-    border-top: 1px solid rgba(128, 128, 128, 0.2);
-    font-size: 0.8rem;
-    text-align: center;
-    line-height: 1.5;
+/* Pages without a map: one scrolling column, footer at the end. */
+.screen--page { display: block; overflow-y: auto; position: relative; }
+.screen--page .screen__content { padding-bottom: 2.5rem; }
+
+/* --- Header bar --- */
+.site-header { flex: 0 0 auto; position: relative; z-index: 1050; background: var(--bs-body-bg); border-bottom: 1px solid var(--chart-grid); }
+.site-header__inner { display: flex; align-items: center; gap: 1.75rem; min-height: var(--header-h); }
+/* The header's contents follow the page's: edge to edge (on the same gutter as
+   the left panel) when the page has a map, the centred column otherwise. */
+body:has(.screen__map) .site-header__inner { max-width: none; }
+.site-header__brand { display: inline-flex; align-items: center; gap: 0.55rem; font-size: 1.05rem; font-weight: 700; color: inherit; text-decoration: none; white-space: nowrap; }
+.site-header__brand svg { width: 28px; height: 28px; flex: 0 0 auto; }
+.site-header__nav { display: flex; align-items: center; gap: 0.15rem; }
+.site-header__nav a { padding: 0.45rem 0.65rem; font-size: 0.9rem; color: inherit; text-decoration: none; opacity: 0.8; border-bottom: 2px solid transparent; white-space: nowrap; }
+.site-header__nav a:hover { opacity: 1; }
+.site-header__nav a[aria-current="page"] { opacity: 1; font-weight: 600; border-bottom-color: var(--answer-yes); }
+.site-header__nav-extra { display: none; }
+.site-header__tools { margin-left: auto; display: flex; align-items: center; gap: 0.5rem; }
+.site-header__menu { display: none; border: 1px solid var(--chart-grid); background: transparent; color: inherit; padding: 0.25rem 0.7rem; font-size: 0.85rem; }
+
+/* --- Footer --- */
+.site-footer { border-top: 1px solid var(--chart-grid); font-size: 0.85rem; }
+/* The about block spans the full width; the three link columns share the row below it equally. */
+.site-footer__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem 2rem; padding-block: 1.75rem 1.25rem; }
+.site-footer__about { grid-column: 1 / -1; }
+/* Pages without a map have the room for all four columns in one row on desktop. */
+@media (min-width: 992px) {
+    .screen--page .site-footer__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .screen--page .site-footer__about { grid-column: auto; }
 }
-.screen__footer-links { margin-bottom: 0.15rem; }
-.screen__footer-copy  { opacity: 0.75; }
+.site-footer__about p { margin: 0 0 0.4rem; color: var(--text-muted); }
+.site-footer__name { display: flex; align-items: center; gap: 0.45rem; color: inherit !important; font-weight: 700; font-size: 0.95rem; }
+.site-footer__name svg { width: 20px; height: 20px; flex: 0 0 auto; }
+.site-footer h2 { margin: 0 0 0.5rem; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-muted); }
+.site-footer ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.3rem; }
+.site-footer a { color: inherit; text-decoration: none; }
+.site-footer a:hover { text-decoration: underline; }
+.site-footer__about a { text-decoration: underline; }
+/* The rule above the copyright runs full width, like the footer's top border. */
+.site-footer__bottom { border-top: 1px solid var(--chart-grid); }
+.site-footer__bottom p { margin-block: 0; padding-block: 0.9rem 1.25rem; font-size: 0.8rem; color: var(--text-muted); }
 
 .hero-howto {
     position: relative;
@@ -212,11 +254,7 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
     line-height: 1.2;
     margin: 0;
     font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 0.35em;
 }
-.hero-brand__mark { width: 1.1em; height: 1.1em; flex: 0 0 auto; }
 .hero-tagline {
     opacity: 0.75;
     font-size: 1rem;
@@ -269,9 +307,6 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
 }
 
 
-.screen__footer a { color: inherit; text-decoration: none; }
-.screen__footer a:hover { text-decoration: underline; }
-.screen__footer .sep { opacity: 0.4; margin: 0 0.4rem; }
 .how-it-works-body { display: none; }
 .hero-howto[open] .how-it-works-body { display: block; }
 
@@ -279,32 +314,56 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
    then the footer) instead of the fixed single screen, so the map never
    covers results and the search suggestions can't be clipped. */
 @media (max-width: 991.98px) {
+    :root { --gutter: 1rem; }
     html, body.screen-root { height: auto; overflow: visible; }
+    body.screen-root { display: block; }
     .screen {
-        height: auto;
-        min-height: 100svh;
         grid-template-columns: minmax(0, 1fr); /* wide children (the outlook strip) scroll inside, not the page */
-        grid-template-rows: auto auto auto;
         grid-template-areas:
             "content"
             "map"
             "footer";
     }
-    .screen__content { overflow: visible; gap: 0.9rem; padding: 1.25rem 1rem 1.5rem; }
+    /* The panel's children join the page grid: content, then the map, then the footer. */
+    .screen__panel { display: contents; }
+    .screen__content { grid-area: content; gap: 0.9rem; padding: 1.25rem 1rem 1.5rem; }
+    .screen__panel > .site-footer { grid-area: footer; }
+    .screen--page { overflow: visible; }
     .screen__map { height: 60svh; min-height: 320px; max-height: 560px; border-top: 1px solid var(--chart-grid); }
     .hero-answer__headline { font-size: clamp(3.5rem, 16vw, 5.5rem); }
-    .hero-brand__name { font-size: 1.5rem; }
+    .hero-brand__name { font-size: 1.75rem; }
     .hero-tagline { font-size: 0.9rem; }
-}
-/* Size the title to the header's own width so the mark, the title and the
-   units toggle (about 6rem with its gap) share one line. The title plus the
-   mark runs about 11.5em wide; it still wraps on very narrow screens. */
-@supports (container-type: inline-size) {
-    .hero-brand { container-type: inline-size; }
-    .hero-brand__name { font-size: clamp(1.25rem, (100cqi - 6rem) / 12, 2.5rem); }
-    @media (max-width: 991.98px) {
-        .hero-brand__name { font-size: clamp(1.25rem, (100cqi - 6rem) / 12, 1.5rem); }
+
+    /* Header: name, units and a Menu button; the pages open in a panel below. */
+    .site-header__inner { gap: 0.75rem; min-height: 52px; }
+    .site-header__menu { display: inline-block; }
+    .site-header__nav {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 0.25rem var(--gutter) 0.75rem;
+        background: var(--surface-raised);
+        border-bottom: 1px solid var(--chart-grid);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
     }
+    .site-header.is-open .site-header__nav { display: flex; }
+    .site-header__nav a { padding: 0.65rem 0; font-size: 1rem; border-bottom: 1px solid var(--chart-grid); }
+    .site-header__nav a[aria-current="page"] { border-bottom-color: var(--chart-grid); color: var(--answer-yes); }
+    .site-header__nav-extra { display: block; }
+}
+@media (max-width: 389.98px) {
+    .site-header__brand { font-size: 0.95rem; gap: 0.4rem; }
+    .site-header__brand svg { width: 24px; height: 24px; }
+    .site-header__inner { gap: 0.5rem; }
+}
+/* The smallest phones: just the mark (the name stays for screen readers). */
+@media (max-width: 359.98px) {
+    .site-header__brand span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -365,7 +424,6 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
 :root[data-units="c"] .u-f { display: none; }
 .t { white-space: nowrap; }
 
-.hero-brand__row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .units-toggle, .seg-toggle { display: inline-flex; border: 1px solid var(--chart-grid); flex: 0 0 auto; }
 .units-toggle button, .seg-toggle button {
     border: 0;
@@ -566,6 +624,7 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
 .alerts-form__title { font-weight: 600; margin: 0 0 0.4rem; }
 .alerts-area-form { margin: 0.75rem 0 0; max-width: none; }
 .alerts-area-form .input-group { margin-top: 0.2rem; }
+.alerts-area-form + .snow-board__meta { margin-top: 0.875rem; }
 .alerts-option { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin: 0 0 0.4rem; }
 .alerts-option .form-select { width: auto; display: inline-block; padding-top: 0.15rem; padding-bottom: 0.15rem; }
 .alerts-form__row { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
@@ -576,7 +635,7 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
 .alerts-form__fine { margin: 0.5rem 0 0; font-size: 0.75rem; color: var(--text-muted); }
 .alerts-form__fine a { color: inherit; }
 
-.alerts-page { padding: 1rem 0 2rem; }
+.alerts-page { padding: 0; }
 .alerts-page__title { font-size: 1.6rem; font-weight: 700; margin: 0 0 0.75rem; }
 .alerts-page__email { color: var(--text-muted); margin-top: -0.4rem; }
 .alerts-page__notice { padding: 0.5rem 0.75rem; border-left: 3px solid var(--answer-yes); background: var(--chart-night); }
@@ -594,9 +653,13 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
 .hero-answer__question { text-align: center; font-size: 1.15rem; font-weight: 600; margin: 0; }
 .resort-about, .home-guide { width: 100%; padding-top: 1rem; border-top: 1px solid var(--chart-grid); font-size: 0.9rem; }
 .resort-about p, .home-guide p { margin: 0 0 0.75rem; }
-.home-guide .section-title { margin-top: 1.1rem; }
-.home-guide .section-title:first-child { margin-top: 0; }
-.top-lists { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 0 1.5rem; }
+.home-guide .section-title, .resort-about .section-title { margin-top: 1.1rem; }
+.home-guide .section-title:first-child, .resort-about .section-title:first-child { margin-top: 0; }
+/* Each top-five list's closing link shouldn't add to the gap the grid already leaves. */
+.top-lists > div > p:last-child { margin-bottom: 0; }
+/* Row gap matters when the two lists stack on a phone. */
+.top-lists { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1.25rem 1.5rem; }
+.top-lists + .section-title { margin-top: 1.5rem; }
 .top-lists .section-title { margin-top: 0; }
 .board-switch { margin: 0 0 0.6rem; }
 .board-switch a { padding: 0.25rem 0.6rem; font-size: 0.85rem; color: inherit; text-decoration: none; opacity: 0.7; }
@@ -637,7 +700,7 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
 .embed-page .embed-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.7rem; line-height: 1.45; color: var(--text-muted); resize: vertical; }
 .embed-copy { margin: 0.5rem 0 1rem; }
 .embed-copy span { margin-left: 0.5rem; font-size: 0.85rem; color: var(--text-muted); }
-.state-table__note { margin: -0.3rem 0 0.3rem; font-size: 0.8rem; color: var(--text-muted); }
+.state-table__note { margin: -0.2rem 0 0.6rem; font-size: 0.8rem; color: var(--text-muted); }
 .top-list { list-style: none; padding: 0; margin: 0 0 0.6rem; counter-reset: rank; }
 .top-list li { display: flex; justify-content: space-between; align-items: baseline; gap: 0.75rem; padding: 0.3rem 0; border-bottom: 1px solid var(--chart-grid); counter-increment: rank; }
 .top-list li > span::before { content: counter(rank) "."; display: inline-block; min-width: 1.4rem; color: var(--text-muted); font-size: 0.8rem; }
@@ -651,6 +714,7 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
 .snow-board { width: 100%; padding-top: 1rem; border-top: 1px solid var(--chart-grid); font-size: 0.9rem; }
 .snow-board__head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem 1rem; margin-bottom: 0.35rem; }
 .snow-board__title { font-size: 1.35rem; font-weight: 700; margin: 0; }
+.snow-board > .snow-board__title { margin-bottom: 0.4rem; }
 .snow-board__intro { margin: 0 0 0.5rem; color: var(--text-muted); }
 .snow-board__list { list-style: none; padding: 0; margin: 0 0 0.75rem; counter-reset: rank; }
 .snow-board__row {
@@ -672,6 +736,7 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
 .snowfall__more { margin: 0.6rem 0 0; font-size: 0.85rem; }
 .snowmaking-more { width: 100%; padding-top: 0.75rem; border-top: 1px solid var(--chart-grid); font-size: 0.9rem; }
 .snowmaking-more p { margin: 0 0 0.5rem; }
+.snowmaking-more .hero-answer__window { text-align: left; font-weight: 400; }
 .directory__title { font-size: 1.6rem; font-weight: 700; margin: 0 0 0.75rem; }
 .directory__states { display: flex; flex-wrap: wrap; gap: 0.25rem 0.75rem; margin: 0 0 1.25rem; font-size: 0.85rem; }
 .directory__state { padding-top: 0.75rem; border-top: 1px solid var(--chart-grid); margin-bottom: 0.75rem; scroll-margin-top: 1rem; }
@@ -812,27 +877,12 @@ html, body.screen-root { height: 100%; margin: 0; overflow: hidden; }
 .hero-answer__actions { display: flex; justify-content: center; gap: 0.5rem; }
 .hero-answer__actions [aria-pressed="true"] { border-color: var(--answer-yes); color: var(--answer-yes); }
 
-/* --- Single-column pages (404, error) --- */
-.screen--simple {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: 1fr auto;
-    grid-template-areas: "content" "footer";
-}
-.screen--simple .screen__content { width: 100%; max-width: 720px; margin: 0 auto; }
-
-/* --- Full-width pages without a map (alerts, widget, privacy) ---
- * The header spans the page; content sits in two columns on desktop
- * (stacked on phones), and running text keeps a readable line length. */
-.screen--wide {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: 1fr auto;
-    grid-template-areas: "content" "footer";
-}
-.screen--wide .screen__content { width: 100%; max-width: 1200px; margin: 0 auto; }
+/* --- Pages without a map (alerts, widget, privacy): two columns on desktop,
+ * stacked on phones; running text keeps a readable line length. --- */
 .page-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem 3rem; align-items: start; }
 .page-cols__aside { position: sticky; top: 0; }
 .prose { max-width: 70ch; }
-.wide-page { width: 100%; padding: 1rem 0 2rem; }
+.wide-page { width: 100%; }
 .wide-page__title { font-size: 1.6rem; font-weight: 700; margin: 0 0 0.75rem; }
 @media (max-width: 991.98px) {
     .page-cols { grid-template-columns: minmax(0, 1fr); }
