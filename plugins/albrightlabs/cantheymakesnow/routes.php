@@ -69,7 +69,8 @@ Route::get('alerts/confirm/{subscription}', function ($id) {
     $subscriber->unsubscribed_at = null;
     $subscriber->save();
 
-    return redirect('alerts/manage/' . $subscriber->token . '?' . http_build_query(['confirmed' => $subscription->resort->slug]));
+    $confirmed = $subscription->resort ? $subscription->resort->slug : 'area-' . $subscription->id;
+    return redirect('alerts/manage/' . $subscriber->token . '?' . http_build_query(['confirmed' => $confirmed]));
 })->name('ctms.alerts.confirm');
 
 /**

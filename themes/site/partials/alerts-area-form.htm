@@ -1,0 +1,30 @@
+description = "Area powder alert signup: any resort within a distance of a town, resort or the visitor's location. Submitted by site.js to Alerts::onSubscribeArea."
+==
+<form class="alerts-form alerts-area-form" novalidate>
+    <p class="alerts-form__title">🔔 Email me when a resort near me is forecast for</p>
+    <div class="alerts-option">
+        <select name="powder_threshold_in" class="form-select form-select-sm rounded-0" aria-label="How much new snow">
+            <option value="3">3″ (8 cm)+</option>
+            <option value="6" selected>6″ (15 cm)+</option>
+            <option value="12">12″ (30 cm)+</option>
+        </select>
+        within
+        <select name="radius" class="form-select form-select-sm rounded-0" aria-label="Distance">
+            <option value="100">100 miles</option>
+            <option value="200" selected>200 miles</option>
+            <option value="300">300 miles</option>
+        </select>
+        of
+    </div>
+    <div class="input-group">
+        <button type="button" class="btn btn-outline-secondary rounded-0" data-area-locate title="Use my location" aria-label="Use my location">📍</button>
+        <input type="text" name="place" class="form-control rounded-0" placeholder="Town, state or ski resort" aria-label="Town, state or ski resort" maxlength="120">
+    </div>
+    <input type="hidden" name="lat"><input type="hidden" name="lon">
+    <div class="alerts-form__row">
+        <input type="email" name="email" class="form-control rounded-0" placeholder="you@example.com" autocomplete="email" aria-label="Email address" required>
+        <button type="submit" class="btn btn-primary rounded-0">Get alerts</button>
+    </div>
+    <p class="alerts-form__message" role="status" hidden></p>
+    <p class="alerts-form__fine">We'll email a link to confirm. One email per storm, never overnight; unsubscribe anytime. We keep the place you pick rounded to about a mile. <a href="/privacy">Privacy</a></p>
+</form>

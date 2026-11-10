@@ -270,12 +270,10 @@ class WeatherService
     }
 
     /**
-     * Spread NOAA snowfall intervals (any duration) evenly over their hours,
-     * then sum into fixed buckets starting at the hour containing $from.
-     * Each bucket: ['start' => Carbon, 'end' => Carbon, 'mm' => float, 'in' => float].
-     * Buckets stop where the forecast data stops.
+     * Spread NOAA snowfall intervals (any duration) evenly over their hours.
+     * Returns [unix timestamp of the hour => mm].
      */
-    public function snowfallBuckets(array $values, ?string $uom, Carbon $from, int $hours = 72, int $bucketHours = 6): array
+    public function snowfallHourly(array $values, ?string $uom): array
     {
         $scale = $uom && preg_match('/:m$/', $uom) ? 1000 : 1; // metres → mm
         $hourly = [];
@@ -291,6 +289,17 @@ class WeatherService
                 $hourly[$t] = $perHour;
             }
         }
+        return $hourly;
+    }
+
+    /**
+     * Sum snowfallHourly() into fixed buckets starting at the hour containing $from.
+     * Each bucket: ['start' => Carbon, 'end' => Carbon, 'mm' => float, 'in' => float].
+     * Buckets stop where the forecast data stops.
+     */
+    public function snowfallBuckets(array $values, ?string $uom, Carbon $from, int $hours = 72, int $bucketHours = 6): array
+    {
+        $hourly = $this->snowfallHourly($values, $uom);
 
         $first = $from->copy()->utc()->startOfHour()->timestamp;
         $buckets = [];

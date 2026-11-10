@@ -5,6 +5,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use AlbrightLabs\CanTheyMakeSnow\Classes\SnowReport;
 use AlbrightLabs\CanTheyMakeSnow\Models\Resort;
+use AlbrightLabs\CanTheyMakeSnow\Models\ResortHour;
 
 /**
  * Hourly: refresh every resort that hasn't been checked recently, so the
@@ -64,6 +65,7 @@ class RefreshResorts extends Command
                 continue;
             }
             $resort->newQuery()->whereKey($resort->getKey())->update(Resort::conditionsFrom($lookup['result']) + ['last_checked_at' => Carbon::now()]);
+            ResortHour::logFrom($resort->id, $lookup['result']);
             $refreshed++;
         }
 

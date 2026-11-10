@@ -12,8 +12,30 @@ description = "Manage form for one subscriber's alerts (re-rendered by Alerts ha
     <h1 class="alerts-page__title">Your alerts</h1>
     <p class="alerts-page__email">{{ subscriber.email }}</p>
 
-    {% if subscriptions|length %}
+    {% if subscriptions|length or areaSubscriptions|length %}
         <form class="alerts-manage" data-request="Alerts::onSave" data-request-data="token: '{{ subscriber.token }}'">
+            {% for sub in areaSubscriptions %}
+                <fieldset class="alerts-manage__resort">
+                    <legend>Resorts near {{ sub.area_label }}</legend>
+                    <input type="hidden" name="subs[{{ sub.id }}][powder]" value="1">
+                    <label class="alerts-option">
+                        Powder, at least
+                        <select name="subs[{{ sub.id }}][powder_threshold_in]" class="form-select form-select-sm rounded-0" aria-label="Powder threshold">
+                            {% for inches, cm in { 3: 8, 6: 15, 12: 30 } %}
+                                <option value="{{ inches }}" {{ sub.powder_threshold_in == inches ? 'selected' }}>{{ inches }}″ ({{ cm }} cm)</option>
+                            {% endfor %}
+                        </select>
+                        in 48 hours, at any resort within
+                        <select name="subs[{{ sub.id }}][radius]" class="form-select form-select-sm rounded-0" aria-label="Distance">
+                            {% for miles in [100, 200, 300] %}
+                                <option value="{{ miles }}" {{ sub.area_radius_mi == miles ? 'selected' }}>{{ miles }} miles ({{ (miles * 1.609)|round(-1) }} km)</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <button type="button" class="btn btn-link btn-sm alerts-manage__remove"
+                        data-request="Alerts::onRemove" data-request-data="token: '{{ subscriber.token }}', id: {{ sub.id }}">Remove this area</button>
+                </fieldset>
+            {% endfor %}
             {% for sub in subscriptions %}
                 <fieldset class="alerts-manage__resort">
                     <legend>
@@ -51,7 +73,7 @@ description = "Manage form for one subscriber's alerts (re-rendered by Alerts ha
             <button type="submit" class="btn btn-primary rounded-0">Save</button>
         </form>
     {% else %}
-        <p>No resorts yet. Look up a ski resort and tap <strong>🔔 Get alerts</strong> to add one.</p>
+        <p>No alerts yet. Look up a ski resort and tap <strong>🔔 Get alerts</strong>, or <a href="{{ 'alerts'|page }}">get powder alerts for resorts near you</a>.</p>
     {% endif %}
 
     <p class="alerts-page__stop">

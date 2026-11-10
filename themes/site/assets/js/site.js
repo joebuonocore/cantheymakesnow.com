@@ -1067,6 +1067,30 @@
     // Delegated, because the result (and its form) is re-rendered by lookups.
 
     function initAlerts() {
+        // Area alerts: 📍 fills in the visitor's location, rounded to about a
+        // kilometre before it leaves the browser; typing a place clears it.
+        document.addEventListener('click', function (event) {
+            var locate = event.target.closest && event.target.closest('[data-area-locate]');
+            if (!locate || !navigator.geolocation) {
+                return;
+            }
+            var form = locate.closest('form');
+            navigator.geolocation.getCurrentPosition(function (position) {
+                form.elements.lat.value = position.coords.latitude.toFixed(2);
+                form.elements.lon.value = position.coords.longitude.toFixed(2);
+                form.elements.place.value = 'My location';
+            }, function () {
+                form.elements.place.focus();
+            }, { maximumAge: 600000, timeout: 10000 });
+        });
+        document.addEventListener('input', function (event) {
+            var form = event.target.name === 'place' && event.target.closest('.alerts-area-form');
+            if (form) {
+                form.elements.lat.value = '';
+                form.elements.lon.value = '';
+            }
+        });
+
         document.addEventListener('click', function (event) {
             var button = event.target.closest && event.target.closest('[data-action="alerts"]');
             if (!button) {
@@ -1108,9 +1132,24 @@
                 return;
             }
 
+            var area = form.classList.contains('alerts-area-form');
+            if (area && !form.elements.place.value.trim() && !form.elements.lat.value) {
+                show('Enter a town or use your location.', false);
+                form.elements.place.focus();
+                return;
+            }
+
             submit.disabled = true;
-            oc.ajax('Alerts::onSubscribe', {
-                data: {
+            oc.ajax(area ? 'Alerts::onSubscribeArea' : 'Alerts::onSubscribe', {
+                data: area ? {
+                    email: email,
+                    place: form.elements.lat.value ? '' : form.elements.place.value.trim(),
+                    lat: form.elements.lat.value,
+                    lon: form.elements.lon.value,
+                    radius: form.elements.radius.value,
+                    powder_threshold_in: form.elements.powder_threshold_in.value,
+                    units: units()
+                } : {
                     resort: form.getAttribute('data-resort'),
                     email: email,
                     snowmaking: form.elements.snowmaking.checked ? 1 : 0,

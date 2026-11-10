@@ -1,6 +1,22 @@
-description = "Home page guide: popular resorts (crawlable links) and plain-language snowmaking explainer. Expects popularResorts."
+description = "Home page guide: the resorts with the most new snow coming, popular resorts (crawlable links) and plain-language snowmaking explainer. Expects popularResorts and the Locations component."
 ==
-<section class="home-guide" aria-labelledby="guideResortsTitle">
+{% set snowRows = Locations.snowBoard().rows|filter(r => (r.totals[48] ?? 0) >= 0.1)|slice(0, 5) %}
+<section class="home-guide" aria-labelledby="guideSnowTitle">
+    <h2 class="section-title" id="guideSnowTitle">Most new snow in the next 48 hours</h2>
+    {% if snowRows|length %}
+        <ol class="top-list">
+            {% for row in snowRows %}
+                <li>
+                    <span><a href="{{ row.url }}">{{ row.name }}</a> <span class="top-list__state">{{ row.state }}</span></span>
+                    <strong>{{ row.totals[48]|snow|raw }}</strong>
+                </li>
+            {% endfor %}
+        </ol>
+    {% else %}
+        <p>No measurable snow is forecast at any of our resorts in the next 48 hours.</p>
+    {% endif %}
+    <p><a href="{{ 'snow-forecast'|page }}">See where it's snowing →</a></p>
+
     <h2 class="section-title" id="guideResortsTitle">Snowmaking forecasts for US ski resorts</h2>
     <p>Pick a resort for its live answer at the base and the summit, the next snowmaking window, new snow and the 7-day outlook.</p>
     <ul class="resort-links">

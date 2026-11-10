@@ -6,16 +6,19 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use AlbrightLabs\CanTheyMakeSnow\Classes\AlertRules;
+use AlbrightLabs\CanTheyMakeSnow\Classes\AreaAlerts;
 use AlbrightLabs\CanTheyMakeSnow\Classes\SnowReport;
 use AlbrightLabs\CanTheyMakeSnow\Classes\Units;
 use AlbrightLabs\CanTheyMakeSnow\Classes\WeatherService;
 use AlbrightLabs\CanTheyMakeSnow\Models\Resort;
+use AlbrightLabs\CanTheyMakeSnow\Models\ResortHour;
 use AlbrightLabs\CanTheyMakeSnow\Models\Subscriber;
 use AlbrightLabs\CanTheyMakeSnow\Models\Subscription;
 
 /**
- * Hourly: check the forecast for every resort with active subscriptions and
- * email each subscriber one message covering everything new for them.
+ * Hourly: check the forecast for every resort with active subscriptions,
+ * and every area alert against the resorts' stored forecasts, and email each
+ * subscriber one message covering everything new for them.
  * Uses cached NOAA data only (no Google calls). Run with --dry-run to see
  * what would be sent without sending or recording anything.
  */
@@ -48,7 +51,7 @@ class SendAlerts extends Command
             $this->warn('APP_URL points at localhost; alert email links will be wrong.');
         }
 
-        $query = Subscription::active()->with(['subscriber', 'resort']);
+        $query = Subscription::active()->whereNotNull('resort_id')->with(['subscriber', 'resort']);
         if ($slug = $this->option('resort')) {
             $query->whereHas('resort', fn ($q) => $q->where('slug', $slug));
         }
@@ -90,6 +93,11 @@ class SendAlerts extends Command
             }
         }
 
+        // Area alerts (--resort limits the run to one resort, so they're skipped then).
+        if (!$this->option('resort')) {
+            $this->evaluateAreas($bySubscriber, $stats, $now, $force);
+        }
+
         foreach ($bySubscriber as $hits) {
             $subscriber = $hits[0]['subscription']->subscriber;
             $email = $this->compose($subscriber, $hits, $now);
@@ -115,6 +123,64 @@ class SendAlerts extends Command
             Log::info($summary);
         }
         return 0;
+    }
+
+    /**
+     * Area powder alerts, from each resort's stored storm (kept fresh by
+     * ctms:refresh-resorts). Quiet hours follow the biggest storm's resort.
+     */
+    protected function evaluateAreas(array &$bySubscriber, array &$stats, Carbon $now, bool $force): void
+    {
+        $query = Subscription::active()->areas()->where('powder', true)->with('subscriber');
+        if ($email = $this->option('email')) {
+            $query->whereHas('subscriber', fn ($q) => $q->where('email', strtolower($email)));
+        }
+        $areas = $query->get();
+        if ($areas->isEmpty()) {
+            return;
+        }
+        $stats['subscriptions'] += $areas->count();
+
+        $resorts = Resort::isEnabled()->whereNotNull('last_storm_in')->get()->map(fn (Resort $r) => [
+            'name' => $r->name,
+            'state' => $r->state,
+            'url' => $r->url,
+            'lat' => (float) $r->lat,
+            'lon' => (float) $r->lon,
+            'stormIn' => $r->last_storm_in,
+            'stormStart' => $r->last_storm_start,
+            'stormEnd' => $r->last_storm_end,
+            'timeZone' => $r->time_zone ?: 'America/New_York',
+            'checkedAt' => $r->last_checked_at,
+        ])->all();
+
+        foreach ($areas as $sub) {
+            $storms = AreaAlerts::storms((float) $sub->area_lat, (float) $sub->area_lon, (int) $sub->area_radius_mi, $resorts, $now);
+            $powder = $this->rules->powderAlert(
+                $storms,
+                (int) $sub->powder_threshold_in,
+                $force ? null : $sub->last_powder_start,
+                $force ? null : $sub->last_powder_end,
+                $force || $sub->last_powder_in === null ? null : (float) $sub->last_powder_in,
+                $force ? null : $sub->last_powder_sent_at,
+                $now
+            );
+            if (!$powder) {
+                continue;
+            }
+            $timeZone = $powder['storm']['resort']['timeZone'];
+            if (!$force && $this->rules->isQuietHours($now, $timeZone)) {
+                $stats['quiet']++;
+                continue;
+            }
+            $bySubscriber[$sub->subscriber_id][] = [
+                'powder' => $powder,
+                'area' => AreaAlerts::qualifying($storms, (int) $sub->powder_threshold_in, $now),
+                'subscription' => $sub,
+                'timeZone' => $timeZone,
+            ];
+            $stats['alerts']++;
+        }
     }
 
     /**
@@ -171,6 +237,10 @@ class SendAlerts extends Command
         $subjects = [];
 
         foreach ($hits as $hit) {
+            if (isset($hit['area'])) {
+                [$items[], $subjects[]] = $this->composeArea($hit, $u, $now);
+                continue;
+            }
             $resort = $hit['resort'];
             $localNow = $now->copy()->setTimezone($hit['timeZone']);
             $local = fn (Carbon $t) => $this->weather->relativeTime($t->copy()->setTimezone($hit['timeZone']), $localNow);
@@ -204,9 +274,37 @@ class SendAlerts extends Command
 
         $subject = count($subjects) <= 2
             ? implode(' · ', $subjects)
-            : 'Snow alerts for ' . implode(', ', array_slice(array_unique(array_map(fn ($h) => $h['resort']->name, $hits)), 0, 2)) . ' and more';
+            : 'Snow alerts for ' . implode(', ', array_slice(array_unique(array_map(fn ($h) => isset($h['area']) ? $h['subscription']->area_label : $h['resort']->name, $hits)), 0, 2)) . ' and more';
 
         return ['subject' => $subject, 'items' => $items];
+    }
+
+    /**
+     * One area alert: every resort in the area with a storm at or above the
+     * threshold, each in its own local time. Returns [item, subject].
+     */
+    protected function composeArea(array $hit, string $u, Carbon $now): array
+    {
+        $sub = $hit['subscription'];
+        $lines = [];
+        foreach ($hit['area'] as $storm) {
+            $resort = $storm['resort'];
+            $localNow = $now->copy()->setTimezone($resort['timeZone']);
+            $local = fn (Carbon $t) => $this->weather->relativeTime($t->copy()->setTimezone($resort['timeZone']), $localNow);
+            $lines[] = "{$resort['name']}, {$resort['state']}: " . Units::snow(round($storm['totalIn']), $u) . " of new snow, {$local($storm['start'])} – {$local($storm['end'])}.";
+        }
+
+        $top = $hit['powder']['storm'];
+        $amount = Units::snow(round($top['totalIn']), $u);
+        $subject = $hit['powder']['update']
+            ? "Powder update near {$sub->area_label}: now {$amount} at {$top['resort']['name']}"
+            : "\u{2744} Powder near {$sub->area_label}: {$amount} at {$top['resort']['name']}";
+
+        return [[
+            'resort' => "Within {$sub->area_radius_mi} miles of {$sub->area_label}",
+            'lines' => $lines,
+            'url' => url('snow-forecast'),
+        ], $subject];
     }
 
     protected function send(Subscriber $subscriber, array $email): void
@@ -250,7 +348,7 @@ class SendAlerts extends Command
     }
 
     /**
-     * Keep the resort's map pin fresh while we have the forecast anyway.
+     * Keep the resort's stored conditions and hourly log fresh while we have the forecast anyway.
      */
     protected function recordConditions($resort, array $result, Carbon $now, bool $dryRun): void
     {
@@ -258,5 +356,6 @@ class SendAlerts extends Command
             return;
         }
         $resort->newQuery()->whereKey($resort->getKey())->update(Resort::conditionsFrom($result) + ['last_checked_at' => $now]);
+        ResortHour::logFrom($resort->id, $result, $now);
     }
 }

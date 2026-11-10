@@ -38,8 +38,7 @@ description = "Snow forecast page: resorts ranked by new snow at the base in the
         <a href="{{ 'resorts'|page }}">See every resort's snowmaking forecast</a>.
     </p>
 
-    <p class="snow-board__meta">
-        {% if board.updatedLabel %}From NOAA forecasts for {{ board.checked }} resorts, updated {{ board.updatedLabel }}.{% endif %}
-        <a href="{{ 'alerts'|page }}">Get an email</a> when a resort you follow is forecast for {{ 3|snow|raw }}, {{ 6|snow|raw }} or {{ 12|snow|raw }} of new snow.
-    </p>
+    {% if board.updatedLabel %}<p class="snow-board__meta">From NOAA forecasts for {{ board.checked }} resorts, updated {{ board.updatedLabel }}.</p>{% endif %}
+
+    {% partial 'alerts-area-form' %}
 </section>
