@@ -85,6 +85,38 @@ class SnowBoardTest extends TestCase
         $this->assertSame('Now until tomorrow night 6 PM', SnowBoard::when($start, $end, 'America/New_York', $this->now));
     }
 
+    private function smRow(string $name, ?int $hours, int $great = 0, ?float $coldest = null): array
+    {
+        return ['name' => $name, 'totals' => [24 => 0.0, 48 => 0.0, 72 => 0.0], 'snowmaking' => ['hours' => $hours, 'greatHours' => $great, 'coldestWetBulbC' => $coldest, 'starts' => null]];
+    }
+
+    public function testRanksSnowmakingByHoursThenGreatHoursThenColdest()
+    {
+        $rows = SnowBoard::rankSnowmaking([
+            $this->smRow('Bolton', 12, 2, -4.5),
+            $this->smRow('Stowe', 18, 9, -8.0),
+            $this->smRow('Jay', 12, 2, -6.0),
+            $this->smRow('Alta', 12, 5, -3.0),
+            $this->smRow('None', 0),
+            $this->smRow('Unknown', null),
+        ]);
+
+        $this->assertSame(['Stowe', 'Alta', 'Jay', 'Bolton'], array_column($rows, 'name'));
+    }
+
+    public function testSnowmakingRowAndStartLabel()
+    {
+        $row = SnowBoard::row([
+            'name' => 'Stowe', 'state' => 'VT', 'url' => '/resorts/stowe', 'totals' => [],
+            'timeZone' => 'America/New_York', 'smHours' => '14', 'smGreatHours' => '6', 'smColdest' => '-7.25',
+            'smNextStart' => Carbon::parse('2026-12-11T02:00:00Z'),
+        ], $this->now);
+
+        $this->assertSame(['hours' => 14, 'greatHours' => 6, 'coldestWetBulbC' => -7.25, 'starts' => 'tonight 9 PM'], $row['snowmaking']);
+        $this->assertSame('now', SnowBoard::startLabel(Carbon::parse('2026-12-10T17:00:00Z'), 'America/New_York', $this->now));
+        $this->assertNull(SnowBoard::startLabel(null, 'America/New_York', $this->now));
+    }
+
     public function testNoWhenForAFinishedStormOrMissingTimeZone()
     {
         $this->assertNull(SnowBoard::when(Carbon::parse('2026-12-10T06:00:00Z'), Carbon::parse('2026-12-10T12:00:00Z'), 'America/New_York', $this->now));

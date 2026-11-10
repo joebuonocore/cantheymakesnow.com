@@ -932,6 +932,27 @@
             }
         }
 
+        /** State pages: frame that state's resorts (not too close for a state with one or two). */
+        function fitState(code) {
+            var inState = code ? points.filter(function (p) { return p.type === 'resort' && p.state === code; }) : [];
+            if (!inState.length) {
+                return;
+            }
+            var bounds = { north: -90, south: 90, east: -180, west: 180 };
+            inState.forEach(function (p) {
+                bounds.north = Math.max(bounds.north, p.lat);
+                bounds.south = Math.min(bounds.south, p.lat);
+                bounds.east = Math.max(bounds.east, p.lng);
+                bounds.west = Math.min(bounds.west, p.lng);
+            });
+            map.fitBounds(bounds, 48);
+            google.maps.event.addListenerOnce(map, 'idle', function () {
+                if (map.getZoom() > 8) {
+                    map.setZoom(8);
+                }
+            });
+        }
+
         function build() {
             var wide = window.matchMedia('(min-width: 992px)').matches;
             map = new libs.maps.Map(el, {
@@ -947,6 +968,7 @@
 
             CTMS.map = map;
             points.forEach(addPoint);
+            fitState(el.getAttribute('data-fit-state'));
 
             map.addListener('click', function (event) {
                 if (event.latLng) {
@@ -1181,12 +1203,14 @@
     // the chosen window and hides the ones with only a trace there.
 
     function initSnowBoard() {
-        var board = document.querySelector('.snow-board');
-        if (!board) {
+        // Only the new-snow board has the window switch (the snowmaking and state boards share its styles).
+        var button = document.querySelector('.snow-board button[data-hours]');
+        var board = button && button.closest('.snow-board');
+        var list = board && board.querySelector('.snow-board__list');
+        var empty = board && board.querySelector('.snow-board__empty');
+        if (!list || !empty) {
             return;
         }
-        var list = board.querySelector('.snow-board__list');
-        var empty = board.querySelector('.snow-board__empty');
         var rows = Array.prototype.slice.call(list.children);
 
         function amount(row, hours) {

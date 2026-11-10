@@ -4,6 +4,7 @@ description = "Snow forecast page: resorts ranked by new snow at the base in the
 {% set hours = board.hours %}
 {% set visible = board.rows|filter(r => (r.totals[hours] ?? 0) >= 0.1)|length %}
 <section class="snow-board" aria-labelledby="snowBoardTitle">
+    {% partial 'board-switch' current='snow' %}
     <div class="snow-board__head">
         <h1 class="snow-board__title" id="snowBoardTitle">Where's it snowing?</h1>
         <div class="seg-toggle" role="group" aria-label="Forecast window">

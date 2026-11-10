@@ -47,13 +47,13 @@ class Locations extends ComponentBase
 
     /**
      * Enabled resorts grouped by state name (A–Z), for the resort directory.
-     * Returns [['code' => 'VT', 'name' => 'Vermont', 'resorts' => Resort[]], ...].
+     * Returns [['code' => 'VT', 'name' => 'Vermont', 'url' => state page, 'resorts' => Resort[]], ...].
      */
     public function resortsByState(): array
     {
         return Resort::isEnabled()->orderBy('name')->get()
             ->groupBy('state')
-            ->map(fn ($resorts, $code) => ['code' => $code, 'name' => Resort::STATE_NAMES[$code] ?? $code, 'resorts' => $resorts])
+            ->map(fn ($resorts, $code) => ['code' => $code, 'name' => Resort::STATE_NAMES[$code] ?? $code, 'url' => Resort::stateUrl($code), 'resorts' => $resorts])
             ->sortBy('name')
             ->values()
             ->all();
@@ -68,11 +68,28 @@ class Locations extends ComponentBase
     }
 
     /**
-     * Resorts ranked by new snow, for the snow forecast page.
+     * Resorts ranked by new snow (optionally in one state), for the snow
+     * forecast page, the home page and state pages.
      */
-    public function snowBoard(): array
+    public function snowBoard(?string $state = null): array
     {
-        return SnowBoard::build();
+        return SnowBoard::build(null, $state);
+    }
+
+    /**
+     * Resorts ranked by snowmaking hours in the next 48 (optionally in one state).
+     */
+    public function snowmakingBoard(?string $state = null): array
+    {
+        return SnowBoard::snowmaking(null, $state);
+    }
+
+    /**
+     * Every resort in a state with its stored forecast, for the state page table.
+     */
+    public function stateResorts(string $state): array
+    {
+        return SnowBoard::stateResorts($state);
     }
 
     /**
@@ -89,6 +106,7 @@ class Locations extends ComponentBase
             $points[] = [
                 'type' => 'resort',
                 'slug' => $resort->slug,
+                'state' => $resort->state,
                 'label' => "{$resort->name}, {$resort->state}",
                 'lat' => (float) $resort->lat,
                 'lng' => (float) $resort->lon,

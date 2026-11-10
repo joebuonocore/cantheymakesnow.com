@@ -54,6 +54,11 @@ class WeatherData extends ComponentBase
             return Redirect::to($resort->url, 301);
         }
 
+        // /resorts/vermont is the state page, not a resort.
+        if ($slug && ($state = Resort::stateCodeForSlug($slug))) {
+            return $this->runStatePage($state);
+        }
+
         $this->page['resortPage'] = (bool) $slug;
         $result = $this->runLookup(get('address'), get('lat'), get('lon'), $slug ?: get('resort'));
 
@@ -69,7 +74,8 @@ class WeatherData extends ComponentBase
      */
     public function onLookup()
     {
-        $this->page['resortPage'] = (bool) $this->param('slug');
+        $slug = $this->param('slug');
+        $this->page['resortPage'] = $slug && !Resort::stateCodeForSlug($slug);
         $result = $this->runLookup(post('address'), post('lat'), post('lon'), post('resort'));
 
         return [
@@ -117,6 +123,42 @@ class WeatherData extends ComponentBase
     /**
      * schema.org data for a resort page: the ski resort and its breadcrumb trail.
      */
+    /**
+     * A state's page: its resorts ranked and listed (theme partial
+     * state-board), with its own title, description, canonical and
+     * breadcrumbs. 404 for a state with no resorts.
+     */
+    protected function runStatePage(string $code)
+    {
+        $count = Resort::isEnabled()->where('state', $code)->count();
+        if (!$count) {
+            $this->controller->setStatusCode(404);
+            return $this->controller->run('404');
+        }
+
+        $name = Resort::STATE_NAMES[$code];
+        $url = Resort::stateUrl($code);
+        $this->page['resortPage'] = false;
+        $this->page['statePage'] = ['code' => $code, 'name' => $name, 'url' => $url, 'count' => $count];
+        $this->page['canonicalUrl'] = 'https://cantheymakesnow.com/resorts/' . Resort::stateSlug($code);
+        $this->page->meta_title = "{$name} Ski Resorts: Snow & Snowmaking Forecast | Can They Make Snow?";
+        $this->page->meta_description = "Live forecasts for " . ($count === 1 ? "{$name}'s ski resort" : "all {$count} {$name} ski resorts")
+            . " from NOAA: which can make snow right now, hours of snowmaking in the next 48, and where the most new snow is coming.";
+
+        $home = rtrim(url('/'), '/') . '/';
+        $this->page['jsonLd'] = [
+            '@context' => 'https://schema.org',
+            '@graph' => [
+                ['@type' => 'CollectionPage', 'name' => "{$name} ski resorts: snow and snowmaking forecast", 'url' => $url],
+                ['@type' => 'BreadcrumbList', 'itemListElement' => [
+                    ['@type' => 'ListItem', 'position' => 1, 'name' => 'Can They Make Snow?', 'item' => $home],
+                    ['@type' => 'ListItem', 'position' => 2, 'name' => 'Ski resorts', 'item' => $home . 'resorts'],
+                    ['@type' => 'ListItem', 'position' => 3, 'name' => $name, 'item' => $url],
+                ]],
+            ],
+        ];
+    }
+
     protected function structuredData(array $result): ?array
     {
         if (empty($result['resort'])) {
@@ -140,7 +182,7 @@ class WeatherData extends ComponentBase
                     'itemListElement' => [
                         ['@type' => 'ListItem', 'position' => 1, 'name' => 'Can They Make Snow?', 'item' => $home],
                         ['@type' => 'ListItem', 'position' => 2, 'name' => 'Ski resorts', 'item' => $home . 'resorts'],
-                        ['@type' => 'ListItem', 'position' => 3, 'name' => $r['stateName'], 'item' => $home . 'resorts#' . strtolower($r['state'])],
+                        ['@type' => 'ListItem', 'position' => 3, 'name' => $r['stateName'], 'item' => $r['stateUrl']],
                         ['@type' => 'ListItem', 'position' => 4, 'name' => $r['name'], 'item' => $r['url']],
                     ],
                 ],

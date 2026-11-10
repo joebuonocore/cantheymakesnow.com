@@ -212,6 +212,42 @@ class WeatherService
     }
 
     /**
+     * Snowmaking over a set of zones' hourly series (a resort's base and
+     * summit, or one place): hours when either zone can make snow, hours when
+     * either is great or better, the coldest wet-bulb and when the first
+     * snowmaking hour starts (null if none).
+     * Returns ['hours' => int, 'greatHours' => int, 'coldestWetBulbC' => ?float, 'nextStart' => ?Carbon].
+     */
+    public function snowmakingStats(array $zones): array
+    {
+        $byHour = [];
+        foreach ($zones as $zone) {
+            foreach ($zone['hourly'] ?? [] as $point) {
+                $t = $point['time']->timestamp;
+                $tier = $this->snowmakingTier($point['wetBulbC'])['tier'];
+                $hour = $byHour[$t] ?? ['snow' => false, 'great' => false, 'wetBulbC' => $point['wetBulbC']];
+                $byHour[$t] = [
+                    'snow' => $hour['snow'] || $point['snow'],
+                    'great' => $hour['great'] || in_array($tier, ['ideal', 'great'], true),
+                    'wetBulbC' => min($hour['wetBulbC'], $point['wetBulbC']),
+                ];
+            }
+        }
+        ksort($byHour);
+
+        $stats = ['hours' => 0, 'greatHours' => 0, 'coldestWetBulbC' => null, 'nextStart' => null];
+        foreach ($byHour as $t => $hour) {
+            $stats['hours'] += $hour['snow'] ? 1 : 0;
+            $stats['greatHours'] += $hour['great'] ? 1 : 0;
+            $stats['coldestWetBulbC'] = $stats['coldestWetBulbC'] === null ? $hour['wetBulbC'] : min($stats['coldestWetBulbC'], $hour['wetBulbC']);
+            if ($hour['snow'] && !$stats['nextStart']) {
+                $stats['nextStart'] = Carbon::createFromTimestampUTC($t);
+            }
+        }
+        return $stats;
+    }
+
+    /**
      * Describe the next snowmaking window in plain words, in the location's
      * time zone. Returns ['state' => 'now'|'upcoming'|'none', 'text' => string].
      * $seriesEnd is when the forecast stops, so an open-ended window can say so.

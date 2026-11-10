@@ -103,6 +103,7 @@ class SnowReport
                 'name' => $resort->name,
                 'state' => $resort->state,
                 'stateName' => $resort->state_name,
+                'stateUrl' => $resort->state_url,
                 'url' => $resort->url,
                 'baseFt' => $resort->base_elev_ft,
                 'summitFt' => $resort->summit_elev_ft,

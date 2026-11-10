@@ -1,0 +1,73 @@
+description = "A state's page (/resorts/vermont): its resorts ranked by new snow and snowmaking hours, every resort's current forecast, and area powder alerts. Expects statePage."
+==
+{% set code = statePage.code %}
+{% set snowRows = Locations.snowBoard(code).rows|filter(r => (r.totals[48] ?? 0) >= 0.1)|slice(0, 5) %}
+{% set smRows = Locations.snowmakingBoard(code).rows|slice(0, 5) %}
+{% set resortRows = Locations.stateResorts(code) %}
+<section class="snow-board state-board" aria-labelledby="stateTitle">
+    <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="{{ 'resorts'|page }}">Ski resorts</a> <span aria-hidden="true">›</span> {{ statePage.name }}
+    </nav>
+    <h1 class="snow-board__title" id="stateTitle">{{ statePage.name }} ski resorts: snow and snowmaking forecast</h1>
+    <p class="snow-board__intro">Live from NOAA's hourly forecast for {{ statePage.count == 1 ? 'the resort' : 'all ' ~ statePage.count ~ ' resorts' }} we track in {{ statePage.name }}, at the base and the summit.</p>
+
+    <div class="top-lists">
+        <div>
+            <h2 class="section-title">Most new snow, next 48 hours</h2>
+            {% if snowRows|length %}
+                <ol class="top-list">
+                    {% for row in snowRows %}
+                        <li><span><a href="{{ row.url }}">{{ row.name }}</a></span> <strong>{{ row.totals[48]|snow|raw }}</strong></li>
+                    {% endfor %}
+                </ol>
+            {% else %}
+                <p class="snow-board__empty">No measurable snow in the forecast.</p>
+            {% endif %}
+        </div>
+        <div>
+            <h2 class="section-title">Most snowmaking, next 48 hours</h2>
+            {% if smRows|length %}
+                <ol class="top-list">
+                    {% for row in smRows %}
+                        <li><span><a href="{{ row.url }}">{{ row.name }}</a></span> <strong>{{ row.snowmaking.hours }} h</strong></li>
+                    {% endfor %}
+                </ol>
+            {% else %}
+                <p class="snow-board__empty">Too warm to make snow in the next 48 hours.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <h2 class="section-title">All {{ statePage.name }} resorts</h2>
+    <p class="state-table__note">Can they make snow now, then hours of snowmaking and new snow over the next 48 hours.</p>
+    <div class="state-table__scroll">
+        <table class="state-table">
+            <thead>
+                <tr><th scope="col">Resort</th><th scope="col">Now</th><th scope="col">Snowmaking</th><th scope="col">New snow</th></tr>
+            </thead>
+            <tbody>
+                {% for row in resortRows %}
+                    <tr>
+                        <th scope="row"><a href="{{ row.url }}">{{ row.name }}</a></th>
+                        {% if row.fresh %}
+                            {% set yes = row.tier in ['ideal', 'great', 'marginal'] %}
+                            <td><span class="state-table__answer" data-answer="{{ yes ? 'yes' : 'no' }}">{{ yes ? 'YES' : 'NO' }}</span></td>
+                            <td>{{ row.snowmaking.hours ?? 0 }} h</td>
+                            <td>{{ row.totals[48] is null ? 'n/a' : row.totals[48]|snow|raw }}</td>
+                        {% else %}
+                            <td colspan="3" class="state-table__stale">Not checked in the last few hours</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% partial 'alerts-area-form' %}
+
+    <p class="snow-board__meta">
+        <a href="{{ 'snow-forecast'|page }}">Where it's snowing</a> ·
+        <a href="{{ 'snowmaking-forecast'|page }}">Where they can make snow</a> ·
+        <a href="{{ 'resorts'|page }}">All ski resorts by state</a>
+    </p>
+</section>

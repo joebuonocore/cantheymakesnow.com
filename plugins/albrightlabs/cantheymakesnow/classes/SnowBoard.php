@@ -4,9 +4,11 @@ use Carbon\Carbon;
 use AlbrightLabs\CanTheyMakeSnow\Models\Resort;
 
 /**
- * The snow forecast page: resorts ranked by new snow expected at the base
- * over the next 24, 48 or 72 hours, from what the last lookup, alerts run
- * or ctms:refresh-resorts stored on each resort.
+ * The forecast boards, from what the last lookup, alerts run or
+ * ctms:refresh-resorts stored on each resort: resorts ranked by new snow
+ * expected at the base over the next 24, 48 or 72 hours (build), by hours
+ * they can make snow in the next 48 (snowmaking), and every resort in a
+ * state (stateResorts).
  */
 class SnowBoard
 {
@@ -29,14 +31,58 @@ class SnowBoard
      * 'checked' => resorts with a fresh forecast, 'updatedAt' => ?Carbon (the
      * oldest of those forecasts) and 'updatedLabel' ("25 minutes ago")].
      */
-    public static function build(?Carbon $now = null): array
+    public static function build(?Carbon $now = null, ?string $state = null): array
+    {
+        return self::board($now, $state, fn ($rows) => self::rank($rows, self::DEFAULT_HOURS));
+    }
+
+    /**
+     * Resorts that can make snow in the next 48 hours, most hours first.
+     * Same shape as build().
+     */
+    public static function snowmaking(?Carbon $now = null, ?string $state = null): array
+    {
+        return self::board($now, $state, fn ($rows) => self::rankSnowmaking($rows));
+    }
+
+    /**
+     * Every enabled resort in a state, by name, as rows with 'fresh' set
+     * when its stored forecast is recent enough to show.
+     */
+    public static function stateResorts(string $state, ?Carbon $now = null): array
     {
         $now = $now ?: Carbon::now('UTC');
-        $resorts = Resort::isEnabled()
-            ->where('last_checked_at', '>=', $now->copy()->subHours(self::FRESH_HOURS))
-            ->get();
+        $cutoff = $now->copy()->subHours(self::FRESH_HOURS)->timestamp;
+        return Resort::isEnabled()->where('state', $state)->orderBy('name')->get()
+            ->map(fn (Resort $resort) => self::row(self::attributes($resort), $now) + [
+                'fresh' => $resort->last_checked_at && $resort->last_checked_at->timestamp >= $cutoff,
+            ])
+            ->all();
+    }
 
-        $rows = $resorts->map(fn (Resort $resort) => self::row([
+    protected static function board(?Carbon $now, ?string $state, callable $rank): array
+    {
+        $now = $now ?: Carbon::now('UTC');
+        $query = Resort::isEnabled()->where('last_checked_at', '>=', $now->copy()->subHours(self::FRESH_HOURS));
+        if ($state) {
+            $query->where('state', $state);
+        }
+        $resorts = $query->get();
+        $rows = $resorts->map(fn (Resort $resort) => self::row(self::attributes($resort), $now))->all();
+
+        $updatedAt = $resorts->min('last_checked_at');
+        return [
+            'rows' => $rank($rows),
+            'hours' => self::DEFAULT_HOURS,
+            'checked' => $resorts->count(),
+            'updatedAt' => $updatedAt,
+            'updatedLabel' => $updatedAt ? $updatedAt->diffForHumans() : null,
+        ];
+    }
+
+    protected static function attributes(Resort $resort): array
+    {
+        return [
             'name' => $resort->name,
             'state' => $resort->state,
             'url' => $resort->url,
@@ -45,15 +91,10 @@ class SnowBoard
             'stormStart' => $resort->last_storm_start,
             'stormEnd' => $resort->last_storm_end,
             'timeZone' => $resort->time_zone,
-        ], $now))->all();
-
-        $updatedAt = $resorts->min('last_checked_at');
-        return [
-            'rows' => self::rank($rows, self::DEFAULT_HOURS),
-            'hours' => self::DEFAULT_HOURS,
-            'checked' => $resorts->count(),
-            'updatedAt' => $updatedAt,
-            'updatedLabel' => $updatedAt ? $updatedAt->diffForHumans() : null,
+            'smHours' => $resort->last_sm_hours_48,
+            'smGreatHours' => $resort->last_sm_great_hours_48,
+            'smColdest' => $resort->last_sm_coldest_wb,
+            'smNextStart' => $resort->last_sm_next_start,
         ];
     }
 
@@ -69,6 +110,7 @@ class SnowBoard
             $totals[$hours] = $value === null ? null : (float) $value;
         }
 
+        $hours = $resort['smHours'] ?? null;
         return [
             'name' => $resort['name'],
             'state' => $resort['state'],
@@ -76,7 +118,40 @@ class SnowBoard
             'tier' => $resort['tier'] ?? null,
             'totals' => $totals,
             'when' => self::when($resort['stormStart'] ?? null, $resort['stormEnd'] ?? null, $resort['timeZone'] ?? null, $now),
+            'snowmaking' => [
+                'hours' => $hours === null ? null : (int) $hours,
+                'greatHours' => (int) ($resort['smGreatHours'] ?? 0),
+                'coldestWetBulbC' => isset($resort['smColdest']) ? (float) $resort['smColdest'] : null,
+                'starts' => $hours ? self::startLabel($resort['smNextStart'] ?? null, $resort['timeZone'] ?? null, $now) : null,
+            ],
         ];
+    }
+
+    /**
+     * Rows that can make snow in the next 48 hours: most hours first, then
+     * most great hours, then the coldest, then by name.
+     */
+    public static function rankSnowmaking(array $rows): array
+    {
+        $rows = array_values(array_filter($rows, fn ($row) => ($row['snowmaking']['hours'] ?? 0) > 0));
+        usort($rows, fn ($a, $b) => [$b['snowmaking']['hours'], $b['snowmaking']['greatHours'], $a['snowmaking']['coldestWetBulbC'] ?? 99, $a['name']]
+            <=> [$a['snowmaking']['hours'], $a['snowmaking']['greatHours'], $b['snowmaking']['coldestWetBulbC'] ?? 99, $b['name']]);
+        return $rows;
+    }
+
+    /**
+     * When snowmaking starts, in local time, to follow "Starts": "tonight
+     * 9 PM", "Wed 3 PM". 'now' when it already can.
+     */
+    public static function startLabel(?Carbon $start, ?string $timeZone, Carbon $now): ?string
+    {
+        if (!$start || !$timeZone) {
+            return null;
+        }
+        if ($start->timestamp <= $now->timestamp) {
+            return 'now';
+        }
+        return (new WeatherService())->relativeTime($start->copy()->setTimezone($timeZone), $now->copy()->setTimezone($timeZone));
     }
 
     /**

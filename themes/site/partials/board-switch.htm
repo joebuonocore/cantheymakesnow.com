@@ -1,0 +1,6 @@
+description = "Links between the two forecast boards. Pass current='snow' or 'snowmaking'."
+==
+<nav class="seg-toggle board-switch" aria-label="Forecast boards">
+    <a href="{{ 'snow-forecast'|page }}"{% if current == 'snow' %} aria-current="page"{% endif %}>New snow</a>
+    <a href="{{ 'snowmaking-forecast'|page }}"{% if current == 'snowmaking' %} aria-current="page"{% endif %}>Snowmaking</a>
+</nav>

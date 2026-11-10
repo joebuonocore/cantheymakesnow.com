@@ -1,7 +1,7 @@
-description = "Interactive map: resorts and looked-up cities coloured by last known snowmaking tier, or resorts labelled with new snow in the next 48 hours. Pass mapMode='snow' to start in snow mode. Driven by site.js."
+description = "Interactive map: resorts and looked-up cities coloured by last known snowmaking tier, or resorts labelled with new snow in the next 48 hours. Pass mapMode='snow' to start in snow mode, fitState='VT' to zoom to one state's resorts. Driven by site.js."
 ==
 {% set mode = mapMode == 'snow' ? 'snow' : 'tiers' %}
-<div id="map" class="screen__map-canvas" data-mode="{{ mode }}" aria-label="Map of resorts and recently checked places. Click anywhere to check that spot."></div>
+<div id="map" class="screen__map-canvas" data-mode="{{ mode }}"{% if fitState %} data-fit-state="{{ fitState }}"{% endif %} aria-label="Map of resorts and recently checked places. Click anywhere to check that spot."></div>
 <script type="application/json" id="mapData">{{ mapPoints|json_encode|raw }}</script>
 
 <div class="map-panel">

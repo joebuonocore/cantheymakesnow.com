@@ -35,7 +35,7 @@ meta_description = "Every US ski resort we check, grouped by state: live answers
 
             {% for group in groups %}
                 <section class="directory__state" id="{{ group.code|lower }}" aria-labelledby="state-{{ group.code|lower }}">
-                    <h2 class="section-title" id="state-{{ group.code|lower }}">{{ group.name }}</h2>
+                    <h2 class="section-title" id="state-{{ group.code|lower }}"><a href="{{ group.url }}">{{ group.name }}</a></h2>
                     <ul class="resort-links">
                         {% for r in group.resorts %}
                             <li>
