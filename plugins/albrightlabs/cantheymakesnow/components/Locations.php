@@ -1,5 +1,7 @@
 <?php namespace AlbrightLabs\CanTheyMakeSnow\Components;
 
+use AlbrightLabs\CanTheyMakeSnow\Classes\SnowBoard;
+use AlbrightLabs\CanTheyMakeSnow\Classes\Units;
 use AlbrightLabs\CanTheyMakeSnow\Models\Location;
 use AlbrightLabs\CanTheyMakeSnow\Models\Resort;
 
@@ -66,8 +68,18 @@ class Locations extends ComponentBase
     }
 
     /**
+     * Resorts ranked by new snow, for the snow forecast page.
+     */
+    public function snowBoard(): array
+    {
+        return SnowBoard::build();
+    }
+
+    /**
      * Resorts and looked-up cities as plain map points with their last
      * known snowmaking tier and when it was checked (ISO 8601, or null).
+     * Resorts also carry their 48-hour new snow, pre-formatted in both
+     * unit systems for the map's snow mode.
      */
     public function getMapPoints(): array
     {
@@ -82,6 +94,11 @@ class Locations extends ComponentBase
                 'lng' => (float) $resort->lon,
                 'tier' => $resort->last_tier,
                 'checkedAt' => $resort->last_checked_at ? $resort->last_checked_at->toIso8601String() : null,
+                'snow48' => $resort->last_snow_48h_in === null ? null : [
+                    'in' => (float) $resort->last_snow_48h_in,
+                    'f' => Units::snow((float) $resort->last_snow_48h_in, 'f'),
+                    'c' => Units::snow((float) $resort->last_snow_48h_in, 'c'),
+                ],
             ];
         }
 
@@ -103,7 +120,7 @@ class Locations extends ComponentBase
     {
         return Resort::isEnabled()
             ->orderBy('name')
-            ->get(['slug', 'name', 'state', 'lat', 'lon', 'last_wet_bulb', 'last_tier', 'last_checked_at']);
+            ->get(['slug', 'name', 'state', 'lat', 'lon', 'last_wet_bulb', 'last_tier', 'last_checked_at', 'last_snow_48h_in']);
     }
 
     public function getLocations()

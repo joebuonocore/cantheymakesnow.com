@@ -40,11 +40,36 @@ class Resort extends Model
         'is_enabled',
     ];
 
-    public $dates = ['last_checked_at'];
+    public $dates = ['last_checked_at', 'last_storm_start', 'last_storm_end'];
 
     public function scopeIsEnabled($query)
     {
         return $query->where('is_enabled', true);
+    }
+
+    /**
+     * The columns a fresh SnowReport result updates: the map pin's tier
+     * (the colder of base and summit, so pins show snowmaking when it's
+     * possible anywhere on the mountain) and the base's new-snow forecast.
+     */
+    public static function conditionsFrom(array $result): array
+    {
+        $snow = $result['snow'] ?? null;
+        $totals = $snow['totals'] ?? [];
+        $storm = $snow['powder'] ?? null;
+        $tenths = fn ($inches) => $inches === null ? null : round((float) $inches, 1);
+
+        return [
+            'last_wet_bulb' => round($result['answer']['wetBulbC'], 2),
+            'last_tier' => $result['answer']['tier'],
+            'last_snow_24h_in' => $tenths($totals[24] ?? null),
+            'last_snow_48h_in' => $tenths($totals[48] ?? null),
+            'last_snow_72h_in' => $tenths($totals[72] ?? null),
+            'last_storm_in' => $storm ? $tenths($storm['totalIn']) : null,
+            'last_storm_start' => $storm ? $storm['start']->copy()->utc() : null,
+            'last_storm_end' => $storm ? $storm['end']->copy()->utc() : null,
+            'time_zone' => $result['timeZone'] ?? null,
+        ];
     }
 
     public function getLabelAttribute(): string

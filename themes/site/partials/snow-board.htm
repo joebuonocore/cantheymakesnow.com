@@ -1,0 +1,45 @@
+description = "Snow forecast page: resorts ranked by new snow at the base in the next 24/48/72 hours (SnowBoard). Every resort with snow in any window is rendered; site.js re-sorts and hides rows when the window changes."
+==
+{% set board = Locations.snowBoard() %}
+{% set hours = board.hours %}
+{% set visible = board.rows|filter(r => (r.totals[hours] ?? 0) >= 0.1)|length %}
+<section class="snow-board" aria-labelledby="snowBoardTitle">
+    <div class="snow-board__head">
+        <h1 class="snow-board__title" id="snowBoardTitle">Where's it snowing?</h1>
+        <div class="seg-toggle" role="group" aria-label="Forecast window">
+            {% for h in [24, 48, 72] %}
+                <button type="button" data-hours="{{ h }}" aria-pressed="{{ h == hours ? 'true' : 'false' }}">{{ h }} h</button>
+            {% endfor %}
+        </div>
+    </div>
+    <p class="snow-board__intro">US ski resorts ranked by new snow in NOAA's forecast for the next <span data-hours-label>{{ hours }}</span> hours, at the base. Summits often get more.</p>
+
+    <ol class="snow-board__list">
+        {% for row in board.rows %}
+            <li class="snow-board__row" data-name="{{ row.name }}"{% for h in [24, 48, 72] %} data-in-{{ h }}="{{ row.totals[h] ?? 0 }}"{% endfor %}{{ (row.totals[hours] ?? 0) < 0.1 ? ' hidden' }}>
+                <div class="snow-board__place">
+                    <a href="{{ row.url }}">{{ row.name }}</a> <span class="snow-board__state">{{ row.state }}</span>
+                    {% if row.when or row.tier in ['ideal', 'great', 'marginal'] %}
+                        <span class="snow-board__detail">
+                            {{ row.when }}{% if row.when and row.tier in ['ideal', 'great', 'marginal'] %} · {% endif %}{% if row.tier in ['ideal', 'great', 'marginal'] %}Snowmaking now{% endif %}
+                        </span>
+                    {% endif %}
+                </div>
+                <span class="snow-board__amount">
+                    {% for h in [24, 48, 72] %}
+                        <span data-window="{{ h }}"{{ h != hours ? ' hidden' }}>{{ row.totals[h] is null ? 'n/a' : row.totals[h]|snow|raw }}</span>
+                    {% endfor %}
+                </span>
+            </li>
+        {% endfor %}
+    </ol>
+    <p class="snow-board__empty"{{ visible ? ' hidden' }}>
+        No measurable snow is forecast at any of our resorts in the next <span data-hours-label>{{ hours }}</span> hours.
+        <a href="{{ 'resorts'|page }}">See every resort's snowmaking forecast</a>.
+    </p>
+
+    <p class="snow-board__meta">
+        {% if board.updatedLabel %}From NOAA forecasts for {{ board.checked }} resorts, updated {{ board.updatedLabel }}.{% endif %}
+        <a href="{{ 'alerts'|page }}">Get an email</a> when a resort you follow is forecast for {{ 3|snow|raw }}, {{ 6|snow|raw }} or {{ 12|snow|raw }} of new snow.
+    </p>
+</section>

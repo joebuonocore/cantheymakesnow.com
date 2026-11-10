@@ -1,4 +1,4 @@
-description = "The app: search, saved places, result, optional home guide, map and footer. Shared by the home and resort pages. Pass guide=true for the home page guide."
+description = "The app: search, saved places, result, optional home guide or snow forecast list, map and footer. Shared by the home, resort and snow forecast pages. Pass guide=true for the home page guide, board=true for the snow forecast list (which also opens the map in snow mode)."
 ==
 <script type="application/json" id="resortData">{{ resorts|json_encode|raw }}</script>
 {% partial 'wx-icons' %}
@@ -6,7 +6,7 @@ description = "The app: search, saved places, result, optional home guide, map a
 <main class="screen">
 
     <section class="screen__content">
-        {% partial 'header' pageHasHeading=resortPage %}
+        {% partial 'header' pageHasHeading=(resortPage or board) %}
 
         <form id="lookupForm" action="{{ 'home'|page }}" method="get" class="hero-form" autocomplete="off">
             <label class="visually-hidden" for="address">City, state or ski resort</label>
@@ -39,10 +39,11 @@ description = "The app: search, saved places, result, optional home guide, map a
         </div>
 
         {% if guide %}{% partial 'home-guide' %}{% endif %}
+        {% if board %}{% partial 'snow-board' %}{% endif %}
     </section>
 
     <section class="screen__map">
-        {% partial 'map' %}
+        {% partial 'map' mapMode=(board ? 'snow' : 'tiers') %}
     </section>
 
     <footer class="screen__footer">
