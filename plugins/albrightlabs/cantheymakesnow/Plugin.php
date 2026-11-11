@@ -146,6 +146,8 @@ class Plugin extends PluginBase
                 'label' => 'Locations',
                 'url' => Backend::url('albrightlabs/cantheymakesnow/resorts'),
                 'icon' => 'icon-snowflake-o',
+                // The site's own mark (same as favicon.svg).
+                'iconSvg' => 'plugins/albrightlabs/cantheymakesnow/assets/images/logo.svg',
                 'permissions' => ['albrightlabs.cantheymakesnow'],
                 'order' => 500,
                 'sideMenu' => [
