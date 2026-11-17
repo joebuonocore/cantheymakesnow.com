@@ -26,6 +26,8 @@ class SnowBoard
      */
     const MIN_IN = 0.1;
 
+    const MAX_COMPARE = 4;
+
     /**
      * Returns ['rows' => ranked rows (see row()), 'hours' => default window,
      * 'checked' => resorts with a fresh forecast, 'updatedAt' => ?Carbon (the
@@ -43,6 +45,57 @@ class SnowBoard
     public static function snowmaking(?Carbon $now = null, ?string $state = null): array
     {
         return self::board($now, $state, fn ($rows) => self::rankSnowmaking($rows));
+    }
+
+    /**
+     * Up to MAX_COMPARE resorts by slug, in the order given, as rows with
+     * 'slug', 'fresh' and 'daily' (the 7-day outlook) added. Unknown slugs
+     * are dropped.
+     */
+    public static function compare(array $slugs, ?Carbon $now = null): array
+    {
+        $now = $now ?: Carbon::now('UTC');
+        $slugs = array_slice(array_values(array_unique(array_filter($slugs, fn ($s) => is_string($s) && preg_match('/^[a-z0-9-]+$/', $s)))), 0, self::MAX_COMPARE);
+        $resorts = Resort::isEnabled()->whereIn('slug', $slugs)->get()->keyBy('slug');
+        $cutoff = $now->copy()->subHours(self::FRESH_HOURS)->timestamp;
+        $rows = [];
+        foreach ($slugs as $slug) {
+            if ($resort = $resorts->get($slug)) {
+                $fresh = $resort->last_checked_at && $resort->last_checked_at->timestamp >= $cutoff;
+                $rows[] = self::row(self::attributes($resort), $now) + ['slug' => $slug, 'fresh' => $fresh, 'daily' => $fresh ? ($resort->last_daily ?: []) : []];
+            }
+        }
+        return $rows;
+    }
+
+    /**
+     * The compare table's days: each date any resort has, with each
+     * resort's day (or null) and the slug of the best one that day (most
+     * new snow, then most snowmaking hours; null when none has either).
+     */
+    public static function compareDays(array $rows): array
+    {
+        $days = [];
+        foreach ($rows as $row) {
+            foreach ($row['daily'] ?? [] as $day) {
+                $days[$day['date']] ??= ['date' => $day['date'], 'label' => $day['label'], 'cells' => array_fill_keys(array_column($rows, 'slug'), null), 'best' => null];
+                $days[$day['date']]['cells'][$row['slug']] = $day;
+            }
+        }
+        ksort($days);
+        foreach ($days as &$day) {
+            $best = null;
+            foreach ($day['cells'] as $slug => $cell) {
+                if (!$cell || ($cell['snowIn'] < self::MIN_IN && !$cell['smHours'])) {
+                    continue;
+                }
+                if (!$best || [$cell['snowIn'], $cell['smHours']] > [$day['cells'][$best]['snowIn'], $day['cells'][$best]['smHours']]) {
+                    $best = $slug;
+                }
+            }
+            $day['best'] = $best;
+        }
+        return array_values($days);
     }
 
     /**

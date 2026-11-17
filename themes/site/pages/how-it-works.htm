@@ -1,0 +1,152 @@
+url = "/how-it-works"
+layout = "default"
+title = "How it works"
+description = "How the site works, start to finish: the snowmaking science, the wet-bulb math, NOAA's data, the rankings and alerts, and the code. Keep the numbers in step with WeatherService, SnowReport, AlertRules, RefreshResorts and SnowBoard."
+meta_title = "How It Works: Wet-Bulb Science, NOAA Data and the Code | Can They Make Snow?"
+meta_description = "Exactly how Can They Make Snow? works: why snowmaking depends on the wet-bulb temperature, the formula we use, where NOAA's forecasts come from, how base and summit are checked, and how the site is built."
+==
+{% set sections = [
+    ['short', 'The short version'],
+    ['science', 'The science of snowmaking'],
+    ['math', 'The wet-bulb math'],
+    ['data', "Where the data comes from"],
+    ['summit', 'Base and summit'],
+    ['snow', 'New snow'],
+    ['tools', 'The rankings and tools'],
+    ['fresh', 'Keeping it fresh'],
+    ['alerts', 'Alerts'],
+    ['maps', 'Maps and search'],
+    ['code', 'How it is built'],
+    ['limits', "What it can't tell you"],
+] %}
+<main class="screen screen--page">
+    <section class="screen__content page-width">
+        <div class="wide-page how-page">
+            <h1 class="wide-page__title">How it works</h1>
+
+            <div class="how-layout">
+                <nav class="how-toc" aria-labelledby="howTocTitle">
+                    <h2 class="section-title" id="howTocTitle">On this page</h2>
+                    <ol>
+                        {% for s in sections %}<li><a href="#{{ s[0] }}">{{ s[1] }}</a></li>{% endfor %}
+                    </ol>
+                </nav>
+
+                <div class="prose how-body">
+                    <section id="short">
+                        <h2>The short version</h2>
+                        <p>For any US ski resort or town, we take the National Weather Service's hourly forecast, work out the <strong>wet-bulb temperature</strong> for every hour, and check it against the point where snow guns can run. Resorts are checked at the base and the summit. The same forecast gives new snow for the next three days and a day-by-day outlook for the week. Every resort is refreshed about every two hours whether anyone is looking or not, so the rankings, maps and alerts stay current.</p>
+                    </section>
+
+                    <section id="science">
+                        <h2>The science of snowmaking</h2>
+                        <p>A snow gun sprays a fine mist of water into the air (often seeded with tiny ice nuclei and mixed with compressed air). For that mist to land as snow, each droplet has to freeze during the few seconds it spends in the air. Two things cool a droplet: cold air, and evaporation. As a little of the droplet evaporates, it takes heat with it, so dry air cools droplets much faster than damp air at the same temperature.</p>
+                        <p>The <strong>wet-bulb temperature</strong> captures both at once. It's the temperature a wet thermometer settles at as water evaporates from it, so it's always at or below the air temperature, and the drier the air, the lower it goes. That's why snowmakers watch the wet-bulb, not the thermometer: at {{ 0|temp|raw }} with low humidity they can often make snow, while at {{ (-1)|temp|raw }} in fog they can't.</p>
+                        <p>We use the thresholds snowmaking crews commonly work to:</p>
+                        <ul>
+                            <li><strong>Marginal</strong>: wet-bulb below {{ (-2)|temp|raw }}. The guns can run, but the snow is wet and output is low.</li>
+                            <li><strong>Great</strong>: below {{ (-4)|temp|raw }}. Good-quality snow at a useful rate.</li>
+                            <li><strong>Ideal</strong>: below {{ (-7)|temp|raw }}. Dry snow, high output.</li>
+                            <li><strong>Too warm</strong>: anything warmer. Between {{ (-2)|temp|raw }} and {{ 0|temp|raw }} it's below freezing but droplets won't freeze in flight.</li>
+                        </ul>
+                        <p>"YES" means the wet-bulb is below {{ (-2)|temp|raw }} at the base or the summit right now. A "snowmaking window" is a run of consecutive forecast hours below that line.</p>
+                    </section>
+
+                    <section id="math">
+                        <h2>The wet-bulb math</h2>
+                        <p>The exact wet-bulb temperature comes from solving the psychrometric equations iteratively. We use Roland Stull's 2011 approximation instead (<em>Journal of Applied Meteorology and Climatology</em>, "Wet-Bulb Temperature from Relative Humidity and Air Temperature"), which needs only the air temperature <var>T</var> in °C and relative humidity <var>RH</var> in percent:</p>
+                        <pre class="how-formula"><code>Tw = T · atan(0.151977 · (RH + 8.313659)^½)
+   + atan(T + RH) − atan(RH − 1.676331)
+   + 0.00391838 · RH^(3/2) · atan(0.023101 · RH)
+   − 4.686035</code></pre>
+                        <p>It's accurate to within about 1 °C for humidity between 5% and 99% and temperatures from −20 °C to 50 °C, at sea-level pressure. That covers almost every snowmaking hour, and the result is always shown in your choice of °F or °C.</p>
+                        <p>Where we need humidity from a dewpoint (for the summit estimate below) we use the Magnus formula: <code>RH = 100 · e^(17.625·Td / (243.04 + Td)) / e^(17.625·T / (243.04 + T))</code>.</p>
+                    </section>
+
+                    <section id="data">
+                        <h2>Where the data comes from</h2>
+                        <p>All forecasts come from the National Weather Service's free public API at <code>api.weather.gov</code>:</p>
+                        <ol>
+                            <li><strong>Points</strong>: for a latitude and longitude, NOAA tells us which forecast office and which square of its forecast grid (about 2.5 km on a side) covers it, plus the nearest town and the time zone.</li>
+                            <li><strong>Gridpoints</strong>: that square's raw forecast, hour by hour for about a week: temperature, relative humidity, snowfall, wind, sky cover and more. This is the same data behind weather.gov's own forecasts. We build the 48-hour snowmaking chart and the 7-day outlook from it.</li>
+                            <li><strong>Forecast</strong>: the plain-language 7-day forecast ("Chance Snow Showers"), for the outlook cards and the snow ranges in them.</li>
+                            <li><strong>Observations</strong>: the latest reading from the nearest weather station, shown for comparison when it's recent.</li>
+                        </ol>
+                        <p>NOAA's forecast covers the US and its territories only, which is why lookups elsewhere say so.</p>
+                    </section>
+
+                    <section id="summit">
+                        <h2>Base and summit</h2>
+                        <p>A mountain isn't one temperature. Air usually cools with height, so the summit can often make snow first. On calm, clear nights it can flip, as cold air drains into the valleys and the base ends up colder than the top. So every resort is checked at both, and "YES" means either one can make snow.</p>
+                        <p>When the summit falls in a different NOAA grid square from the base, we use NOAA's forecast for that square. When both fall in the same square, we estimate the summit from the base forecast using standard rates of change with height: temperature drops 6.5 °C per kilometre, dewpoint 1.8 °C per kilometre, and humidity is worked out again from the two. We only do this when the summit is at least 300 ft above the forecast grid's elevation, and the page marks it "(est.)".</p>
+                        <p>New snow comes from the base's grid square, so summits often get more than the numbers show.</p>
+                    </section>
+
+                    <section id="snow">
+                        <h2>New snow</h2>
+                        <p>NOAA forecasts snowfall in blocks of a few hours. We spread each block evenly across its hours, then add them up into 6-hour periods for the chart and into 24-, 48- and 72-hour totals. A "storm" is a run of 6-hour periods with at least 0.1″ each; the "powder" headline is the biggest storm starting in the next 48 hours.</p>
+                        <p>"Will it snow?" answers <strong>YES</strong> when at least 0.1″ is forecast in the next 72 hours, <strong>MAYBE</strong> when only the 7-day text forecast mentions snow (or sleet, flurries or a wintry mix), and <strong>NO</strong> otherwise.</p>
+                    </section>
+
+                    <section id="tools">
+                        <h2>The rankings and tools</h2>
+                        <ul>
+                            <li><strong>Where's it snowing?</strong> ranks resorts by new snow in the chosen window. "Best snow conditions right now" ranks by new snow due in the next 24 hours, then by snowmaking tier right now.</li>
+                            <li><strong>Where can they make snow?</strong> ranks by how many of the next 48 hours either base or summit is below {{ (-2)|temp|raw }}, then by "great" hours, then by the coldest wet-bulb.</li>
+                            <li><strong>State pages</strong> show the same two rankings for one state, plus every resort's numbers.</li>
+                            <li><strong>Compare</strong> puts up to four resorts side by side, with the best resort each day highlighted (most new snow, then most snowmaking hours).</li>
+                            <li><strong>Trip planner</strong> finds resorts within your chosen distance (great-circle distance from the point you pick) or in a state, adds up new snow and snowmaking hours over your days, and ranks them.</li>
+                            <li><strong>My resorts</strong> shows the resorts you've starred. They're stored in your browser only.</li>
+                        </ul>
+                        <p>Rankings only include resorts whose forecast was refreshed in the last 6 hours, so nothing is ranked on stale data.</p>
+                    </section>
+
+                    <section id="fresh">
+                        <h2>Keeping it fresh</h2>
+                        <ul>
+                            <li>Every hour, a background job refreshes every resort that hasn't been checked in the last 90 minutes, so each one updates about every two hours even if nobody looks it up.</li>
+                            <li>To be polite to NOAA, responses are cached: grid forecasts for 30 minutes (NOAA updates them about hourly), grid lookups for a day, and station observations for 10 minutes.</li>
+                            <li>Each time a resort is checked, its current hour and the next three are written to an hourly log. Later checks overwrite them, so every past hour keeps the closest-to-real-time forecast for it. That log is the start of a season history.</li>
+                        </ul>
+                    </section>
+
+                    <section id="alerts">
+                        <h2>Alerts</h2>
+                        <p>Alerts are checked every hour. A few rules keep them useful rather than noisy:</p>
+                        <ul>
+                            <li>Every sign-up is confirmed by an emailed link first.</li>
+                            <li>At most one email per resort (or area) per alert type every 20 hours, and none between 10 PM and 6 AM in the resort's time zone; anything held is sent at the next check.</li>
+                            <li>One email per snowmaking window and per storm. If a storm's forecast grows a lot (by half again and at least 4″), you get one update.</li>
+                            <li>"Powder near you" looks at every resort within your chosen distance of a town, using forecasts no more than 3 hours old, and lists them all in one email.</li>
+                        </ul>
+                        <p>Emails are sent through Brevo. Every one has links to change or stop your alerts.</p>
+                    </section>
+
+                    <section id="maps">
+                        <h2>Maps and search</h2>
+                        <p>The map and the place suggestions in the search box use Google Maps. Ski resorts are matched from our own list, so they never touch Google; typed towns are looked up once with Google's geocoder and cached for a day. Map pins for towns people have checked sit on NOAA's coordinates for the town, never on anyone's own location.</p>
+                    </section>
+
+                    <section id="code">
+                        <h2>How it is built</h2>
+                        <ul>
+                            <li><strong>Server</strong>: PHP 8.3 with Laravel 12 and October CMS 4, on a MySQL database, deployed with Laravel Forge. The snowmaking logic lives in a small plugin: a NOAA client, a weather service with the formulas above, a report builder that turns a place into everything on the page, and the rankings, alert rules and scheduled jobs.</li>
+                            <li><strong>Pages</strong>: rendered on the server, so they load fast and search engines can read them. The charts are SVG drawn on the server, and share images are drawn with PHP's GD library.</li>
+                            <li><strong>Browser</strong>: plain JavaScript with no build step, and Bootstrap for the base styles. The embeddable widget draws itself in a Shadow DOM so other sites' styles can't break it.</li>
+                            <li><strong>Testing</strong>: the formulas, rankings and alert rules are covered by unit tests, and pages are checked in automated browsers at phone and desktop sizes before every release.</li>
+                        </ul>
+                        <p>It's a free project by <a href="https://albrightlabs.com" target="_blank" rel="noopener">Albright Labs</a>.</p>
+                    </section>
+
+                    <section id="limits">
+                        <h2>What it can't tell you</h2>
+                        <p>Everything here is a forecast, not an observation, and forecasts get less certain the further out they go. Whether a resort actually makes snow also depends on things no forecast knows: water supply, staffing, energy prices and how much terrain they still need to cover. And a grid square's average elevation isn't exactly your trail's, so treat the numbers as a strong guide, not a guarantee.</p>
+                        <p>Questions or spotted something wrong? Email <a href="mailto:support@albrightlabs.com">support@albrightlabs.com</a>. See the <a href="{{ 'privacy'|page }}">privacy page</a> for what we store.</p>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {% partial 'footer' %}
+</main>

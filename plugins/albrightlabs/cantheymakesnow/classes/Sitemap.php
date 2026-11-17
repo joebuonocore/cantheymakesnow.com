@@ -16,7 +16,7 @@ class Sitemap
     {
         $base = rtrim(url('/'), '/');
         return array_merge(
-            ["{$base}/", "{$base}/snow-forecast", "{$base}/snowmaking-forecast", "{$base}/will-it-snow", "{$base}/resorts", "{$base}/alerts", "{$base}/embed", "{$base}/privacy"],
+            ["{$base}/", "{$base}/snow-forecast", "{$base}/snowmaking-forecast", "{$base}/will-it-snow", "{$base}/compare", "{$base}/trip-planner", "{$base}/early-season", "{$base}/resorts", "{$base}/alerts", "{$base}/embed", "{$base}/how-it-works", "{$base}/privacy"],
             self::stateUrls(),
             self::resortUrls()
         );
@@ -29,7 +29,7 @@ class Sitemap
     public static function forecastUrls(): array
     {
         $base = rtrim(url('/'), '/');
-        return array_merge(["{$base}/", "{$base}/snow-forecast", "{$base}/snowmaking-forecast"], self::stateUrls(), self::resortUrls());
+        return array_merge(["{$base}/", "{$base}/snow-forecast", "{$base}/snowmaking-forecast", "{$base}/early-season"], self::stateUrls(), self::resortUrls());
     }
 
     /**

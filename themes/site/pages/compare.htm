@@ -1,0 +1,87 @@
+url = "/compare"
+layout = "default"
+title = "Compare resorts"
+description = "Compare up to 4 resorts side by side (?r=slug,slug): now, next 48 hours and the 7-day outlook, from stored forecasts (SnowBoard::compare)."
+meta_title = "Compare Ski Resorts: Snow Forecast & Snowmaking Side by Side | Can They Make Snow?"
+meta_description = "Compare up to four US ski resorts side by side: whether they can make snow now, new snow and snowmaking hours over the next 48 hours, and a 7-day outlook from NOAA."
+
+[Locations]
+==
+{% set compare = Locations.compare() %}
+{% set picked = compare.rows %}
+{% set groups = Locations.resortsByState() %}
+<main class="screen screen--page">
+    <section class="screen__content page-width">
+        <div class="wide-page compare-page">
+            <h1 class="wide-page__title">Compare ski resorts</h1>
+            <p class="prose">Pick up to four resorts to see them side by side: whether they can make snow now, the next 48 hours, and the week ahead day by day. The page link updates as you pick, so you can share the comparison.</p>
+
+            <form class="compare-picker" id="comparePicker" method="get" action="{{ 'compare'|page }}">
+                {% for i in 0..3 %}
+                    <label>Resort {{ i + 1 }}
+                        <select name="r[]" class="form-select rounded-0">
+                            <option value="">Choose a resort</option>
+                            {% for group in groups %}
+                                <optgroup label="{{ group.name }}">
+                                    {% for r in group.resorts %}
+                                        <option value="{{ r.slug }}"{{ picked[i] is defined and picked[i].slug == r.slug ? ' selected' }}>{{ r.name }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% endfor %}
+                        </select>
+                    </label>
+                {% endfor %}
+                <noscript><button type="submit" class="btn btn-primary rounded-0">Compare</button></noscript>
+            </form>
+
+            {% if picked|length %}
+                <section class="screen__map compare-map" aria-label="Map of the resorts being compared">
+                    {% partial 'map' fitSlugs=picked|map(r => r.slug) %}
+                </section>
+
+                <h2 class="section-title">Now and the next 48 hours</h2>
+                <div class="state-table__scroll">
+                    <table class="state-table compare-table">
+                        <thead>
+                            <tr><th scope="col"><span class="visually-hidden">Measure</span></th>{% for row in picked %}<th scope="col"><a href="{{ row.url }}">{{ row.name }}</a> <span class="top-list__state">{{ row.state }}</span></th>{% endfor %}</tr>
+                        </thead>
+                        <tbody>
+                            <tr><th scope="row">Can they make snow now?</th>{% for row in picked %}{% set yes = row.tier in ['ideal', 'great', 'marginal'] %}<td>{% if row.fresh %}<span class="state-table__answer" data-answer="{{ yes ? 'yes' : 'no' }}">{{ yes ? 'YES' : 'NO' }}</span>{% else %}<span class="state-table__stale">Not checked recently</span>{% endif %}</td>{% endfor %}</tr>
+                            <tr><th scope="row">New snow, next 24 h</th>{% for row in picked %}<td>{{ row.fresh and row.totals[24] is not null ? row.totals[24]|snow|raw : 'n/a' }}</td>{% endfor %}</tr>
+                            <tr><th scope="row">New snow, next 48 h</th>{% for row in picked %}<td>{{ row.fresh and row.totals[48] is not null ? row.totals[48]|snow|raw : 'n/a' }}</td>{% endfor %}</tr>
+                            <tr><th scope="row">Snowmaking, next 48 h</th>{% for row in picked %}{% set sm = row.snowmaking %}<td>{% if row.fresh and sm.hours is not null %}{{ sm.hours }} h{% if sm.starts and sm.starts != 'now' %} <span class="compare-table__note">from {{ sm.starts }}</span>{% endif %}{% else %}n/a{% endif %}</td>{% endfor %}</tr>
+                            <tr><th scope="row">Coldest wet-bulb, 48 h</th>{% for row in picked %}<td>{{ row.fresh and row.snowmaking.coldestWetBulbC is not null ? row.snowmaking.coldestWetBulbC|temp|raw : 'n/a' }}</td>{% endfor %}</tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if compare.days|length %}
+                    <h2 class="section-title">Next 7 days</h2>
+                    <p class="state-table__note">New snow, then hours cold enough to make snow (base or summit). The best resort each day is highlighted.</p>
+                    <div class="state-table__scroll">
+                        <table class="state-table compare-table compare-days">
+                            <thead>
+                                <tr><th scope="col">Day</th>{% for row in picked %}<th scope="col">{{ row.name }}</th>{% endfor %}</tr>
+                            </thead>
+                            <tbody>
+                                {% for day in compare.days %}
+                                    <tr>
+                                        <th scope="row">{{ day.date|date('D j') }}</th>
+                                        {% for row in picked %}
+                                            {% set cell = day.cells[row.slug] %}
+                                            <td{{ day.best == row.slug ? ' class="is-best"' }}>{% if cell %}{{ cell.snowIn|snow|raw }} <span class="compare-table__note">· {{ cell.smHours }} h</span>{% else %}n/a{% endif %}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            {% else %}
+                <p class="prose">Choose resorts above, or try <a href="{{ 'compare'|page }}?r=stowe-mountain-resort,killington-resort,jay-peak-resort">Stowe vs Killington vs Jay Peak</a> or <a href="{{ 'compare'|page }}?r=vail,breckenridge,keystone,arapahoe-basin">Vail, Breckenridge, Keystone and Arapahoe Basin</a>.</p>
+            {% endif %}
+        </div>
+    </section>
+
+    {% partial 'footer' %}
+</main>

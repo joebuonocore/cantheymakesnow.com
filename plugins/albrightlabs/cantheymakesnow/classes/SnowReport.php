@@ -17,6 +17,8 @@ class SnowReport
     const HTTP_TIMEOUT = 10;
     const HTTP_CONNECT_TIMEOUT = 5;
     const FORECAST_HOURS = 48;
+    /** The day-by-day outlook (compare, trip planner, My resorts) covers about a week. */
+    const DAILY_HOURS = 168;
     const SNOW_HOURS = 72;
     const OBSERVATION_MAX_AGE_SECONDS = 7200;
     const CACHE_TTL_GEOCODE = 86400;
@@ -113,8 +115,12 @@ class SnowReport
                     ->where('id', '!=', $resort->id)
                     ->orderBy('name')
                     ->get(['slug', 'name'])
-                    ->map(fn ($r) => ['name' => $r->name, 'url' => $r->url])
+                    ->map(fn ($r) => ['slug' => $r->slug, 'name' => $r->name, 'url' => $r->url])
                     ->all(),
+                // The two closest resorts in any state, for "Compare with nearby resorts".
+                'closest' => Resort::isEnabled()->where('id', '!=', $resort->id)->get(['slug', 'lat', 'lon'])
+                    ->sortBy(fn ($r) => AreaAlerts::distanceMi((float) $resort->lat, (float) $resort->lon, (float) $r->lat, (float) $r->lon))
+                    ->take(2)->pluck('slug')->values()->all(),
             ];
             $result['pinLat'] = (float) $resort->lat;
             $result['pinLon'] = (float) $resort->lon;
@@ -122,7 +128,13 @@ class SnowReport
         }
         $result['answer'] = $this->weather->combineZones($result['zones'] ?? ['here' => $result]);
         $result['snowAnswer'] = $this->snowAnswerFor($result);
-        unset($result['series']);
+        // Day by day for the next week (either zone for snowmaking, base for snow and temperatures).
+        $long = array_map(fn ($zone) => $zone['seriesLong'] ?? [], $result['zones'] ?? ['here' => $result]);
+        $result['daily'] = $this->weather->dailySummary($long, $result['snowHourlyIn'], $result['timeZone'], Carbon::now('UTC'));
+        unset($result['series'], $result['seriesLong'], $result['snowHourlyIn']);
+        foreach (array_keys($result['zones'] ?? []) as $key) {
+            unset($result['zones'][$key]['seriesLong']);
+        }
 
         $result['query'] = $query;
         $result['shareUrl'] = $resort ? $resort->url : rtrim(url('/'), '/') . '/?' . http_build_query($query);
@@ -197,6 +209,15 @@ class SnowReport
             return ['error' => 'weather_unavailable'];
         }
 
+        // The same grid data over a week, for the day-by-day outlook.
+        $seriesLong = $this->weather->hourlySeries(
+            $gridProps['temperature']['values'] ?? [],
+            $gridProps['relativeHumidity']['values'] ?? [],
+            $gridProps['temperature']['uom'] ?? 'wmoUnit:degC',
+            $now,
+            self::DAILY_HOURS
+        );
+
         $elevationM = $gridProps['elevation']['value'] ?? null;
         return [
             'props' => $props,
@@ -208,6 +229,7 @@ class SnowReport
             'timeZone' => $props['timeZone'] ?? 'America/New_York',
             'elevationFt' => $elevationM !== null ? (int) round($elevationM * 3.28084) : null,
             'series' => $series,
+            'seriesLong' => $seriesLong,
         ];
     }
 
@@ -245,7 +267,7 @@ class SnowReport
      */
     protected function resortZones(Resort $resort, array $result, Carbon $now): array
     {
-        $baseZone = array_intersect_key($result, array_flip(['now', 'windows', 'windowList', 'chart', 'hourly']));
+        $baseZone = array_intersect_key($result, array_flip(['now', 'windows', 'windowList', 'chart', 'hourly', 'seriesLong']));
         $zones = ['base' => $baseZone + [
             'label' => 'Base',
             'elevationFt' => $resort->base_elev_ft,
@@ -259,13 +281,14 @@ class SnowReport
             $forecast = $this->gridForecast((float) $resort->summit_lat, (float) $resort->summit_lon, $now, true);
             if (!isset($forecast['error']) && $forecast['grid'] !== $result['grid']) {
                 $summit = $this->zoneFromSeries($forecast['series'], $forecast['timeZone'], (float) $resort->summit_lat, (float) $resort->summit_lon, $now)
-                    + ['gridElevationFt' => $forecast['elevationFt'], 'estimated' => false];
+                    + ['gridElevationFt' => $forecast['elevationFt'], 'estimated' => false, 'seriesLong' => $forecast['seriesLong']];
             }
         }
         if (!$summit && $summitFt && $result['elevationFt'] !== null && $summitFt - $result['elevationFt'] >= 300) {
-            $series = $this->weather->adjustForElevation($result['series'], ($summitFt - $result['elevationFt']) / 3.28084);
+            $lift = ($summitFt - $result['elevationFt']) / 3.28084;
+            $series = $this->weather->adjustForElevation($result['series'], $lift);
             $summit = $this->zoneFromSeries($series, $result['timeZone'], (float) $resort->lat, (float) $resort->lon, $now)
-                + ['gridElevationFt' => null, 'estimated' => true];
+                + ['gridElevationFt' => null, 'estimated' => true, 'seriesLong' => $this->weather->adjustForElevation($result['seriesLong'], $lift)];
         }
         if ($summit) {
             $zones['summit'] = $summit + ['label' => 'Summit', 'elevationFt' => $summitFt];
@@ -307,6 +330,8 @@ class SnowReport
             'hasCityCoords' => $hasCityCoords,
             'grid' => $forecast['grid'],
             'series' => $series,
+            'seriesLong' => $forecast['seriesLong'],
+            'snowHourlyIn' => array_map(fn ($mm) => $mm / WeatherService::MM_PER_INCH, $this->weather->snowfallHourly($gridProps['snowfallAmount']['values'] ?? [], $gridProps['snowfallAmount']['uom'] ?? null)),
             'elevationFt' => $forecast['elevationFt'],
             'updatedLabel' => $updated ? $updated->setTimezone($timeZone)->format('g:i A') : null,
             'observation' => $this->observation($gridId, $gridX, $gridY, $timeZone, $now),

@@ -700,6 +700,99 @@ body:has(.screen__map) .site-header__inner { max-width: none; }
 .embed-page .embed-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.7rem; line-height: 1.45; color: var(--text-muted); resize: vertical; }
 .embed-copy { margin: 0.5rem 0 1rem; }
 .embed-copy span { margin-left: 0.5rem; font-size: 0.85rem; color: var(--text-muted); }
+/* --- My resorts --- */
+.my-resorts__cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.my-card { border: 1px solid var(--chart-grid); padding: 0.9rem 1rem; font-size: 0.9rem; min-height: 9rem; }
+.my-card__name { font-size: 1rem; font-weight: 700; margin: 0 0 0.3rem; }
+.my-card__answer, .my-card__stats { margin: 0 0 0.4rem; color: var(--text-muted); }
+.my-card__answer .state-table__answer { font-size: 1.15rem; }
+.my-card__days { list-style: none; padding: 0; margin: 0.5rem 0 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; font-size: 0.72rem; text-align: center; }
+.my-card__days li { display: flex; flex-direction: column; gap: 0.1rem; padding: 0.3rem 0; background: var(--chart-night); }
+.my-card__days li.is-snowy { background: color-mix(in srgb, var(--answer-yes) 16%, transparent); font-weight: 600; }
+.my-card__day { color: var(--text-muted); }
+.my-card__sm { color: var(--text-muted); }
+.my-card__remove { padding: 0; margin-top: 0.5rem; font-size: 0.8rem; }
+.my-resorts__compare { margin: -0.5rem 0 1rem; }
+
+.privacy-back { margin-top: 2rem; }
+
+/* --- Season so far (resort pages) --- */
+.season { width: 100%; padding-top: 0.75rem; border-top: 1px solid var(--chart-grid); }
+.season-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1rem; margin: 0.75rem 0; }
+/* Each chart is its own card, titled with a swatch of its bar colour. */
+.season-chart { margin: 0; padding: 0.75rem 0.85rem 1.6rem; border: 1px solid var(--chart-grid); }
+.season-chart figcaption { display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.6rem; font-size: 0.85rem; font-weight: 600; }
+.season-chart figcaption::before { content: ""; width: 0.7rem; height: 0.7rem; border-radius: 2px; background: var(--tier-great); }
+.season-chart--snow figcaption::before { background: var(--snow-2); }
+.season-bars { display: flex; align-items: flex-end; gap: 4px; height: 120px; border-bottom: 1px solid var(--chart-grid); }
+.season-bar { flex: 1 1 0; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; position: relative; }
+.season-bar__fill { width: 100%; max-width: 36px; border-radius: 4px 4px 0 0; background: var(--tier-great); }
+.season-chart--snow .season-bar__fill { background: var(--snow-2); }
+.season-bar__value { font-size: 0.7rem; font-variant-numeric: tabular-nums; margin-bottom: 2px; white-space: nowrap; }
+.season-bar__label { position: absolute; top: 100%; margin-top: 3px; font-size: 0.68rem; color: var(--text-muted); white-space: nowrap; }
+
+/* --- Info toggletip (ⓘ) --- */
+.info-tip { display: inline-block; position: relative; vertical-align: middle; margin-left: calc(0.3rem - 2px); top: -3px; font-size: 0.85rem; font-weight: 400; line-height: 1.4; }
+.info-tip summary { list-style: none; display: inline-flex; align-items: center; justify-content: center; width: 0.95rem; height: 0.95rem; border: 1.25px solid currentColor; border-radius: 50%; font: italic 700 0.6rem/1 Georgia, serif; color: var(--text-muted); cursor: pointer; }
+.info-tip summary::-webkit-details-marker { display: none; }
+.info-tip summary:hover, .info-tip[open] summary { color: var(--answer-yes); }
+.info-tip summary:focus-visible { outline: 2px solid var(--answer-yes); outline-offset: 2px; }
+/* site.js places the open tip (fixed) so it always stays inside the window. */
+.info-tip__body { position: fixed; z-index: 1060; top: 0; left: 0; width: min(18rem, calc(100vw - 16px)); padding: 0.7rem 0.85rem; background: var(--surface-raised); color: var(--bs-body-color); border: 1px solid var(--chart-grid); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18); text-align: left; font-size: 0.82rem; }
+.info-tip__body p { margin: 0 0 0.45rem; color: inherit; }
+.info-tip__body p:last-child { margin-bottom: 0; }
+
+/* --- Early-season watch --- */
+.watch-filter { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 1rem 0; }
+.watch-filter [aria-pressed="true"] { background: var(--chart-grid); font-weight: 600; }
+.watch-table__rank { color: var(--text-muted); width: 2.5rem; }
+
+/* --- How it works --- */
+.how-layout { display: grid; grid-template-columns: minmax(0, 46rem) minmax(0, 16rem); gap: 1rem 3rem; align-items: start; margin-top: 1rem; }
+.how-toc { order: 2; position: sticky; top: 1.5rem; padding: 0.9rem 1rem; border: 1px solid var(--chart-grid); font-size: 0.85rem; }
+.how-toc ol { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.3rem; }
+.how-body { order: 1; }
+.how-body section { scroll-margin-top: 1rem; }
+.how-body h2 { font-size: 1.15rem; font-weight: 700; margin: 2rem 0 0.6rem; }
+.how-body section:first-child h2 { margin-top: 0; }
+.how-body li { margin-bottom: 0.35rem; }
+.how-formula { margin: 0 0 1rem; padding: 0.9rem 1rem; background: var(--chart-night); border: 1px solid var(--chart-grid); font-size: 0.85rem; overflow-x: auto; }
+@media (max-width: 991.98px) {
+    .how-layout { grid-template-columns: minmax(0, 1fr); }
+    .how-toc { order: 0; position: static; }
+}
+
+/* --- Trip planner --- */
+.trip-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr)); gap: 0.5rem 2rem; margin: 1rem 0 0.5rem; font-size: 0.85rem; }
+.trip-form fieldset { min-width: 0; }
+.trip-form legend { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem; }
+.trip-form__row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.6rem; }
+.trip-form__row label { display: flex; flex-direction: column; gap: 0.25rem; flex: 1 1 8rem; }
+.trip-form__row label:first-child { flex-basis: 14rem; }
+.trip-form__row .input-group { flex-wrap: nowrap; }
+.trip-form__or { padding-bottom: 0.45rem; color: var(--text-muted); }
+.trip-results__title { margin-top: 1.5rem; }
+.trip-results__days { max-width: 24rem; }
+
+/* --- Compare --- */
+.compare-picker { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 0.6rem 1rem; margin: 1rem 0 1.5rem; font-size: 0.85rem; }
+.compare-picker label { display: flex; flex-direction: column; gap: 0.25rem; }
+.compare-page .section-title { margin-top: 1.5rem; }
+/* Both compare tables share column widths so each resort lines up; phones scroll them sideways. */
+.compare-table { table-layout: fixed; min-width: 36rem; }
+.compare-table thead th:first-child, .compare-table tbody th { width: 11rem; }
+.compare-table th[scope="col"] { white-space: normal; }
+.compare-table tbody th { white-space: nowrap; }
+.compare-table__note { color: var(--text-muted); font-size: 0.8rem; }
+.compare-table td, .compare-table thead th:not(:first-child) { padding-left: 0.65rem; padding-right: 0.65rem; }
+.compare-map { height: 340px; margin: 0 0 0.5rem; border: 1px solid var(--chart-grid); }
+.map-pick { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.5rem 0.2rem 0.35rem; background: var(--surface-raised); color: inherit; border: 2px solid var(--answer-yes); border-radius: 999px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35); font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer; }
+.map-pick .map-pin { width: 10px; height: 10px; border-width: 1.5px; box-shadow: none; }
+.map-pick--rank { justify-content: center; min-width: 26px; height: 26px; padding: 0; background: var(--answer-yes); color: #fff; border-color: #fff; }
+.trip-map { height: 460px; }
+.map-pin--in-range { width: 15px; height: 15px; border-color: var(--answer-yes); border-width: 2.5px; }
+.map-start { padding: 0.2rem 0.55rem; background: var(--answer-yes); color: #fff; border: 2px solid #fff; border-radius: 4px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35); font-size: 12px; font-weight: 700; white-space: nowrap; }
+.compare-days td.is-best { background: color-mix(in srgb, var(--answer-yes) 14%, transparent); font-weight: 600; }
 .state-table__note { margin: -0.2rem 0 0.6rem; font-size: 0.8rem; color: var(--text-muted); }
 .top-list { list-style: none; padding: 0; margin: 0 0 0.6rem; counter-reset: rank; }
 .top-list li { display: flex; justify-content: space-between; align-items: baseline; gap: 0.75rem; padding: 0.3rem 0; border-bottom: 1px solid var(--chart-grid); counter-increment: rank; }

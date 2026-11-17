@@ -19,7 +19,9 @@ description = "Site header bar on every page: the name (home link), main pages a
             {% for link in links %}
                 <a href="{{ link.page|page }}"{% if current == link.page %} aria-current="page"{% endif %}>{{ link.label }}</a>
             {% endfor %}
-            <a class="site-header__nav-extra" href="{{ 'embed'|page }}"{% if current == 'embed' %} aria-current="page"{% endif %}>Widget for your site</a>
+            {% for extra in [{ page: 'my-resorts', label: 'My resorts' }, { page: 'compare', label: 'Compare resorts' }, { page: 'early-season', label: 'Early-season watch' }, { page: 'trip-planner', label: 'Trip planner' }, { page: 'embed', label: 'Widget for your site' }, { page: 'how-it-works', label: 'How it works' }] %}
+                <a class="site-header__nav-extra" href="{{ extra.page|page }}"{% if current == extra.page %} aria-current="page"{% endif %}>{{ extra.label }}</a>
+            {% endfor %}
         </nav>
         <div class="site-header__tools">
             <div class="units-toggle" role="group" aria-label="Temperature units">

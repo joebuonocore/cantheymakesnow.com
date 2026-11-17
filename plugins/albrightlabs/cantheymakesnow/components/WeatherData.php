@@ -5,6 +5,7 @@ use Cms\Classes\ComponentBase;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
+use AlbrightLabs\CanTheyMakeSnow\Classes\SeasonHistory;
 use AlbrightLabs\CanTheyMakeSnow\Classes\ShareImage;
 use AlbrightLabs\CanTheyMakeSnow\Classes\SnowReport;
 use AlbrightLabs\CanTheyMakeSnow\Models\Location;
@@ -97,7 +98,7 @@ class WeatherData extends ComponentBase
             'ok' => (bool) $result,
             'shareUrl' => $result['shareUrl'] ?? null,
             'pageTitle' => $result ? ($this->snowFirst() ? $this->report->snowMetaTitle($result) : $this->report->metaTitle($result)) : null,
-            'pin' => $result ? ['lat' => $result['pinLat'], 'lng' => $result['pinLon'], 'tier' => $result['answer']['tier']] : null,
+            'pin' => $result ? ['lat' => $result['pinLat'], 'lng' => $result['pinLon'], 'tier' => $result['answer']['tier'], 'resort' => $result['resort']['name'] ?? null] : null,
         ];
     }
 
@@ -144,6 +145,7 @@ class WeatherData extends ComponentBase
         }
 
         $report['resort'] ? $this->recordResortLookup($report['resort'], $result) : $this->recordLookup($result);
+        $this->page['season'] = $report['resort'] && !$this->snowFirst() ? SeasonHistory::forResort($report['resort']) : null;
 
         return $result;
     }

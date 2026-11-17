@@ -1,6 +1,10 @@
 <?php namespace AlbrightLabs\CanTheyMakeSnow\Components;
 
+use AlbrightLabs\CanTheyMakeSnow\Classes\AreaResolver;
+use AlbrightLabs\CanTheyMakeSnow\Classes\SeasonHistory;
 use AlbrightLabs\CanTheyMakeSnow\Classes\SnowBoard;
+use AlbrightLabs\CanTheyMakeSnow\Classes\TripPlanner;
+use Carbon\Carbon;
 use AlbrightLabs\CanTheyMakeSnow\Classes\Units;
 use AlbrightLabs\CanTheyMakeSnow\Models\Location;
 use AlbrightLabs\CanTheyMakeSnow\Models\Resort;
@@ -74,6 +78,73 @@ class Locations extends ComponentBase
     public function snowBoard(?string $state = null): array
     {
         return SnowBoard::build(null, $state);
+    }
+
+    /**
+     * The resorts named in ?r= (comma-separated slugs, or r[]=), for /compare:
+     * ['rows' => SnowBoard::compare(), 'days' => SnowBoard::compareDays()].
+     */
+    public function compare(): array
+    {
+        $r = request()->query('r');
+        $slugs = is_array($r) ? $r : explode(',', (string) $r);
+        $rows = SnowBoard::compare(array_map('trim', $slugs));
+        return ['rows' => $rows, 'days' => SnowBoard::compareDays($rows)];
+    }
+
+    /**
+     * The trip planner (/trip-planner): the form's choices, and when the
+     * query names an area (?near= town, or lat/lon, with radius; or
+     * ?state=VT) and days (?from=&to=), the ranked resorts.
+     * Returns ['days', 'states', 'query', 'area', 'results', 'error'].
+     */
+    public function tripPlan(): array
+    {
+        $days = TripPlanner::days(Carbon::now('UTC'));
+        $dates = array_column($days, 'date');
+        $q = fn ($key) => is_string(request()->query($key)) ? trim(request()->query($key)) : '';
+        $query = [
+            'near' => mb_substr($q('near'), 0, 120),
+            'lat' => $q('lat'), 'lon' => $q('lon'),
+            'radius' => in_array((int) $q('radius'), TripPlanner::RADII, true) ? (int) $q('radius') : TripPlanner::DEFAULT_RADIUS,
+            'state' => array_key_exists(strtoupper($q('state')), Resort::STATE_NAMES) ? strtoupper($q('state')) : '',
+            'from' => in_array($q('from'), $dates, true) ? $q('from') : $dates[0],
+            'to' => in_array($q('to'), $dates, true) ? $q('to') : $dates[min(2, count($dates) - 1)],
+        ];
+        if ($query['to'] < $query['from']) {
+            $query['to'] = $query['from'];
+        }
+        $plan = ['days' => $days, 'states' => $this->resortsByState(), 'query' => $query, 'area' => null, 'results' => [], 'error' => null];
+
+        if ($query['state']) {
+            $area = ['state' => $query['state'], 'label' => Resort::STATE_NAMES[$query['state']]];
+        } elseif ($query['near'] !== '' || (is_numeric($query['lat']) && is_numeric($query['lon']))) {
+            $place = AreaResolver::resolve($query['near'], is_numeric($query['lat']) ? (float) $query['lat'] : null, is_numeric($query['lon']) ? (float) $query['lon'] : null);
+            if (isset($place['error'])) {
+                return ['error' => $place['error']] + $plan;
+            }
+            $area = ['lat' => $place['lat'], 'lon' => $place['lon'], 'radius' => $query['radius'], 'place' => $place['label'], 'label' => "within {$query['radius']} miles of {$place['label']}"];
+        } else {
+            return $plan;
+        }
+
+        $chosen = array_values(array_filter($dates, fn ($d) => $d >= $query['from'] && $d <= $query['to']));
+        $cutoff = Carbon::now()->subHours(SnowBoard::FRESH_HOURS);
+        $resorts = Resort::isEnabled()->get()->map(fn (Resort $r) => [
+            'slug' => $r->slug, 'name' => $r->name, 'state' => $r->state, 'url' => $r->url, 'lat' => (float) $r->lat, 'lon' => (float) $r->lon,
+            'fresh' => $r->last_checked_at && $r->last_checked_at->gte($cutoff),
+            'daily' => $r->last_daily ?: [],
+        ])->all();
+
+        return ['area' => $area, 'results' => TripPlanner::rank($resorts, $area, $chosen)] + $plan;
+    }
+
+    /**
+     * The early-season snowmaking watch (SeasonHistory::watch()).
+     */
+    public function seasonWatch(): array
+    {
+        return SeasonHistory::watch();
     }
 
     /**

@@ -1,0 +1,34 @@
+url = "/my-resorts"
+layout = "default"
+title = "My resorts"
+description = "The resorts this visitor saved (☆ Save) or checked recently, from localStorage, each drawn from /embed/{slug}.json by site.js. Personal, so not indexed."
+meta_title = "My resorts · Can They Make Snow?"
+meta_description = "The ski resorts you've saved, on one screen: snowmaking now, new snow and the week ahead."
+noindex = 1
+==
+<main class="screen screen--page">
+    <section class="screen__content page-width">
+        <div class="wide-page my-resorts" id="myResorts" data-compare="{{ 'compare'|page }}">
+            <h1 class="wide-page__title">My resorts</h1>
+            <p class="prose">The resorts you've saved with <strong>☆ Save</strong>, on one screen. They're kept in this browser only: no sign-up, nothing stored on our side.</p>
+
+            <section class="my-resorts__group" data-group="saved" hidden>
+                <h2 class="section-title">Saved</h2>
+                <div class="my-resorts__cards"></div>
+            </section>
+            <section class="my-resorts__group" data-group="recent" hidden>
+                <h2 class="section-title">Recently checked</h2>
+                <div class="my-resorts__cards"></div>
+            </section>
+            <p class="my-resorts__compare" hidden><a href="#">Compare these side by side →</a></p>
+
+            <div class="my-resorts__empty" hidden>
+                <p class="prose">No saved resorts yet. Open any resort and tap <strong>☆ Save</strong>, and it will show up here with its snowmaking and snow forecast for the week.</p>
+                <p><a href="{{ 'resorts'|page }}" class="btn btn-primary rounded-0">Find a resort</a></p>
+            </div>
+            <noscript><p class="prose">My resorts needs JavaScript, because your saved resorts are kept in your browser.</p></noscript>
+        </div>
+    </section>
+
+    {% partial 'footer' %}
+</main>

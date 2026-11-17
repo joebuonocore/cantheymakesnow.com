@@ -139,5 +139,6 @@ Route::get('embed/{slug}.json', function ($slug) {
         'smNextStart' => $resort->last_sm_next_start,
         'timeZone' => $resort->time_zone,
         'checkedAt' => $resort->last_checked_at,
+        'daily' => $resort->last_daily ?: [],
     ], now()), 200, $headers);
 })->where('slug', '[a-z0-9-]+');
