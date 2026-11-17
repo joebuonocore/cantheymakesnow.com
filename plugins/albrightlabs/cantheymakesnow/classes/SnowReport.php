@@ -445,7 +445,7 @@ class SnowReport
             return $this->metaTitle($result);
         }
         $r = $result['resort'];
-        return "Can They Make Snow at {$r['name']}? {$r['stateName']} Snowmaking Forecast";
+        return "{$r['name']} Snow Forecast & Snow Report, {$r['state']} | Can They Make Snow?";
     }
 
     public function metaTitle(array $result): string
@@ -456,6 +456,9 @@ class SnowReport
     }
     public function metaDescription(array $result): string
     {
+        if (!empty($result['resort'])) {
+            return $this->resortMetaDescription($result);
+        }
         $temp = fn (float $c) => round($this->weather->toFahrenheit($c)) . '°F (' . round($c, 1) . '°C)';
         $zones = $result['zones'] ?? [];
         if (count($zones) > 1) {
@@ -466,6 +469,25 @@ class SnowReport
             return "{$lead}: " . implode(', ', $parts) . ' wet-bulb. ' . $zones[$answer['zone']]['windows']['text'];
         }
         return "{$result['place']}: {$temp($result['now']['wetBulbC'])} wet-bulb. {$result['now']['label']}. {$result['windows']['text']}";
+    }
+
+    /**
+     * Resort pages lead with the snow report people search for: new snow
+     * and snowmaking over the next 48 hours, then whether they can make
+     * snow right now.
+     */
+    protected function resortMetaDescription(array $result): string
+    {
+        $name = $result['resort']['name'];
+        $snow = $result['snow']['totals'][48] ?? null;
+        $hours = $this->weather->snowmakingStats($result['zones'] ?? ['here' => $result])['hours'];
+        $parts = [];
+        if ($snow !== null) {
+            $parts[] = ($snow >= 0.1 ? Units::snow($snow, 'f') . ' (' . Units::snow($snow, 'c') . ')' : 'No') . ' new snow in the next 48 hours';
+        }
+        $parts[] = $hours ? "{$hours} hours of snowmaking weather" : 'too warm to make snow';
+        $now = $result['answer']['snow'] ? 'They can make snow right now' : "They can't make snow right now";
+        return "{$name} snow forecast and report: " . implode(', ', $parts) . ". {$now}. Live NOAA forecast at the base and summit, with the 7-day outlook.";
     }
 
     /**

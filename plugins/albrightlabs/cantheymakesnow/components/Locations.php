@@ -77,6 +77,14 @@ class Locations extends ComponentBase
     }
 
     /**
+     * Resorts with the best snow conditions right now, for the snow forecast page.
+     */
+    public function bestBoard(): array
+    {
+        return SnowBoard::best();
+    }
+
+    /**
      * Resorts ranked by snowmaking hours in the next 48 (optionally in one state).
      */
     public function snowmakingBoard(?string $state = null): array

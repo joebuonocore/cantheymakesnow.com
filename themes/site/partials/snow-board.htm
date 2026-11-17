@@ -5,8 +5,31 @@ description = "Snow forecast page: resorts ranked by new snow at the base in the
 {% set visible = board.rows|filter(r => (r.totals[hours] ?? 0) >= 0.1)|length %}
 <section class="snow-board" aria-labelledby="snowBoardTitle">
     {% partial 'board-switch' current='snow' %}
+    <h1 class="snow-board__title" id="snowBoardTitle">Where's it snowing?</h1>
+
+    {% set best = Locations.bestBoard().rows|slice(0, 5) %}
+    <h2 class="section-title snow-board__best-title">Best snow conditions for skiing right now</h2>
+    <p class="snow-board__intro">Ranked by new snow due in the next 24 hours, then whether they can make snow right now.</p>
+    {% if best|length %}
+        <ol class="top-list">
+            {% for row in best %}
+                {% set snowNow = row.totals[24] ?? 0 %}
+                {% set making = row.tier in ['ideal', 'great', 'marginal'] %}
+                <li>
+                    <span>
+                        <a href="{{ row.url }}">{{ row.name }}</a> <span class="top-list__state">{{ row.state }}</span>
+                        <span class="top-list__detail">{% if snowNow >= 0.1 %}{{ snowNow|snow|raw }} of new snow in the next 24 h{% endif %}{% if snowNow >= 0.1 and making %} · {% endif %}{% if making %}snowmaking now{% endif %}</span>
+                    </span>
+                    <strong>{{ snowNow >= 0.1 ? snowNow|snow|raw : 'Making snow' }}</strong>
+                </li>
+            {% endfor %}
+        </ol>
+    {% else %}
+        <p class="top-list__empty">No resort has new snow due in the next 24 hours or can make snow right now.</p>
+    {% endif %}
+
     <div class="snow-board__head">
-        <h1 class="snow-board__title" id="snowBoardTitle">Where's it snowing?</h1>
+        <h2 class="section-title snow-board__list-title">New snow by resort</h2>
         <div class="seg-toggle" role="group" aria-label="Forecast window">
             {% for h in [24, 48, 72] %}
                 <button type="button" data-hours="{{ h }}" aria-pressed="{{ h == hours ? 'true' : 'false' }}">{{ h }} h</button>
