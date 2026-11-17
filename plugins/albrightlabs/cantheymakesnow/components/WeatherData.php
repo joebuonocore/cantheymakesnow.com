@@ -169,7 +169,7 @@ class WeatherData extends ComponentBase
         $this->page['resortPage'] = false;
         $this->page['statePage'] = ['code' => $code, 'name' => $name, 'url' => $url, 'count' => $count];
         $this->page['canonicalUrl'] = 'https://cantheymakesnow.com/resorts/' . Resort::stateSlug($code);
-        $this->page->meta_title = "{$name} Ski Resorts: Snow & Snowmaking Forecast | Can They Make Snow?";
+        $this->page->meta_title = "{$name} Ski Resorts: Snow Report & Snow Forecast | Can They Make Snow?";
         $this->page->meta_description = "Live forecasts for " . ($count === 1 ? "{$name}'s ski resort" : "all {$count} {$name} ski resorts")
             . " from NOAA: which can make snow right now, hours of snowmaking in the next 48, and where the most new snow is coming.";
 

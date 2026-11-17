@@ -117,6 +117,21 @@ class SnowBoardTest extends TestCase
         $this->assertNull(SnowBoard::startLabel(null, 'America/New_York', $this->now));
     }
 
+    public function testBestRanksNewSnowThenSnowmakingNow()
+    {
+        $row = fn ($name, $in24, $tier, $hours = 0) => ['name' => $name, 'tier' => $tier, 'totals' => [24 => $in24, 48 => $in24, 72 => $in24], 'snowmaking' => ['hours' => $hours]];
+        $rows = SnowBoard::rankBest([
+            $row('Warm and dry', 0.0, 'too_warm'),
+            $row('Marginal', 0.0, 'marginal', 30),
+            $row('Ideal', 0.0, 'ideal', 10),
+            $row('Dusting', 0.3, 'too_warm'),
+            $row('Powder', 4.0, 'great'),
+            $row('Great', 0.0, 'great', 48),
+        ]);
+
+        $this->assertSame(['Powder', 'Dusting', 'Ideal', 'Great', 'Marginal'], array_column($rows, 'name'));
+    }
+
     public function testNoWhenForAFinishedStormOrMissingTimeZone()
     {
         $this->assertNull(SnowBoard::when(Carbon::parse('2026-12-10T06:00:00Z'), Carbon::parse('2026-12-10T12:00:00Z'), 'America/New_York', $this->now));

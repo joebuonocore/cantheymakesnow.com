@@ -128,6 +128,25 @@ class SnowBoard
     }
 
     /**
+     * Best snow conditions right now: resorts with new snow due in the next
+     * 24 hours or able to make snow now. Most new snow first, then the
+     * better snowmaking tier now, then most snowmaking hours, then by name.
+     */
+    public static function best(?Carbon $now = null): array
+    {
+        return self::board($now, null, fn ($rows) => self::rankBest($rows));
+    }
+
+    public static function rankBest(array $rows): array
+    {
+        $tierScore = fn ($row) => ['ideal' => 3, 'great' => 2, 'marginal' => 1][$row['tier'] ?? ''] ?? 0;
+        $rows = array_values(array_filter($rows, fn ($row) => ($row['totals'][24] ?? 0) >= self::MIN_IN || $tierScore($row) > 0));
+        usort($rows, fn ($a, $b) => [$b['totals'][24] ?? 0, $tierScore($b), $b['snowmaking']['hours'] ?? 0, $a['name']]
+            <=> [$a['totals'][24] ?? 0, $tierScore($a), $a['snowmaking']['hours'] ?? 0, $b['name']]);
+        return $rows;
+    }
+
+    /**
      * Rows that can make snow in the next 48 hours: most hours first, then
      * most great hours, then the coldest, then by name.
      */
