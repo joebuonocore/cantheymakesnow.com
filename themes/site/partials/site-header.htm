@@ -30,7 +30,10 @@ description = "Site header bar on every page: the name (home link), main pages a
                 <button type="button" data-units="f" aria-pressed="true">°F</button>
                 <button type="button" data-units="c" aria-pressed="false">°C</button>
             </div>
-            <button type="button" class="site-header__menu" aria-expanded="false" aria-controls="siteNav">Menu</button>
+            <button type="button" class="site-header__menu" aria-expanded="false" aria-controls="siteNav" aria-label="Menu">
+                {# Three bars that turn into an X while the menu is open (CSS, from aria-expanded). #}
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="site-header__menu-top" d="M4 7h16"/><path class="site-header__menu-mid" d="M4 12h16"/><path class="site-header__menu-bot" d="M4 17h16"/></svg>
+            </button>
         </div>
     </div>
 </header>
