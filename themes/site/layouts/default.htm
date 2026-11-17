@@ -87,9 +87,18 @@ description = "Default layout"
 
         <link rel="icon" href="{{ 'assets/images/icons/favicon.ico'|theme }}" sizes="32x32" />
         <link rel="icon" href="{{ 'assets/images/icons/favicon.svg'|theme }}" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="{{ 'assets/images/icons/apple-touch-icon.png'|theme }}" />
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ 'assets/images/icons/apple-touch-icon.png'|theme }}" />
         <link rel="manifest" href="{{ 'assets/manifest.json'|theme }}" />
-        <meta name="theme-color" content="#1c5cab" />
+        {# Home screen: iOS names the icon from apple-mobile-web-app-title (else the long page title),
+           and opens it full screen. Keep the title in step with the manifest's short_name. #}
+        <meta name="apple-mobile-web-app-title" content="Make Snow?" />
+        <meta name="application-name" content="Can They Make Snow?" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        {# Status bar and browser chrome match the page background (Bootstrap's body colour). #}
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#212529" />
 
         {% if jsonLd %}<script type="application/ld+json">{{ jsonLd|json_encode|raw }}</script>{% endif %}
         {% placeholder head %}
