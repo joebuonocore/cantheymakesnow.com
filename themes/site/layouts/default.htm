@@ -61,7 +61,7 @@ description = "Default layout"
             {% set canonical = 'https://cantheymakesnow.com' ~ this.page.url %}
         {% endif %}
         <link rel="canonical" href="{{ canonical }}" />
-        {% if alertsAction %}<meta name="robots" content="noindex" />{% endif %}
+        {% if alertsAction or this.page.noindex %}<meta name="robots" content="noindex" />{% endif %}
 
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Can They Make Snow?" />

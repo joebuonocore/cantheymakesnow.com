@@ -1,0 +1,88 @@
+url = "/trip-planner"
+layout = "default"
+title = "Trip planner"
+description = "Trip planner: an area (town/resort/location + radius, or a state) and days in the next week; resorts ranked by new snow, then snowmaking (Locations::tripPlan, TripPlanner). Results canonicalize to /trip-planner."
+meta_title = "Ski Trip Planner: Best Snow This Week Near You | Can They Make Snow?"
+meta_description = "Pick your days and where you're skiing from. We rank the US ski resorts near you by new snow and snowmaking over those days, from NOAA's 7-day forecast."
+
+[Locations]
+==
+{% set plan = Locations.tripPlan() %}
+{% set q = plan.query %}
+<main class="screen screen--page">
+    <section class="screen__content page-width">
+        <div class="wide-page trip-page">
+            <h1 class="wide-page__title">Ski trip planner</h1>
+            <p class="prose">Pick the days you can ski and where you're coming from. We'll rank the resorts in range by new snow, then by hours cold enough to make snow, from NOAA's forecast for the week ahead.</p>
+
+            <form class="trip-form" id="tripForm" method="get" action="{{ 'trip-planner'|page }}">
+                <fieldset class="trip-form__where">
+                    <legend>Where</legend>
+                    <div class="trip-form__row">
+                        <label>Near
+                            <span class="input-group">
+                                <button type="button" class="btn btn-outline-secondary rounded-0" data-trip-locate title="Use my location" aria-label="Use my location">📍</button>
+                                <input type="text" name="near" class="form-control rounded-0" placeholder="Town, state or ski resort" value="{{ q.near }}" maxlength="120">
+                            </span>
+                        </label>
+                        <label>Within
+                            <select name="radius" class="form-select rounded-0">
+                                {% for miles in [25, 50, 100, 150, 200, 300, 500] %}<option value="{{ miles }}"{{ q.radius == miles ? ' selected' }}>{{ miles }} miles</option>{% endfor %}
+                            </select>
+                        </label>
+                        <span class="trip-form__or">or</span>
+                        <label>A whole state
+                            <select name="state" class="form-select rounded-0">
+                                <option value="">Any</option>
+                                {% for g in plan.states %}<option value="{{ g.code }}"{{ q.state == g.code ? ' selected' }}>{{ g.name }}</option>{% endfor %}
+                            </select>
+                        </label>
+                    </div>
+                    <input type="hidden" name="lat" value="{{ q.lat }}"><input type="hidden" name="lon" value="{{ q.lon }}">
+                </fieldset>
+                <fieldset class="trip-form__when">
+                    <legend>When</legend>
+                    <div class="trip-form__row">
+                        <label>From
+                            <select name="from" class="form-select rounded-0">{% for d in plan.days %}<option value="{{ d.date }}"{{ q.from == d.date ? ' selected' }}>{{ d.label }}</option>{% endfor %}</select>
+                        </label>
+                        <label>To
+                            <select name="to" class="form-select rounded-0">{% for d in plan.days %}<option value="{{ d.date }}"{{ q.to == d.date ? ' selected' }}>{{ d.label }}</option>{% endfor %}</select>
+                        </label>
+                        <button type="submit" class="btn btn-primary rounded-0">Plan my trip</button>
+                    </div>
+                </fieldset>
+            </form>
+
+            {% if plan.error %}
+                <p class="hero-alert" role="alert">{{ plan.error }}</p>
+            {% elseif plan.area %}
+                <h2 class="section-title trip-results__title">Best bets {{ plan.area.state is defined ? 'in ' ~ plan.area.label : plan.area.label }}</h2>
+                {% if plan.results|length %}
+                    <section class="screen__map compare-map trip-map" aria-label="Map of the resorts in range">
+                        {% partial 'map' numbered=true fitSlugs=plan.results|slice(0, 5)|map(r => r.slug) inRange=plan.results|map(r => r.slug) center=(plan.area.state is defined ? null : plan.area) fitState=(plan.area.state is defined ? plan.area.state : null) %}
+                    </section>
+                    <ol class="snow-board__list trip-results">
+                        {% for r in plan.results %}
+                            <li class="snow-board__row">
+                                <div class="snow-board__place">
+                                    <a href="{{ r.url }}">{{ r.name }}</a> <span class="snow-board__state">{{ r.state }}{% if r.distanceMi is not null %} · {{ r.distanceMi }} mi{% endif %}</span>
+                                    <span class="snow-board__detail">{{ r.smHours }} h of snowmaking{% if r.best %} · best day {{ r.best.date|date('D') }}{% if r.best.snowIn >= 0.1 %} ({{ r.best.snowIn|snow|raw }}){% endif %}{% endif %}</span>
+                                    <ol class="my-card__days trip-results__days" style="grid-template-columns: repeat({{ r.days|length }}, minmax(0, 1fr));">
+                                        {% for d in r.days %}<li{{ d.snowIn >= 0.1 ? ' class="is-snowy"' }}><span class="my-card__day">{{ d.date|date('D') }}</span>{{ d.snowIn|snow|raw }}<span class="my-card__sm">{{ d.smHours }} h</span></li>{% endfor %}
+                                    </ol>
+                                </div>
+                                <span class="snow-board__amount">{{ r.snowIn|snow|raw }}</span>
+                            </li>
+                        {% endfor %}
+                    </ol>
+                    <p class="snow-board__meta">Ranked by new snow at the base over your days (the number on the right), then by hours cold enough to make snow at the base or summit. From NOAA's forecast, which gets less certain further out.</p>
+                {% else %}
+                    <p class="prose">No resorts we track are {{ plan.area.state is defined ? 'in ' ~ plan.area.label : plan.area.label }}, or their forecast hasn't updated in the last few hours. Try a wider distance or another state.</p>
+                {% endif %}
+            {% endif %}
+        </div>
+    </section>
+
+    {% partial 'footer' %}
+</main>

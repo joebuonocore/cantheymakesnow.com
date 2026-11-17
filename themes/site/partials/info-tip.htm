@@ -1,0 +1,10 @@
+description = "A small ⓘ toggletip explaining the season history data (our own hourly log since Nov 10, 2026). Pass label for the button's accessible name."
+==
+<details class="info-tip">
+    <summary aria-label="{{ label ?: 'About this data' }}" title="{{ label ?: 'About this data' }}">i</summary>
+    <div class="info-tip__body">
+        <p>This history is our own record. Every hour we save each resort's closest-to-real-time NOAA forecast, and we started on November 10, 2026.</p>
+        <p>NOAA doesn't publish past forecasts, so nothing before that date can be filled in. It keeps growing every hour from here.</p>
+        <p><a href="{{ 'how-it-works'|page }}#fresh">How we keep it fresh →</a></p>
+    </div>
+</details>

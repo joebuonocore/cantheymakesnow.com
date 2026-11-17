@@ -8,7 +8,7 @@ description = "Will it snow? result (WeatherData mode = snow): YES / MAYBE / NO 
 {% if sa.answer == 'yes' %}{% partial 'snow' %}{% endif %}
 
 <div class="hero-answer" data-share-url="{{ result.shareUrl }}" data-place="{{ result.place }}"
-    data-pin-lat="{{ result.pinLat }}" data-pin-lng="{{ result.pinLon }}" data-tier="{{ answer.tier }}">
+    data-pin-lat="{{ result.pinLat }}" data-pin-lng="{{ result.pinLon }}" data-tier="{{ answer.tier }}"{% if result.resort %} data-resort="{{ result.resort.name }}"{% endif %}>
     <h2 class="hero-answer__question">Will it snow {{ result.resort ? 'at' : 'in' }} {{ result.place }}?</h2>
     <div class="hero-answer__headline" data-answer="{{ sa.answer == 'no' ? 'no' : 'yes' }}">{{ sa.answer|upper }}</div>
     <p class="hero-answer__meta">

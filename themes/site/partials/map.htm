@@ -1,7 +1,7 @@
-description = "Interactive map: resorts and looked-up cities coloured by last known snowmaking tier, or resorts labelled with new snow in the next 48 hours. Pass mapMode='snow' to start in snow mode, fitState='VT' to zoom to one state's resorts. Driven by site.js."
+description = "Interactive map: resorts and looked-up cities coloured by last known snowmaking tier, or resorts labelled with new snow in the next 48 hours. Pass mapMode='snow' to start in snow mode, fitState='VT' to zoom to one state's resorts, or fitSlugs=[…] to frame and label chosen resorts (Compare), plus inRange=[…] and center={lat, lon, radius, place} for the trip planner (start marker, radius circle, highlighted resorts). Driven by site.js."
 ==
 {% set mode = mapMode == 'snow' ? 'snow' : 'tiers' %}
-<div id="map" class="screen__map-canvas" data-mode="{{ mode }}"{% if fitState %} data-fit-state="{{ fitState }}"{% endif %} aria-label="Map of resorts and recently checked places. Click anywhere to check that spot."></div>
+<div id="map" class="screen__map-canvas" data-mode="{{ mode }}"{% if fitState %} data-fit-state="{{ fitState }}"{% endif %}{% if fitSlugs %} data-fit-slugs="{{ fitSlugs|join(',') }}"{% endif %}{% if inRange %} data-in-range="{{ inRange|join(',') }}"{% endif %}{% if numbered %} data-numbered{% endif %}{% if center %} data-center-lat="{{ center.lat }}" data-center-lng="{{ center.lon }}" data-center-radius="{{ center.radius }}" data-center-label="{{ center.place }}"{% endif %} aria-label="Map of resorts and recently checked places. Click anywhere to check that spot."></div>
 <script type="application/json" id="mapData">{{ mapPoints|json_encode|raw }}</script>
 
 <div class="map-panel">
@@ -24,4 +24,4 @@ description = "Interactive map: resorts and looked-up cities coloured by last kn
         <span><i class="map-pin map-pin--resort map-pin--dry"></i>No new snow</span>
     </div>
 </div>
-<p class="map-hint">Click a pin or anywhere on the map to check it.</p>
+<p class="map-hint">{{ fitSlugs ? 'Click a pin to open that resort.' : 'Click a pin or anywhere on the map to check it.' }}</p>

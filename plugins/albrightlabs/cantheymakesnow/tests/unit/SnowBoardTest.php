@@ -132,6 +132,21 @@ class SnowBoardTest extends TestCase
         $this->assertSame(['Powder', 'Dusting', 'Ideal', 'Great', 'Marginal'], array_column($rows, 'name'));
     }
 
+    public function testCompareDaysMarksTheBestResortEachDay()
+    {
+        $day = fn ($date, $in, $sm) => ['date' => $date, 'label' => 'X', 'snowIn' => $in, 'smHours' => $sm];
+        $days = SnowBoard::compareDays([
+            ['slug' => 'stowe', 'daily' => [$day('2026-12-10', 0.0, 10), $day('2026-12-11', 3.0, 0)]],
+            ['slug' => 'jay', 'daily' => [$day('2026-12-10', 0.0, 20), $day('2026-12-11', 1.0, 24), $day('2026-12-12', 0.0, 0)]],
+        ]);
+
+        $this->assertSame(['2026-12-10', '2026-12-11', '2026-12-12'], array_column($days, 'date'));
+        $this->assertSame('jay', $days[0]['best']);   // more snowmaking hours
+        $this->assertSame('stowe', $days[1]['best']); // more snow wins
+        $this->assertNull($days[2]['best']);          // nothing anywhere
+        $this->assertNull($days[2]['cells']['stowe']);
+    }
+
     public function testNoWhenForAFinishedStormOrMissingTimeZone()
     {
         $this->assertNull(SnowBoard::when(Carbon::parse('2026-12-10T06:00:00Z'), Carbon::parse('2026-12-10T12:00:00Z'), 'America/New_York', $this->now));

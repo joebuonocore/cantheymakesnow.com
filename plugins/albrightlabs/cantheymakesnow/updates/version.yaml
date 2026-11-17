@@ -38,3 +38,6 @@ v1.5.1:
 v1.6.0:
     - Store the next 48 hours of snowmaking on resorts for the snowmaking forecast page
     - add_snowmaking_to_resorts_table.php
+v1.7.0:
+    - Store a 7-day day-by-day forecast on resorts for compare, trip planner and My resorts
+    - add_daily_to_resorts_table.php

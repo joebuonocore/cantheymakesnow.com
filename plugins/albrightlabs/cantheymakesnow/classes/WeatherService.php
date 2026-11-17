@@ -256,6 +256,68 @@ class WeatherService
     }
 
     /**
+     * The next $days local days for a place: per day, snowmaking hours when
+     * either zone can make snow, great hours, the coldest wet-bulb, new snow
+     * (inches) and the first zone's high and low (°C). Hours before $now are
+     * ignored; today is a partial day.
+     * $seriesByZone: hourlySeries() output per zone (first = base or the place).
+     * $snowIn: [unix hour => inches].
+     */
+    public function dailySummary(array $seriesByZone, array $snowIn, string $timeZone, Carbon $now, int $days = 7): array
+    {
+        $byDate = [];
+        $day = function (int $t) use (&$byDate, $timeZone) {
+            $local = Carbon::createFromTimestampUTC($t)->setTimezone($timeZone);
+            $date = $local->format('Y-m-d');
+            $byDate[$date] ??= ['date' => $date, 'label' => $local->format('D'), 'hours' => [], 'snowIn' => 0.0, 'highC' => null, 'lowC' => null];
+            return $date;
+        };
+        $first = true;
+        foreach ($seriesByZone as $series) {
+            foreach ($series as $point) {
+                $t = $point['time']->timestamp;
+                $date = $day($t);
+                $tier = $this->snowmakingTier($point['wetBulbC'])['tier'];
+                $hour = $byDate[$date]['hours'][$t] ?? ['snow' => false, 'great' => false, 'wetBulbC' => $point['wetBulbC']];
+                $byDate[$date]['hours'][$t] = [
+                    'snow' => $hour['snow'] || $point['snow'],
+                    'great' => $hour['great'] || in_array($tier, ['ideal', 'great'], true),
+                    'wetBulbC' => min($hour['wetBulbC'], $point['wetBulbC']),
+                ];
+                if ($first) {
+                    $byDate[$date]['highC'] = max($byDate[$date]['highC'] ?? $point['tempC'], $point['tempC']);
+                    $byDate[$date]['lowC'] = min($byDate[$date]['lowC'] ?? $point['tempC'], $point['tempC']);
+                }
+            }
+            $first = false;
+        }
+        $start = $now->copy()->utc()->startOfHour()->timestamp;
+        foreach ($snowIn as $t => $inches) {
+            if ($t >= $start && isset($byDate[$date = $day($t)]) && $byDate[$date]['hours']) {
+                $byDate[$date]['snowIn'] += $inches;
+            }
+        }
+
+        ksort($byDate);
+        $out = [];
+        foreach (array_slice(array_values(array_filter($byDate, fn ($d) => $d['hours'])), 0, $days) as $d) {
+            $hours = $d['hours'];
+            $out[] = [
+                'date' => $d['date'],
+                'label' => $d['label'],
+                'smHours' => count(array_filter($hours, fn ($h) => $h['snow'])),
+                'greatHours' => count(array_filter($hours, fn ($h) => $h['great'])),
+                'coldestWb' => round(min(array_column($hours, 'wetBulbC')), 1),
+                'snowIn' => round($d['snowIn'], 1),
+                'highC' => $d['highC'] === null ? null : round($d['highC'], 1),
+                'lowC' => $d['lowC'] === null ? null : round($d['lowC'], 1),
+                'hoursCovered' => count($hours),
+            ];
+        }
+        return $out;
+    }
+
+    /**
      * Snowmaking over a set of zones' hourly series (a resort's base and
      * summit, or one place): hours when either zone can make snow, hours when
      * either is great or better, the coldest wet-bulb and when the first

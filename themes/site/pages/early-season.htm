@@ -1,0 +1,46 @@
+url = "/early-season"
+layout = "default"
+title = "Early-season snowmaking watch"
+description = "Resorts ranked by snowmaking hours so far this season (hourly log) plus the next 7 days (stored outlook), with state filter chips (SeasonHistory::watch). No opening-date claims."
+meta_title = "Early-Season Snowmaking Watch: Which Ski Resorts Can Make the Most Snow? | Can They Make Snow?"
+meta_description = "Which US ski resorts have had the most snowmaking weather so far this season, and how much more is coming in the next 7 days? A live early-season ranking from NOAA's hourly forecasts."
+
+[Locations]
+==
+{% set rows = Locations.seasonWatch() %}
+{% set states = Locations.resortsByState()|map(g => g.code)|sort %}
+<main class="screen screen--page">
+    <section class="screen__content page-width">
+        <div class="wide-page watch-page">
+            <h1 class="wide-page__title">Early-season snowmaking watch {% partial 'info-tip' label='About the season data' %}</h1>
+            <p class="prose">Resorts need cold, dry hours to build a base before natural snow arrives. This ranks every resort by how many hours it has been cold enough to make snow (wet-bulb below {{ (-2)|temp|raw }} at the base or summit) so far this season, plus how many more are forecast for the next 7 days. It says nothing about when a resort will open: that depends on water, crews and how much terrain they cover.</p>
+
+            <div class="watch-filter" role="group" aria-label="Show resorts in">
+                <button type="button" class="saved__chip" data-state="" aria-pressed="true">All states</button>
+                {% for code in states %}<button type="button" class="saved__chip" data-state="{{ code }}" aria-pressed="false">{{ code }}</button>{% endfor %}
+            </div>
+
+            <div class="state-table__scroll">
+                <table class="state-table watch-table">
+                    <thead>
+                        <tr><th scope="col">#</th><th scope="col">Resort</th><th scope="col">Snowmaking so far</th><th scope="col">Next 7 days</th><th scope="col">Total</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for r in rows %}
+                            <tr data-state="{{ r.state }}">
+                                <td class="watch-table__rank">{{ loop.index }}</td>
+                                <th scope="row"><a href="{{ r.url }}">{{ r.name }}</a> <span class="top-list__state">{{ r.state }}</span></th>
+                                <td>{{ r.soFar }} h{% if r.greatSoFar %} <span class="compare-table__note">({{ r.greatSoFar }} great)</span>{% endif %}</td>
+                                <td>{{ r.next7 }} h</td>
+                                <td><strong>{{ r.total }} h</strong></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <p class="snow-board__meta">"So far" counts hours since we started our hourly log on November 10, 2026, using NOAA's closest-to-real-time forecast for each hour; the next 7 days come from NOAA's forecast. See <a href="{{ 'how-it-works'|page }}">how it works</a>.</p>
+        </div>
+    </section>
+
+    {% partial 'footer' %}
+</main>

@@ -656,6 +656,13 @@
             container.textContent = '';
             favs.forEach(function (f) { container.appendChild(chip(f, true)); });
             recent.forEach(function (r) { container.appendChild(chip(r, false)); });
+            if (favs.some(function (f) { return /[?&]resort=/.test(f.search); })) {
+                var mine = document.createElement('a');
+                mine.className = 'saved__clear';
+                mine.href = '/my-resorts';
+                mine.textContent = 'My resorts →';
+                container.appendChild(mine);
+            }
             if (recent.length) {
                 var clear = document.createElement('button');
                 clear.type = 'button';
@@ -773,6 +780,11 @@
         }
 
         var points = readJson('mapData') || [];
+        // Compare: the chosen resorts are labelled on the map and framed by it.
+        var picked = (el.getAttribute('data-fit-slugs') || '').split(',').filter(Boolean);
+        // Trip planner: every resort in range is highlighted; the top ones are labelled.
+        var inRange = (el.getAttribute('data-in-range') || '').split(',').filter(Boolean);
+        var numbered = el.hasAttribute('data-numbered');
         var started = false;
         var map = null;
         var libs = null;
@@ -791,11 +803,41 @@
             return !point.checkedAt || Date.now() - Date.parse(point.checkedAt) > STALE_MS;
         }
 
+        /** A resort's name on a tag, with a dot coloured by its snowmaking now. */
+        function resortTag(name, tier) {
+            var tag = document.createElement('div');
+            tag.className = 'map-pick';
+            var dot = document.createElement('i');
+            dot.className = 'map-pin';
+            if (tier) {
+                dot.setAttribute('data-tier', tier);
+            }
+            tag.appendChild(dot);
+            tag.appendChild(document.createTextNode(name));
+            return tag;
+        }
+
+        function rankTag(n, point) {
+            var tag = document.createElement('div');
+            tag.className = 'map-pick map-pick--rank';
+            tag.textContent = n;
+            tag.title = n + '. ' + point.label;
+            return tag;
+        }
+
         function pinElement(point, isCurrent) {
+            // Compare: each chosen resort is a labelled tag; the trip planner numbers them by rank.
+            var rank = picked.indexOf(point.slug);
+            if (rank !== -1) {
+                return numbered ? rankTag(rank + 1, point) : resortTag(point.label.split(',')[0], point.tier);
+            }
             var pin = document.createElement('div');
             pin.className = 'map-pin';
             if (point.type === 'resort') {
                 pin.classList.add('map-pin--resort');
+                if (inRange.indexOf(point.slug) !== -1) {
+                    pin.classList.add('map-pin--in-range');
+                }
             }
             if (isCurrent) {
                 pin.classList.add('map-pin--current');
@@ -857,7 +899,7 @@
             var behavior = (libs.marker.CollisionBehavior || {});
             m.marker.content = snow ? snowElement(m.point) : pinElement(m.point, false);
             m.marker.title = title(m.point);
-            m.marker.zIndex = snow && m.point.snow48 ? Math.round(m.point.snow48.in * 10) : null;
+            m.marker.zIndex = picked.indexOf(m.point.slug) !== -1 ? 2000 : (snow && m.point.snow48 ? Math.round(m.point.snow48.in * 10) : null);
             m.marker.collisionBehavior = snow
                 ? behavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY || 'OPTIONAL_AND_HIDES_LOWER_PRIORITY'
                 : behavior.REQUIRED || 'REQUIRED';
@@ -885,9 +927,17 @@
                 position: { lat: point.lat, lng: point.lng },
                 content: pinElement(point, false),
                 title: title(point),
+                zIndex: picked.indexOf(point.slug) !== -1 ? 2000 : null,
                 gmpClickable: true
             });
             marker.addEventListener('gmp-click', function () {
+                // Pages without the search (Compare) open the resort's own page instead.
+                if (!document.getElementById('lookupForm')) {
+                    if (point.type === 'resort') {
+                        window.location.href = '/resorts/' + point.slug;
+                    }
+                    return;
+                }
                 if (point.type === 'resort') {
                     lookup({ resort: point.slug }, { fromMap: true });
                 } else {
@@ -909,12 +959,15 @@
             }
             var position = { lat: pin.lat, lng: pin.lng };
             var point = { type: 'current', label: 'Checked here', tier: pin.tier, lat: pin.lat, lng: pin.lng };
+            // A resort is labelled with its name; any other place keeps the round pin.
+            var content = pin.resort ? resortTag(pin.resort, pin.tier) : pinElement(point, true);
             if (current) {
                 current.position = position;
-                current.content = pinElement(point, true);
+                current.content = content;
+                current.title = pin.resort || 'Checked here';
             } else {
                 current = new libs.marker.AdvancedMarkerElement({
-                    map: map, position: position, content: pinElement(point, true), title: 'Checked here', zIndex: 1000
+                    map: map, position: position, content: content, title: pin.resort || 'Checked here', zIndex: 1000
                 });
             }
 
@@ -933,8 +986,27 @@
         }
 
         /** State pages: frame that state's resorts (not too close for a state with one or two). */
-        function fitState(code) {
-            var inState = code ? points.filter(function (p) { return p.type === 'resort' && p.state === code; }) : [];
+        /** State pages and Compare: frame those resorts (not too close for one or two). */
+        function fitPoints() {
+            var code = el.getAttribute('data-fit-state');
+            // Trip planner: the start point and the search radius, framed together.
+            var centerLat = parseFloat(el.getAttribute('data-center-lat'));
+            if (!isNaN(centerLat)) {
+                var center = { lat: centerLat, lng: parseFloat(el.getAttribute('data-center-lng')) };
+                var circle = new google.maps.Circle({
+                    map: map, center: center, radius: parseFloat(el.getAttribute('data-center-radius')) * 1609.34,
+                    strokeColor: '#2a78d6', strokeOpacity: 0.8, strokeWeight: 2, fillColor: '#2a78d6', fillOpacity: 0.08, clickable: false
+                });
+                var start = document.createElement('div');
+                start.className = 'map-start';
+                start.textContent = el.getAttribute('data-center-label') || 'Start';
+                new libs.marker.AdvancedMarkerElement({ map: map, position: center, content: start, title: 'Starting point', zIndex: 3000 });
+                map.fitBounds(circle.getBounds(), 24);
+                return;
+            }
+            var inState = points.filter(function (p) {
+                return p.type === 'resort' && (code ? p.state === code : picked.indexOf(p.slug) !== -1);
+            });
             if (!inState.length) {
                 return;
             }
@@ -968,10 +1040,10 @@
 
             CTMS.map = map;
             points.forEach(addPoint);
-            fitState(el.getAttribute('data-fit-state'));
+            fitPoints();
 
             map.addListener('click', function (event) {
-                if (event.latLng) {
+                if (event.latLng && document.getElementById('lookupForm')) {
                     lookup({ lat: round3(event.latLng.lat()), lon: round3(event.latLng.lng()) }, { fromMap: true });
                 }
             });
@@ -980,7 +1052,7 @@
             if (pendingPin) {
                 showResult(pendingPin);
             } else if (answer && answer.dataset.pinLat) {
-                showResult({ lat: parseFloat(answer.dataset.pinLat), lng: parseFloat(answer.dataset.pinLng), tier: answer.dataset.tier });
+                showResult({ lat: parseFloat(answer.dataset.pinLat), lng: parseFloat(answer.dataset.pinLng), tier: answer.dataset.tier, resort: answer.dataset.resort || null });
             }
         }
 
@@ -1242,6 +1314,227 @@
         });
     }
 
+    // ---- My resorts (/my-resorts) -------------------------------------------------------
+    // Saved (☆) and recent resorts from this browser, each drawn from the
+    // widget's data (/embed/{slug}.json): answer now, 48 hours and 7 days.
+
+    function initMyResorts() {
+        var root = document.getElementById('myResorts');
+        if (!root) {
+            return;
+        }
+        var slugOf = function (search) {
+            var match = /[?&]resort=([a-z0-9-]+)/.exec(search || '');
+            return match ? match[1] : null;
+        };
+        var saved = store.get('ctms.favorites', []).map(function (f) { return slugOf(f.search); }).filter(Boolean);
+        var recent = store.get('ctms.recents', []).map(function (r) { return slugOf(r.search); })
+            .filter(function (s, i, all) { return s && saved.indexOf(s) === -1 && all.indexOf(s) === i; }).slice(0, 5);
+
+        function el(tag, className, text) {
+            var node = document.createElement(tag);
+            if (className) { node.className = className; }
+            if (text !== undefined && text !== null) { node.textContent = text; }
+            return node;
+        }
+        // Both unit systems, so the header's °F/°C toggle applies.
+        function both(value) {
+            var span = el('span');
+            span.appendChild(el('span', 'u-f', value.f));
+            span.appendChild(el('span', 'u-c', value.c));
+            return span;
+        }
+
+        function card(slug, removable, container) {
+            var article = el('article', 'my-card');
+            container.appendChild(article);
+            fetch('/embed/' + slug + '.json').then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+                if (!d) {
+                    article.remove();
+                    return;
+                }
+                var title = el('h3', 'my-card__name');
+                var link = el('a', '', d.name);
+                link.href = d.url;
+                title.appendChild(link);
+                title.appendChild(el('span', 'top-list__state', ' ' + d.state));
+                article.appendChild(title);
+
+                var answer = el('p', 'my-card__answer');
+                if (d.fresh) {
+                    answer.appendChild(el('strong', 'state-table__answer', d.answer.toUpperCase())).setAttribute('data-answer', d.answer);
+                    if (d.wetBulb) {
+                        answer.appendChild(document.createTextNode(' '));
+                        answer.appendChild(both(d.wetBulb));
+                        answer.appendChild(document.createTextNode(' wet-bulb now'));
+                    }
+                } else {
+                    answer.textContent = 'Forecast updating, check back soon';
+                }
+                article.appendChild(answer);
+
+                var stats = el('p', 'my-card__stats');
+                if (d.snow48) {
+                    stats.appendChild(both(d.snow48));
+                    stats.appendChild(document.createTextNode(' new snow · '));
+                }
+                stats.appendChild(document.createTextNode((d.snowmakingHours48 === null ? 'n/a' : d.snowmakingHours48 + ' h') + ' snowmaking, next 48 h'));
+                article.appendChild(stats);
+
+                if (d.daily && d.daily.length) {
+                    var days = el('ol', 'my-card__days');
+                    d.daily.forEach(function (day) {
+                        var li = el('li');
+                        li.appendChild(el('span', 'my-card__day', day.label));
+                        li.appendChild(both(day.snow));
+                        li.appendChild(el('span', 'my-card__sm', day.smHours + ' h'));
+                        if (day.snowIn >= 0.1) { li.className = 'is-snowy'; }
+                        days.appendChild(li);
+                    });
+                    article.appendChild(days);
+                }
+
+                if (removable) {
+                    var remove = el('button', 'btn btn-link btn-sm my-card__remove', 'Remove');
+                    remove.type = 'button';
+                    remove.addEventListener('click', function () {
+                        store.set('ctms.favorites', store.get('ctms.favorites', []).filter(function (f) { return slugOf(f.search) !== slug; }));
+                        article.remove();
+                    });
+                    article.appendChild(remove);
+                }
+            }).catch(function () { article.remove(); });
+        }
+
+        [['saved', saved, true], ['recent', recent, false]].forEach(function (group) {
+            var section = root.querySelector('[data-group="' + group[0] + '"]');
+            section.hidden = !group[1].length;
+            group[1].forEach(function (slug) { card(slug, group[2], section.querySelector('.my-resorts__cards')); });
+        });
+        root.querySelector('.my-resorts__empty').hidden = !!(saved.length || recent.length);
+        var all = saved.concat(recent).slice(0, 4);
+        if (all.length > 1) {
+            var compare = root.querySelector('.my-resorts__compare');
+            compare.hidden = false;
+            compare.querySelector('a').href = root.getAttribute('data-compare') + '?r=' + all.join(',');
+        }
+    }
+
+    // ---- Trip planner (/trip-planner) ----------------------------------------------
+    // 📍 fills in the visitor's location (rounded to about a kilometre);
+    // typing a place or picking a state clears it.
+
+    function initTripPlanner() {
+        var form = document.getElementById('tripForm');
+        if (!form) {
+            return;
+        }
+        var clearPoint = function () { form.elements.lat.value = ''; form.elements.lon.value = ''; };
+        form.querySelector('[data-trip-locate]').addEventListener('click', function () {
+            if (!navigator.geolocation) {
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(function (position) {
+                form.elements.lat.value = position.coords.latitude.toFixed(2);
+                form.elements.lon.value = position.coords.longitude.toFixed(2);
+                form.elements.near.value = 'My location';
+                form.elements.state.value = '';
+            }, function () { form.elements.near.focus(); }, { maximumAge: 600000, timeout: 10000 });
+        });
+        form.elements.near.addEventListener('input', function () { clearPoint(); form.elements.state.value = ''; });
+        form.elements.state.addEventListener('change', function () {
+            if (form.elements.state.value) { clearPoint(); form.elements.near.value = ''; }
+        });
+        // "My location" isn't a place name to look up; the coordinates carry it.
+        form.addEventListener('submit', function () {
+            if (form.elements.lat.value) { form.elements.near.value = ''; }
+            [form.elements.lat, form.elements.lon, form.elements.near, form.elements.state].forEach(function (f) { f.disabled = !f.value; });
+        });
+    }
+
+    // ---- Info tips (ⓘ) ----------------------------------------------------------
+    // One open at a time, placed under its icon but kept inside the window;
+    // a tap elsewhere, Escape or scrolling closes it.
+
+    function initInfoTips() {
+        var tips = document.querySelectorAll('.info-tip');
+        if (!tips.length) {
+            return;
+        }
+        function closeAll(except) {
+            tips.forEach(function (tip) { if (tip !== except) { tip.open = false; } });
+        }
+        tips.forEach(function (tip) {
+            tip.addEventListener('toggle', function () {
+                if (!tip.open) {
+                    return;
+                }
+                closeAll(tip);
+                var icon = tip.querySelector('summary').getBoundingClientRect();
+                var body = tip.querySelector('.info-tip__body');
+                var width = body.offsetWidth;
+                var left = Math.min(Math.max(icon.left + icon.width / 2 - width / 2, 8), window.innerWidth - width - 8);
+                body.style.left = left + 'px';
+                body.style.top = (icon.bottom + 6) + 'px';
+            });
+        });
+        document.addEventListener('click', function (event) {
+            if (!event.target.closest || !event.target.closest('.info-tip')) {
+                closeAll(null);
+            }
+        });
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeAll(null);
+            }
+        });
+        // Fixed placement doesn't follow scrolling, so scrolling closes it.
+        document.addEventListener('scroll', function () { closeAll(null); }, true);
+        window.addEventListener('resize', function () { closeAll(null); });
+    }
+
+    // ---- Early-season watch (/early-season): state filter --------------------------
+
+    function initSeasonWatch() {
+        var chips = document.querySelectorAll('.watch-filter [data-state]');
+        if (!chips.length) {
+            return;
+        }
+        chips.forEach(function (chip) {
+            chip.addEventListener('click', function () {
+                var state = chip.getAttribute('data-state');
+                chips.forEach(function (c) { c.setAttribute('aria-pressed', c === chip ? 'true' : 'false'); });
+                var n = 0;
+                document.querySelectorAll('.watch-table tbody tr').forEach(function (row) {
+                    row.hidden = !!state && row.getAttribute('data-state') !== state;
+                    if (!row.hidden) {
+                        row.querySelector('.watch-table__rank').textContent = ++n;
+                    }
+                });
+            });
+        });
+    }
+
+    // ---- Compare picker (/compare) ---------------------------------------------------
+    // Choosing a resort reloads the page as /compare?r=slug,slug so the
+    // comparison can be shared.
+
+    function initComparePicker() {
+        var form = document.getElementById('comparePicker');
+        if (!form) {
+            return;
+        }
+        form.addEventListener('change', function () {
+            var slugs = [];
+            form.querySelectorAll('select').forEach(function (select) {
+                if (select.value && slugs.indexOf(select.value) === -1) {
+                    slugs.push(select.value);
+                }
+            });
+            window.location.href = form.getAttribute('action') + (slugs.length ? '?r=' + slugs.join(',') : '');
+        });
+    }
+
     // ---- Header menu (phones and tablets) ----------------------------------------
     // Below 992px the main pages fold behind a Menu button; it closes on a
     // second tap, Escape, a tap outside the header or choosing a page.
@@ -1350,6 +1643,11 @@
         initZones();
         initAlerts();
         initMenu();
+        initComparePicker();
+        initMyResorts();
+        initTripPlanner();
+        initSeasonWatch();
+        initInfoTips();
         initSnowBoard();
         initEmbedBuilder();
         initMap();

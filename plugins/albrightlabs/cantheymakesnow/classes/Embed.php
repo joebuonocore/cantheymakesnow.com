@@ -34,6 +34,13 @@ class Embed
             'snow48' => $snow === null ? null : $both(fn ($u) => Units::snow((float) $snow, $u)),
             'snowmakingHours48' => $hours === null ? null : (int) $hours,
             'snowmakingStarts' => $hours ? SnowBoard::startLabel($resort['smNextStart'] ?? null, $resort['timeZone'] ?? null, $now) : null,
+            'daily' => $fresh ? array_map(fn ($day) => [
+                'date' => $day['date'],
+                'label' => $day['label'],
+                'smHours' => $day['smHours'],
+                'snow' => $both(fn ($u) => Units::snow((float) $day['snowIn'], $u)),
+                'snowIn' => $day['snowIn'],
+            ], $resort['daily'] ?? []) : [],
         ];
     }
 }

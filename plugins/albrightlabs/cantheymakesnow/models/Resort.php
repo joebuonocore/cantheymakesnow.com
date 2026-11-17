@@ -44,6 +44,11 @@ class Resort extends Model
     public $dates = ['last_checked_at', 'last_storm_start', 'last_storm_end', 'last_sm_next_start'];
 
     /**
+     * @var array jsonable: the day-by-day outlook (WeatherService::dailySummary()).
+     */
+    public $jsonable = ['last_daily'];
+
+    /**
      * A resort can't take a state's slug: /resorts/vermont is the state page.
      */
     public function beforeValidate()
@@ -86,6 +91,8 @@ class Resort extends Model
             'last_sm_great_hours_48' => $snowmaking['greatHours'],
             'last_sm_coldest_wb' => $snowmaking['coldestWetBulbC'] === null ? null : round($snowmaking['coldestWetBulbC'], 2),
             'last_sm_next_start' => $snowmaking['nextStart'],
+            // Saved through the query builder (not the model), so encoded here.
+            'last_daily' => isset($result['daily']) ? json_encode($result['daily']) : null,
         ];
     }
 
