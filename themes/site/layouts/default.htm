@@ -3,13 +3,18 @@ description = "Default layout"
 <!doctype html>
 <html lang="en" data-bs-theme="dark">
     <head>
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-2QX58NHYF6"></script>
         <script>
+            // Analytics only on the live site, so local copies and test runs don't count as visits.
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-
-            gtag('config', 'G-2QX58NHYF6');
+            if (location.hostname === 'cantheymakesnow.com') {
+                var ga = document.createElement('script');
+                ga.async = true;
+                ga.src = 'https://www.googletagmanager.com/gtag/js?id=G-2QX58NHYF6';
+                document.head.appendChild(ga);
+                gtag('js', new Date());
+                gtag('config', 'G-2QX58NHYF6');
+            }
         </script>
         <script>
             (function () {
