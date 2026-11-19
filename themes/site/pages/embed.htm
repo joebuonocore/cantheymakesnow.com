@@ -17,7 +17,7 @@ meta_description = "Add a live card to your website, blog or ski club page showi
             <div class="embed-layout">
                 <form class="embed-builder embed-layout__settings" id="embedBuilder">
                     <label>Resort
-                        <select name="resort" class="form-select rounded-0">
+                        <select name="resort" class="form-select">
                             {% for group in groups %}
                                 <optgroup label="{{ group.name }}">
                                     {% for r in group.resorts %}
@@ -28,14 +28,14 @@ meta_description = "Add a live card to your website, blog or ski club page showi
                         </select>
                     </label>
                     <label>Colors
-                        <select name="theme" class="form-select rounded-0">
+                        <select name="theme" class="form-select">
                             <option value="auto">Automatic (light or dark)</option>
                             <option value="light">Always light</option>
                             <option value="dark">Always dark</option>
                         </select>
                     </label>
                     <label>Units
-                        <select name="units" class="form-select rounded-0">
+                        <select name="units" class="form-select">
                             <option value="f">°F and inches</option>
                             <option value="c">°C and cm</option>
                         </select>
@@ -50,9 +50,9 @@ meta_description = "Add a live card to your website, blog or ski club page showi
                 <div class="embed-layout__code">
                     <h2 class="section-title">Copy this into your page</h2>
                     <label class="visually-hidden" for="embedCode">Widget code</label>
-                    <textarea id="embedCode" class="form-control rounded-0 embed-code" rows="4" readonly></textarea>
+                    <textarea id="embedCode" class="form-control embed-code" rows="4" readonly></textarea>
                     <p class="embed-copy">
-                        <button type="button" id="embedCopy" class="btn btn-primary rounded-0">Copy code</button>
+                        <button type="button" id="embedCopy" class="btn btn-primary">Copy code</button>
                         <span id="embedCopied" role="status"></span>
                     </p>
                 </div>

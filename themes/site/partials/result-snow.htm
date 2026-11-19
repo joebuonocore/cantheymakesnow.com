@@ -22,10 +22,10 @@ description = "Will it snow? result (WeatherData mode = snow): YES / MAYBE / NO 
     </p>
 
     <div class="hero-answer__actions">
-        <button type="button" class="btn btn-sm btn-outline-secondary rounded-0" data-action="favorite" aria-pressed="false">☆ Save</button>
-        <button type="button" class="btn btn-sm btn-outline-secondary rounded-0" data-action="share">Share</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-action="favorite" aria-pressed="false">☆ Save</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-action="share">Share</button>
         {% if result.resort %}
-            <button type="button" class="btn btn-sm btn-outline-secondary rounded-0" data-action="alerts" aria-expanded="false" aria-controls="alertsForm">🔔 Get alerts</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-action="alerts" aria-expanded="false" aria-controls="alertsForm">🔔 Get alerts</button>
         {% endif %}
     </div>
     {% if result.resort %}{% partial 'alerts-form' %}{% endif %}

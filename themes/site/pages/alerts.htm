@@ -14,7 +14,7 @@ meta_description = "Get an email when your ski resort can make snow, or when a p
                 <div class="prose">
                     <h1 class="alerts-page__title">That link isn't valid</h1>
                     <p>It may be mistyped or very old. Every alert email has a working link at the bottom to manage or stop alerts.</p>
-                    <p><a href="{{ 'home'|page }}" class="btn btn-primary rounded-0">Back to the snow check</a></p>
+                    <p><a href="{{ 'home'|page }}" class="btn btn-primary">Back to the snow check</a></p>
                 </div>
             {% elseif alertsAction == 'unsubscribe' %}
                 <div id="alertsManage" class="prose">
@@ -24,8 +24,8 @@ meta_description = "Get an email when your ski resort can make snow, or when a p
                         <h1 class="alerts-page__title">Stop all alerts?</h1>
                         <p>{{ subscriber.email }} will stop getting snowmaking and powder alerts for every resort.</p>
                         <form data-request="Alerts::onUnsubscribeAll" data-request-data="token: '{{ subscriber.token }}'">
-                            <button type="submit" class="btn btn-primary rounded-0">Unsubscribe</button>
-                            <a href="{{ subscriber.manageUrl() }}" class="btn btn-outline-secondary rounded-0">Change alerts instead</a>
+                            <button type="submit" class="btn btn-primary">Unsubscribe</button>
+                            <a href="{{ subscriber.manageUrl() }}" class="btn btn-outline-secondary">Change alerts instead</a>
                         </form>
                     {% endif %}
                 </div>
@@ -59,7 +59,7 @@ meta_description = "Get an email when your ski resort can make snow, or when a p
                             <li><strong>Powder near you</strong>: when any resort within 100, 200 or 300 miles of a town is forecast for 3″, 6″ or 12″, in one email that lists them all.</li>
                         </ul>
                         <p>At most one email per resort (or area) per alert type per day, never between 10 PM and 6 AM resort time. To sign up for a resort, look it up and tap <strong>🔔 Get alerts</strong>.</p>
-                        <p><a href="{{ 'home'|page }}" class="btn btn-primary rounded-0">Find a resort</a></p>
+                        <p><a href="{{ 'home'|page }}" class="btn btn-primary">Find a resort</a></p>
                     </div>
                     <aside class="page-cols__aside">
                         <h2 class="section-title">Powder near you</h2>

@@ -1,20 +1,37 @@
-description = "7-day outlook from NOAA's day/night forecast: one card per day with icon, high/low, short text and snow range. Expects outlook."
+description = "7-day outlook from NOAA's day/night forecast: one row per day with icon, low and high on a shared temperature bar, short text, snowmaking hours (from result.daily) and snow range. Expects outlook and result."
 ==
+{# The bars share one scale: the week's lowest low to its highest high. #}
+{% set lows = outlook|map(d => d.lowC)|filter(v => v is not null) %}
+{% set highs = outlook|map(d => d.highC)|filter(v => v is not null) %}
+{% set lo = lows|length ? min(lows) : null %}
+{% set hi = highs|length ? max(highs) : null %}
+{% set span = lo is not null and hi is not null ? max(hi - lo, 1) : null %}
+{% macro deg(c) %}{% if c is not null %}<span class="t"><span class="u-f">{{ (c * 9 / 5 + 32)|round }}°</span><span class="u-c">{{ c|round }}°</span></span>{% endif %}{% endmacro %}
+{# Bar colours: blue when it's freezing, grey around the snowmaking line, amber when it's mild. #}
+{% macro tone(c) %}{{ c < -7 ? '#1c5cab' : (c < -2 ? '#3987e5' : (c < 2 ? '#86b6ef' : (c < 8 ? '#a9a8a1' : (c < 15 ? '#d9b45a' : '#e08a3c')))) }}{% endmacro %}
+{% import _self as m %}
 <section class="outlook" aria-labelledby="outlookTitle">
-    <h2 class="section-title" id="outlookTitle">7-day outlook</h2>
+    <h2 class="section-title" id="outlookTitle">7-day outlook <span>NOAA forecast</span></h2>
     <ol class="outlook__days">
         {% for day in outlook %}
+            {% set daily = result.daily[loop.index0] ?? null %}
+            {% set low = day.lowC %}{% set high = day.highC %}
             <li class="outlook__day">
                 <span class="outlook__name">{{ day.name }}</span>
                 <svg class="wx-icon" aria-hidden="true"><use href="#wx-{{ day.highC is null and day.icon in ['sun', 'partly'] ? 'moon' : day.icon }}"></use></svg>
-                <span class="outlook__temps">
-                    {% if day.highC is not null %}<strong>{{ day.highC|temp|raw }}</strong>{% endif %}
-                    {% if day.lowC is not null %}<span>{{ day.lowC|temp|raw }}</span>{% endif %}
+                <span class="outlook__low" aria-label="Low">{{ m.deg(low) }}</span>
+                <span class="outlook__bar" aria-hidden="true">
+                    {% if span and (low is not null or high is not null) %}
+                        {% set from = low ?? high %}{% set to = high ?? low %}
+                        <span style="left: {{ ((from - lo) / span * 100)|round(1) }}%; right: {{ ((hi - to) / span * 100)|round(1) }}%; background: linear-gradient(90deg, {{ m.tone(from)|trim }}, {{ m.tone(to)|trim }});"></span>
+                    {% endif %}
                 </span>
-                <span class="outlook__short">{{ day.short }}</span>
-                {% if day.snow and day.snow.hi > 0 %}
-                    <span class="outlook__snow" title="New snow">❄︎ {{ day.snow|snowRange|raw }}</span>
-                {% endif %}
+                <span class="outlook__high" aria-label="High">{{ m.deg(high) }}</span>
+                <span class="outlook__detail">
+                    {{ day.short }}
+                    {% if daily and daily.smHours > 0 %}<span class="outlook__sm">❄︎ {{ daily.smHours }} h snowmaking</span>{% endif %}
+                    {% if day.snow and day.snow.hi > 0 %}<span class="outlook__snow" title="New snow">{{ day.snow|snowRange|raw }} new snow</span>{% endif %}
+                </span>
             </li>
         {% endfor %}
     </ol>

@@ -6,7 +6,7 @@ description = "Manage form for one subscriber's alerts (re-rendered by Alerts ha
     <h1 class="alerts-page__title">You're unsubscribed</h1>
     <p>{{ subscriber.email }} won't get any alerts.</p>
     <form data-request="Alerts::onResubscribe" data-request-data="token: '{{ subscriber.token }}'">
-        <button type="submit" class="btn btn-outline-secondary rounded-0">Turn alerts back on</button>
+        <button type="submit" class="btn btn-outline-secondary">Turn alerts back on</button>
     </form>
 {% else %}
     <h1 class="alerts-page__title">Your alerts</h1>
@@ -20,13 +20,13 @@ description = "Manage form for one subscriber's alerts (re-rendered by Alerts ha
                     <input type="hidden" name="subs[{{ sub.id }}][powder]" value="1">
                     <label class="alerts-option">
                         Powder, at least
-                        <select name="subs[{{ sub.id }}][powder_threshold_in]" class="form-select form-select-sm rounded-0" aria-label="Powder threshold">
+                        <select name="subs[{{ sub.id }}][powder_threshold_in]" class="form-select form-select-sm" aria-label="Powder threshold">
                             {% for inches, cm in { 3: 8, 6: 15, 12: 30 } %}
                                 <option value="{{ inches }}" {{ sub.powder_threshold_in == inches ? 'selected' }}>{{ inches }}″ ({{ cm }} cm)</option>
                             {% endfor %}
                         </select>
                         in 48 hours, at any resort within
-                        <select name="subs[{{ sub.id }}][radius]" class="form-select form-select-sm rounded-0" aria-label="Distance">
+                        <select name="subs[{{ sub.id }}][radius]" class="form-select form-select-sm" aria-label="Distance">
                             {% for miles in [100, 200, 300] %}
                                 <option value="{{ miles }}" {{ sub.area_radius_mi == miles ? 'selected' }}>{{ miles }} miles ({{ (miles * 1.609)|round(-1) }} km)</option>
                             {% endfor %}
@@ -44,7 +44,7 @@ description = "Manage form for one subscriber's alerts (re-rendered by Alerts ha
                     <label class="alerts-option">
                         <input type="checkbox" name="subs[{{ sub.id }}][snowmaking]" value="1" {{ sub.snowmaking ? 'checked' }}>
                         Snowmaking windows
-                        <select name="subs[{{ sub.id }}][snowmaking_min_tier]" class="form-select form-select-sm rounded-0" aria-label="Which snowmaking windows">
+                        <select name="subs[{{ sub.id }}][snowmaking_min_tier]" class="form-select form-select-sm" aria-label="Which snowmaking windows">
                             <option value="marginal" {{ sub.snowmaking_min_tier == 'marginal' ? 'selected' }}>any window</option>
                             <option value="great" {{ sub.snowmaking_min_tier == 'great' ? 'selected' }}>great or better</option>
                         </select>
@@ -52,7 +52,7 @@ description = "Manage form for one subscriber's alerts (re-rendered by Alerts ha
                     <label class="alerts-option">
                         <input type="checkbox" name="subs[{{ sub.id }}][powder]" value="1" {{ sub.powder ? 'checked' }}>
                         Powder, at least
-                        <select name="subs[{{ sub.id }}][powder_threshold_in]" class="form-select form-select-sm rounded-0" aria-label="Powder threshold">
+                        <select name="subs[{{ sub.id }}][powder_threshold_in]" class="form-select form-select-sm" aria-label="Powder threshold">
                             {% for inches, cm in { 3: 8, 6: 15, 12: 30 } %}
                                 <option value="{{ inches }}" {{ sub.powder_threshold_in == inches ? 'selected' }}>{{ inches }}″ ({{ cm }} cm)</option>
                             {% endfor %}
@@ -70,7 +70,7 @@ description = "Manage form for one subscriber's alerts (re-rendered by Alerts ha
                 <label class="alerts-option"><input type="radio" name="units" value="c" {{ subscriber.units == 'c' ? 'checked' }}> °C, cm, km/h</label>
             </fieldset>
 
-            <button type="submit" class="btn btn-primary rounded-0">Save</button>
+            <button type="submit" class="btn btn-primary">Save</button>
         </form>
     {% else %}
         <p>No alerts yet. Look up a ski resort and tap <strong>🔔 Get alerts</strong>, or <a href="{{ 'alerts'|page }}">get powder alerts for resorts near you</a>.</p>
