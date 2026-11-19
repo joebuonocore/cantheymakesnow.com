@@ -993,3 +993,191 @@ body:has(.screen__map) .site-header__inner { max-width: none; }
     .page-cols { grid-template-columns: minmax(0, 1fr); }
     .page-cols__aside { position: static; }
 }
+
+/* =============================================================================
+ * Design refresh (resort page first): one card style, one brand blue.
+ * Sections are soft filled cards with rounded corners and no outlines;
+ * smaller tiles inside them are a step lighter (or darker in dark mode).
+ * Spacing separates sections instead of divider lines.
+ * ========================================================================== */
+:root {
+    --brand: #1f63b8;
+    --brand-strong: #174f95;
+    --surface: #f3f5f8;
+    --tile: #fff;
+    --radius: 12px;
+    --radius-sm: 8px;
+}
+:root[data-bs-theme="dark"] {
+    --brand: #5b9be6;
+    --brand-strong: #7db0ec;
+    --surface: #262a2f;
+    --tile: #31363c;
+}
+/* Bootstrap loads after this file, so these need the extra attribute to win. */
+:root[data-bs-theme] {
+    --bs-border-radius: var(--radius-sm);
+    --bs-border-radius-sm: 6px;
+    --bs-link-color: var(--brand);
+    --bs-link-color-rgb: 31, 99, 184;
+    --bs-link-hover-color: var(--brand-strong);
+    --bs-link-hover-color-rgb: 23, 79, 149;
+}
+:root[data-bs-theme="dark"] {
+    --bs-link-color-rgb: 91, 155, 230;
+    --bs-link-hover-color-rgb: 125, 176, 236;
+}
+.btn.btn-primary {
+    --bs-btn-bg: var(--brand);
+    --bs-btn-border-color: var(--brand);
+    --bs-btn-hover-bg: var(--brand-strong);
+    --bs-btn-hover-border-color: var(--brand-strong);
+    --bs-btn-active-bg: var(--brand-strong);
+    --bs-btn-active-border-color: var(--brand-strong);
+    --bs-btn-color: #fff;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-color: #fff;
+}
+:root[data-bs-theme="dark"] .btn.btn-primary { --bs-btn-color: #0e1b2c; --bs-btn-hover-color: #0e1b2c; --bs-btn-active-color: #0e1b2c; }
+/* Secondary buttons (📍, Save, Share, alerts, everywhere else): soft filled, no outline. */
+.btn.btn-outline-secondary, .hero-answer__actions .btn {
+    --bs-btn-bg: var(--surface);
+    --bs-btn-border-color: var(--surface);
+    --bs-btn-color: var(--bs-body-color);
+    --bs-btn-hover-bg: var(--chart-grid);
+    --bs-btn-hover-border-color: transparent;
+    --bs-btn-hover-color: var(--bs-body-color);
+    --bs-btn-active-bg: var(--chart-grid);
+    --bs-btn-active-color: var(--bs-body-color);
+}
+.hero-answer__actions .btn { padding: 0.3rem 0.8rem; font-size: 0.85rem; }
+.hero-answer__actions [aria-pressed="true"] { --bs-btn-bg: color-mix(in srgb, var(--brand) 14%, transparent); color: var(--brand); }
+/* Fields are filled like the cards; inside a card they're a step lighter. */
+.form-control, .form-select { background-color: var(--surface); border-color: var(--surface); }
+.form-control:focus, .form-select:focus { background-color: var(--bs-body-bg); border-color: var(--brand); }
+.saved__chip { border-color: transparent; background: var(--surface); }
+.saved__chip:hover { background: var(--chart-grid); }
+.units-toggle, .seg-toggle { border: 0; border-radius: var(--radius-sm); background: var(--surface); padding: 2px; }
+.units-toggle button, .seg-toggle button { border-radius: 6px; }
+.units-toggle button[aria-pressed="true"], .seg-toggle button[aria-pressed="true"] { background: var(--tile); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12); }
+.map-mode.seg-toggle { box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15); }
+.hero-answer__headline[data-answer="yes"] { color: var(--brand); }
+
+/* Section cards */
+.wx-now, .snowfall, .outlook, .season, .resort-about, .forecast, .alerts-form {
+    background: var(--surface);
+    border: 0;
+    border-radius: var(--radius);
+    padding: 1rem 1.1rem 1.1rem;
+}
+.forecast { padding-bottom: 0.85rem; }
+.alerts-form { max-width: 520px; }
+.section-title, .forecast__title { font-size: 1rem; }
+.season .info-tip { top: -2px; }
+
+/* Tiles inside cards: base/summit, snow totals, season totals and charts */
+.snowfall__total, .season-chart {
+    background: var(--tile);
+    border: 0;
+    border-radius: var(--radius-sm);
+}
+.snowfall__total.is-snowy { box-shadow: inset 0 0 0 2px var(--tier-great); }
+.season-chart figcaption::before { border-radius: 50%; }
+.zone {
+    background: var(--surface);
+    border: 0;
+    border-radius: var(--radius);
+    box-shadow: none;
+    padding: 0.7rem 0.9rem 0.75rem;
+}
+/* The tier shows as a dot by the name; the open tab gets a brand ring. */
+.zone__name::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 0.4rem; border-radius: 50%; background: var(--tier); vertical-align: 0; }
+.zone[aria-selected="true"] { background: var(--surface); box-shadow: inset 0 0 0 2px var(--brand); }
+.zone__answer[data-answer="yes"] { color: var(--brand); }
+
+/* Gauge: one rounded track with a round marker */
+.gauge__track { gap: 0; height: 8px; border-radius: 4px; overflow: hidden; }
+.gauge__band:first-of-type, .gauge__band:nth-last-of-type(1) { border-radius: 0; }
+.gauge { position: relative; }
+.gauge__track { overflow: visible; }
+.gauge__band:first-of-type { border-radius: 4px 0 0 4px; }
+.gauge__band:nth-last-of-type(1) { border-radius: 0 4px 4px 0; }
+.gauge__marker { top: -4px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: var(--bs-body-bg); box-shadow: 0 0 0 3px var(--bs-body-color); }
+
+/* 7-day outlook: one row per day with a low-to-high bar on the week's scale */
+.outlook__days { display: block; overflow: visible; padding: 0; scroll-snap-type: none; }
+.outlook__day {
+    display: grid;
+    grid-template-columns: minmax(4.5rem, 7rem) 1.75rem 2.6rem minmax(3rem, 1fr) 2.6rem;
+    grid-template-areas: "name icon low bar high" "detail detail detail detail detail";
+    align-items: center;
+    column-gap: 0.6rem;
+    row-gap: 0.1rem;
+    padding: 0.55rem 0;
+    border: 0;
+    border-bottom: 1px solid var(--chart-grid);
+    font-size: 0.95rem;
+}
+.outlook__day:last-child { border-bottom: 0; padding-bottom: 0; }
+.outlook__day:first-child { padding-top: 0.2rem; }
+.outlook__name { grid-area: name; font-weight: 600; line-height: 1.2; }
+.outlook__day .wx-icon { grid-area: icon; width: 26px; height: 26px; }
+.outlook__low { grid-area: low; text-align: right; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.outlook__high { grid-area: high; font-weight: 600; font-variant-numeric: tabular-nums; }
+.outlook__bar { grid-area: bar; position: relative; height: 6px; border-radius: 3px; background: var(--chart-grid); }
+.outlook__bar span { position: absolute; top: 0; bottom: 0; border-radius: 3px; }
+.outlook__detail { grid-area: detail; font-size: 0.8rem; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 0.15rem 0.75rem; }
+.outlook__sm { color: var(--brand); font-weight: 600; }
+.outlook__snow { font-weight: 600; color: var(--brand); }
+/* A chart inside a section card is part of that card, not another card. */
+.snowfall .forecast, .zone-panel .snowfall .forecast { background: none; padding: 0; border-radius: 0; }
+.snowfall__total.is-snowy { box-shadow: none; }
+.snowfall__total.is-snowy dd { color: var(--brand); }
+.wx-now .hero-answer__source { text-align: left; margin-top: 0.6rem; }
+
+/* --- The rest of the site: the same cards, tiles, fields and pop-ups --- */
+.snow-board, .home-guide, .snowmaking-more, .directory, .my-card, .how-toc, .embed-preview,
+.alerts-manage__resort, .alerts-manage__units, .alerts-page__notice, .state-table__scroll {
+    background: var(--surface);
+    border: 0;
+    border-radius: var(--radius);
+    padding: 1rem 1.1rem 1.1rem;
+}
+.directory { padding-bottom: 0.5rem; }
+.alerts-page__notice { padding: 0.75rem 1rem; }
+.state-table__scroll { padding-top: 0.4rem; padding-bottom: 0.4rem; }
+.state-table tbody tr:last-child th, .state-table tbody tr:last-child td { border-bottom: 0; }
+.alerts-manage legend { padding: 0; margin-bottom: 0.3rem; }
+/* Tiles and fields inside a card */
+:is(.snow-board, .home-guide, .snowmaking-more, .directory, .my-card, .how-toc, .alerts-form, .alerts-manage__resort, .alerts-manage__units, .wx-now, .snowfall, .outlook, .season, .resort-about) :is(.form-control, .form-select, .alerts-form, .btn.btn-outline-secondary) {
+    --bs-btn-bg: var(--tile);
+    --bs-btn-border-color: var(--tile);
+    background-color: var(--tile);
+    border-color: var(--tile);
+}
+.how-formula, .my-card__days li { background: var(--tile); border: 0; border-radius: var(--radius-sm); }
+.how-body .how-formula { background: var(--surface); }
+.my-card__days li { border-radius: 6px; }
+.compare-map { border: 0; border-radius: var(--radius); overflow: hidden; }
+.compare-days td.is-best { border-radius: 6px; }
+.hero-alert { border-radius: var(--radius-sm); }
+.board-switch { display: inline-flex; padding: 2px; border-radius: var(--radius-sm); background: var(--surface); }
+.board-switch a { border-radius: 6px; }
+.board-switch a[aria-current="page"] { background: var(--tile); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12); }
+:is(.snow-board, .home-guide, .directory) .board-switch { background: var(--tile); }
+:is(.snow-board, .home-guide, .directory) .board-switch a[aria-current="page"] { background: var(--surface); }
+:is(.snow-board, .home-guide, .directory) .seg-toggle { background: var(--tile); }
+:is(.snow-board, .home-guide, .directory) .seg-toggle button[aria-pressed="true"] { background: var(--surface); }
+.watch-filter .saved__chip[aria-pressed="true"] { background: var(--brand); color: #fff; }
+/* Pop-ups: suggestions, tooltips, info tips, the How-this-works note, map panels and the phone menu */
+.suggest, .forecast__tooltip, .info-tip__body, .hero-howto[open] .how-it-works-body { border: 0; border-radius: var(--radius-sm); }
+.suggest { overflow: hidden; }
+.map-legend, .map-hint, .map-mode { border: 0; border-radius: var(--radius-sm); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15); }
+@media (max-width: 991.98px) {
+    .site-header__nav { border-radius: 0 0 var(--radius) var(--radius); border-bottom: 0; }
+}
+/* Day strips: filled tiles on the page, a step lighter inside a card. */
+.my-card__days li { background: var(--surface); }
+.my-card .my-card__days li { background: var(--tile); }
+/* A table inside a card is part of it, not a card of its own. */
+:is(.snow-board, .home-guide, .snowmaking-more, .directory, .resort-about) .state-table__scroll { background: none; padding: 0; border-radius: 0; }

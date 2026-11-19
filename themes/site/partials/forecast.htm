@@ -4,7 +4,7 @@ description = "48-hour wet-bulb column chart (ForecastChart geometry) with toolt
 {% set helpId = 'forecastHelp' ~ (key is defined and key ? '-' ~ key : '') %}
 {% if chart.bars|length %}
 <figure class="forecast">
-    <figcaption class="forecast__title">Next 48 hours <span>wet-bulb by hour; columns below the line are snowmaking hours</span></figcaption>
+    <figcaption class="forecast__title">Next 48 hours <span>wet-bulb by hour; bars below the line can make snow</span></figcaption>
 
     <div class="forecast__chart" tabindex="0" aria-describedby="{{ helpId }}">
         <svg viewBox="0 0 {{ chart.width }} {{ chart.height }}" class="forecast__svg" role="img" aria-label="Hourly wet-bulb forecast for the next 48 hours. {{ windows.text }}">

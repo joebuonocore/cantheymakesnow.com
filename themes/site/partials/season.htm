@@ -2,7 +2,7 @@ description = "A resort's season so far (SeasonHistory::forResort): totals, week
 ==
 {% set s = season %}
 <section class="season" aria-labelledby="seasonTitle">
-    <h2 class="section-title" id="seasonTitle">{{ result.resort.name }} this season <span>from our hourly forecast log</span> {% partial 'info-tip' label='About the season history' %}</h2>
+    <h2 class="section-title" id="seasonTitle">This season <span>from our hourly forecast log</span> {% partial 'info-tip' label='About the season history' %}</h2>
     {% if s.weeks|length %}
         <dl class="snowfall__totals">
             <div class="snowfall__total"><dt>Snowmaking hours</dt><dd>{{ s.totals.smHours }} h</dd></div>
@@ -10,7 +10,10 @@ description = "A resort's season so far (SeasonHistory::forResort): totals, week
             <div class="snowfall__total{{ s.totals.snowIn >= 1 ? ' is-snowy' }}"><dt>New snow</dt><dd>{{ s.totals.snowIn|snow|raw }}</dd></div>
         </dl>
         <div class="season-charts">
-            {% for chart in [{ key: 'smPct', title: 'Snowmaking hours per week', kind: 'sm' }, { key: 'snowPct', title: 'New snow per week', kind: 'snow' }] %}
+            {% set charts = [] %}
+            {% if s.totals.smHours > 0 %}{% set charts = charts|merge([{ key: 'smPct', title: 'Snowmaking hours per week', kind: 'sm' }]) %}{% endif %}
+            {% if s.totals.snowIn > 0 %}{% set charts = charts|merge([{ key: 'snowPct', title: 'New snow per week', kind: 'snow' }]) %}{% endif %}
+            {% for chart in charts %}
                 <figure class="season-chart season-chart--{{ chart.kind }}">
                     <figcaption>{{ chart.title }}</figcaption>
                     <div class="season-bars" aria-hidden="true">

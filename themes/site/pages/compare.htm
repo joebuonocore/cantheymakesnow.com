@@ -19,7 +19,7 @@ meta_description = "Compare up to four US ski resorts side by side: whether they
             <form class="compare-picker" id="comparePicker" method="get" action="{{ 'compare'|page }}">
                 {% for i in 0..3 %}
                     <label>Resort {{ i + 1 }}
-                        <select name="r[]" class="form-select rounded-0">
+                        <select name="r[]" class="form-select">
                             <option value="">Choose a resort</option>
                             {% for group in groups %}
                                 <optgroup label="{{ group.name }}">
@@ -31,7 +31,7 @@ meta_description = "Compare up to four US ski resorts side by side: whether they
                         </select>
                     </label>
                 {% endfor %}
-                <noscript><button type="submit" class="btn btn-primary rounded-0">Compare</button></noscript>
+                <noscript><button type="submit" class="btn btn-primary">Compare</button></noscript>
             </form>
 
             {% if picked|length %}
