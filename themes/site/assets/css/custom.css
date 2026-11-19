@@ -222,10 +222,11 @@ body:has(.screen__map) .site-header__inner { max-width: none; }
     position: relative;
     margin-top: 0.5rem;
     font-size: 0.8rem;
-    opacity: 0.7;
     text-align: left;
 }
+/* Only the link is dimmed: dimming the whole block made the note below it see-through. */
 .hero-howto summary {
+    opacity: 0.7;
     cursor: pointer;
     list-style: none;
     text-decoration: none;
@@ -1181,3 +1182,12 @@ body:has(.screen__map) .site-header__inner { max-width: none; }
 .my-card .my-card__days li { background: var(--tile); }
 /* A table inside a card is part of it, not a card of its own. */
 :is(.snow-board, .home-guide, .snowmaking-more, .directory, .resort-about) .state-table__scroll { background: none; padding: 0; border-radius: 0; }
+
+/* "How this works" note: solid, like the other pop-ups (ⓘ notes, chart tooltips, suggestions). */
+.hero-howto[open] .how-it-works-body {
+    background: var(--surface-raised);
+    color: var(--bs-body-color);
+    border: 1px solid var(--chart-grid);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
