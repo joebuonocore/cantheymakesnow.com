@@ -196,6 +196,13 @@ body:has(.screen__map) .site-header__inner { max-width: none; }
 @media (hover: hover) { .site-header__menu:hover { background: var(--chart-grid); } }
 @media (prefers-reduced-motion: reduce) { .site-header__menu path { transition: none; } }
 
+/* Opened from the home screen on an iPhone or iPad (html.ios-app, set in the layout),
+   the header stays pinned while the page scrolls. iOS blurs and tints whatever sits
+   under the status bar; pinned, that's always the header rather than page content.
+   In a normal browser tab the header scrolls away as usual. */
+html.ios-app .site-header { position: sticky; top: 0; }
+html.ios-app { scroll-padding-top: 60px; }
+
 /* --- Footer --- */
 .site-footer { border-top: 1px solid var(--chart-grid); font-size: 0.85rem; }
 /* The about block spans the full width; the three link columns share the row below it equally. */
@@ -1053,9 +1060,11 @@ body:has(.screen__map) .site-header__inner { max-width: none; }
 }
 .hero-answer__actions .btn { padding: 0.3rem 0.8rem; font-size: 0.85rem; }
 .hero-answer__actions [aria-pressed="true"] { --bs-btn-bg: color-mix(in srgb, var(--brand) 14%, transparent); color: var(--brand); }
-/* Fields are filled like the cards; inside a card they're a step lighter. */
-.form-control, .form-select { background-color: var(--surface); border-color: var(--surface); }
-.form-control:focus, .form-select:focus { background-color: var(--bs-body-bg); border-color: var(--brand); }
+/* Fields are filled like the cards; inside a card they're a step lighter. The doubled
+   class beats Bootstrap (loaded after this file), so fields match the 📍 and other
+   filled buttons beside them in every browser. */
+.form-control.form-control, .form-select.form-select { background-color: var(--surface); border-color: var(--surface); }
+.form-control.form-control:focus, .form-select.form-select:focus { background-color: var(--bs-body-bg); border-color: var(--brand); }
 .saved__chip { border-color: transparent; background: var(--surface); }
 .saved__chip:hover { background: var(--chart-grid); }
 .units-toggle, .seg-toggle { border: 0; border-radius: var(--radius-sm); background: var(--surface); padding: 2px; }
@@ -1150,7 +1159,7 @@ body:has(.screen__map) .site-header__inner { max-width: none; }
 .state-table tbody tr:last-child th, .state-table tbody tr:last-child td { border-bottom: 0; }
 .alerts-manage legend { padding: 0; margin-bottom: 0.3rem; }
 /* Tiles and fields inside a card */
-:is(.snow-board, .home-guide, .snowmaking-more, .directory, .my-card, .how-toc, .alerts-form, .alerts-manage__resort, .alerts-manage__units, .wx-now, .snowfall, .outlook, .season, .resort-about) :is(.form-control, .form-select, .alerts-form, .btn.btn-outline-secondary) {
+:is(.snow-board, .home-guide, .snowmaking-more, .directory, .my-card, .how-toc, .alerts-form, .alerts-manage__resort, .alerts-manage__units, .wx-now, .snowfall, .outlook, .season, .resort-about) :is(.form-control.form-control, .form-select.form-select, .alerts-form, .btn.btn-outline-secondary) {
     --bs-btn-bg: var(--tile);
     --bs-btn-border-color: var(--tile);
     background-color: var(--tile);
